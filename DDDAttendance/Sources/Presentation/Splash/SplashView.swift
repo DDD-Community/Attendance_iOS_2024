@@ -29,7 +29,7 @@ final class SplashView: BaseView {
         layout()
     }
     
-    override func configureLayout() {
+    override func configureViews() {
         backgroundColor = .black
         flex.justifyContent(.center)
             .alignItems(.center)

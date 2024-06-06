@@ -7,9 +7,94 @@
 
 import FlexLayout
 import PinLayout
+import Then
 
 import UIKit
 
-final class SNSLoginView: UIView {
+final class SNSLoginView: BaseView {
+    // MARK: - UI properties
+    private let rootView: UIView = .init()
     
+    private let dddLabel: UILabel = .init().then {
+        $0.text = "DDD"
+        $0.textColor = .white
+        $0.textAlignment = .center
+        $0.font = .systemFont(ofSize: 48, weight: .bold)
+    }
+    
+    private let coreMemberCheckLabel: UILabel = .init().then {
+        $0.text = "운영진이신가요?"
+        $0.textColor = .white
+        $0.font = .systemFont(ofSize: 16, weight: .bold)
+    }
+    
+    let coreMemberCheckSwitch: UISwitch = .init().then {
+        $0.onTintColor = .white
+    }
+    
+    let appleLoginButton: UIButton = .init().then {
+        $0.setTitle(" Apple로 계속하기", for: .normal)
+        $0.setTitleColor(.black, for: .normal)
+        $0.setImage(UIImage(systemName: "apple.logo"), for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        $0.backgroundColor = .white
+        $0.tintColor = .black
+        $0.layer.cornerRadius = 28
+    }
+    
+    let googleLoginButton: UIButton = .init().then {
+        $0.setTitle("Google로 계속하기", for: .normal)
+    }
+    
+    // MARK: - Properties
+    
+    // MARK: - Lifecycles
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layout()
+    }
+    
+    override func configureViews() {
+        backgroundColor = .black
+        addSubview(rootView)
+        
+        rootView.flex.justifyContent(.spaceBetween).define { flex in
+            flex.addItem(dddLabel)
+                .width(100%)
+                .marginTop(100)
+            
+            flex.addItem().define { flex in
+                flex.addItem()
+                    .direction(.row)
+                    .justifyContent(.center)
+                    .alignItems(.center)
+                    .marginBottom(16)
+                    .define { flex in
+                        flex.addItem(coreMemberCheckLabel)
+                            .marginRight(8)
+                        flex.addItem(coreMemberCheckSwitch)
+                    }
+                flex.addItem(appleLoginButton)
+                    .height(56)
+                    .marginHorizontal(16)
+                    .marginBottom(20)
+                flex.addItem(googleLoginButton)
+                    .height(56)
+                    .cornerRadius(28)
+                    .marginHorizontal(16)
+            }
+        }
+    }
+    
+    // MARK: - Public helpers
+    
+    // MARK: - Private helpers
+    private func layout() {
+        rootView.pin.all(pin.safeArea)
+        rootView.flex.layout()
+    }
+}
+
+#Preview {
+    SNSLoginView()
 }
