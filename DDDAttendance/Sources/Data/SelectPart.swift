@@ -7,7 +7,8 @@
 
 import Foundation
 
-enum SelectPart: String, CaseIterable {
+public enum SelectPart: String, CaseIterable {
+    case all
     case web
     case design
     case productManger
@@ -15,8 +16,10 @@ enum SelectPart: String, CaseIterable {
     case iOS
     case Android
     
-    var desc: String {
+    public var desc: String {
         switch self {
+        case .all:
+            return "전체"
         case .web:
             return "웹"
         case .design:
