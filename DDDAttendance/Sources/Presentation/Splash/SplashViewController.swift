@@ -8,9 +8,13 @@
 import UIKit
 
 final class SplashViewController: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .green
+    
+    private var mainView: SplashView {
+        return view as! SplashView
+    }
+    
+    override func loadView() {
+        view = SplashView()
     }
     
     override func viewDidAppear(_ animated: Bool) {
