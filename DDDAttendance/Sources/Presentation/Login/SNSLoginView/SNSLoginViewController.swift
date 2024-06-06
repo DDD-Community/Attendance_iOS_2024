@@ -27,13 +27,29 @@ final class SNSLoginViewController: UIViewController {
     // MARK: - Public helpers
     
     // MARK: - Private helpers
+    private func routeToSignup() {
+        
+    }
+    
+    private func routeToCoreMemberMain() {
+        
+    }
+    
+    private func routeToMemberMain() {
+        
+    }
+    
+    private func alertMessage(_ message: String) {
+        let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "확인", style: .default, handler: nil)
+        alert.addAction(okAction)
+        present(alert, animated: true, completion: nil)
+    }
 }
 
 extension SNSLoginViewController: View {
     func bind(reactor: Reactor) {
-        mainView.coreMemberCheckSwitch.rx
-            .controlEvent(.valueChanged)
-            .map { [unowned self] in self.mainView.coreMemberCheckSwitch.isOn }
+        mainView.coreMemberCheckSwitch.rx.isOn
             .map(Reactor.Action.toggleIsCoreMember)
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -47,5 +63,34 @@ extension SNSLoginViewController: View {
             .map { Reactor.Action.didTapGoogleLogin }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.oAuthTokenResponse }
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .map { Reactor.Action.checkIsSignedMember($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.userUID }
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .map { Reactor.Action.checkMemberType(uid: $0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.memberType }
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .bind { [weak self] memberType in
+                switch memberType {
+                case .master, .coreMember: self?.routeToCoreMemberMain()
+                case .member: self?.routeToMemberMain()
+                case .notYet: self?.routeToSignup()
+                case .run: self?.alertMessage("탈주자 계정입니다.")
+                }
+            }.disposed(by: disposeBag)
     }
 }

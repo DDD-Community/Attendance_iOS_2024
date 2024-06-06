@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum OAuthProvider {
+enum DDDOAuthProvider {
     case APPLE
     case GOOGLE
     

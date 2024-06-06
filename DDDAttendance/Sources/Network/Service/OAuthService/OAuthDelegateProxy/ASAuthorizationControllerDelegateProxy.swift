@@ -5,6 +5,7 @@
 //  Created by 고병학 on 6/6/24.
 //
 
+import FirebaseAuth
 import RxSwift
 import RxCocoa
 
@@ -48,20 +49,28 @@ extension Reactive where Base: ASAuthorizationController {
         .map { parameters in
             guard let authorization = parameters[1] as? ASAuthorization,
                   let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
-                  let tokenData = credential.identityToken else {
+                  let tokenData = credential.identityToken,
+                  let idTokenString = String(data: tokenData, encoding: .utf8) else {
                 print("🔴 Failed to sign in with apple")
                 return OAuthTokenResponse(
                     accessToken: "",
                     refreshToken: "",
-                    provider: .APPLE
+                    provider: .APPLE,
+                    credential: nil
                 )
             }
             
             let accessToken: String = .init(decoding: tokenData, as: UTF8.self)
+            let firebaseCredential = OAuthProvider.appleCredential(
+                withIDToken: idTokenString,
+                rawNonce: OAuthAppleService.currentNonce,
+                fullName: credential.fullName
+            )
             return OAuthTokenResponse(
                 accessToken: accessToken,
                 refreshToken: "",
-                provider: .APPLE
+                provider: .APPLE,
+                credential: firebaseCredential
             )
         }
     }
