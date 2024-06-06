@@ -26,5 +26,6 @@ let package = Package(
         .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "10.27.0"),
         .package(url: "https://github.com/EFPrefix/EFQRCode.git", from: "6.2.2"),
         .package(url: "https://github.com/devxoul/Then", from: "3.0.0"),
+        .package(url: "http://github.com/pointfreeco/swift-composable-architecture", from: "1.10.4")
     ]
 )
