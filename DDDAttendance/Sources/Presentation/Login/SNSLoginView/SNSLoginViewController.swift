@@ -8,8 +8,17 @@
 import UIKit
 
 final class SNSLoginViewController: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .yellow
+    // MARK: - UI properties
+    private var mainView: SNSLoginView { view as! SNSLoginView }
+    
+    // MARK: - Properties
+    
+    // MARK: - Lifecycles
+    override func loadView() {
+        view = SNSLoginView()
     }
+    
+    // MARK: - Public helpers
+    
+    // MARK: - Private helpers
 }
