@@ -11,7 +11,7 @@ import Foundation
 
 final class OAuthRepository: OAuthRepositoryProtocol {
     
-    func authorize(_ oAuthProvider: OAuthProvider) -> Single<OAuthTokenResponse> {
+    func authorize(_ oAuthProvider: DDDOAuthProvider) -> Single<OAuthTokenResponse> {
         oAuthProvider.service.authorize()
     }
     
