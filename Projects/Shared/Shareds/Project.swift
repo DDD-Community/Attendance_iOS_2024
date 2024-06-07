@@ -4,8 +4,8 @@ import DependencyPlugin
 import ProjectTemplatePlugin
 
 let project = Project.makeAppModule(
-    name: "Shared",
-    bundleId: .appBundleID(name: ".Shared"),
+    name: "Shareds",
+    bundleId: .appBundleID(name: ".Shareds"),
     product: .staticFramework,
     settings:  .settings(),
     dependencies: [
