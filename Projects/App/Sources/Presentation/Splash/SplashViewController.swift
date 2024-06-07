@@ -6,9 +6,6 @@
 //
 
 import UIKit
-import SwiftUI
-
-import ComposableArchitecture
 
 final class SplashViewController: UIViewController {
     
@@ -39,14 +36,8 @@ final class SplashViewController: UIViewController {
             return
         }
         UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
-            let testViewController = CoreMemberMainView(store: Store(initialState: CoreMember.State(), reducer: {
-                CoreMember()
-            }))
-            
             let viewController: SNSLoginViewController = .init()
-            let hostingView = UIHostingController(rootView: testViewController)
-            
-            window.rootViewController = hostingView
+            window.rootViewController = viewController
         }
     }
 }
