@@ -13,6 +13,10 @@ let infoPlist: [String: Plist.Value] = [
             ]
         ]
     ],
+    "GIDClientID": "882277748169-ouegejt3kc6jo5enbfjmmre2nnbthj82.apps.googleusercontent.com",
+    "CFBundleURLTypes": [
+        ["CFBundleURLSchemes": ["com.googleusercontent.apps.882277748169-ouegejt3kc6jo5enbfjmmre2nnbthj82"]]
+    ]
 ]
 
 let project = Project(
@@ -26,13 +30,16 @@ let project = Project(
             infoPlist: .extendingDefault(with: infoPlist),
             sources: ["DDDAttendance/Sources/**"],
             resources: ["DDDAttendance/Resources/**"],
+            entitlements: .file(path: "DDDAttendance/Resources/DDDAttendance.entitlements"),
             dependencies: [
                 .external(name: "Then"),
                 .external(name: "FlexLayout"),
                 .external(name: "PinLayout"),
                 .external(name: "ReactorKit"),
+                .external(name: "RxCocoa"),
                 .external(name: "SnapKit"),
                 .external(name: "QRCodeSwift"),
+                .external(name: "GoogleSignIn"),
                 .external(name: "FirebaseAuth"),
                 .external(name: "FirebaseFirestore"),
                 .external(name: "FirebaseAnalytics"),
