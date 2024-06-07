@@ -24,6 +24,11 @@ final class SNSLoginViewController: UIViewController {
         reactor = SNSLoginReactor()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
+    }
+    
     // MARK: - Public helpers
     
     // MARK: - Private helpers
@@ -44,7 +49,8 @@ final class SNSLoginViewController: UIViewController {
     }
     
     private func routeToCoreMemberSignup() {
-        self.alertMessage(#function)
+        let signupNameViewController = SignupNameViewController(uid: "")
+        self.navigationController?.pushViewController(signupNameViewController, animated: true)
     }
     
     private func routeToCoreMemberMain() {
@@ -66,9 +72,15 @@ extension SNSLoginViewController: View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+//        mainView.googleLoginButton.rx.throttleTap
+//            .map { Reactor.Action.didTapGoogleLogin }
+//            .bind(to: reactor.action)
+//            .disposed(by: disposeBag)
+        
         mainView.googleLoginButton.rx.throttleTap
-            .map { Reactor.Action.didTapGoogleLogin }
-            .bind(to: reactor.action)
+            .bind { [weak self] in
+                self?.routeToCoreMemberSignup()
+            }
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.oAuthTokenResponse }

@@ -27,13 +27,16 @@ final class FirebaseService {
                 let name: String = data?["name"] as? String ?? ""
                 let roleType: String = data?["roleType"] as? String ?? ""
                 let memberType: String = data?["memberType"] as? String ?? ""
+                let createdAt: Date = data?["createdAt"] as? Date ?? Date()
                 let updatedAt: Date = data?["updatedAt"] as? Date ?? Date()
                 let generation: Int = data?["generation"] as? Int ?? 0
+                
                 let member: Member = .init(
                     uid: uid,
                     name: name,
                     role: MemberRoleType(rawValue: roleType) ?? .ios,
                     memberType: MemberType(rawValue: memberType) ?? .notYet,
+                    createdAt: createdAt,
                     updatedAt: updatedAt,
                     generation: generation
                 )
@@ -52,6 +55,7 @@ final class FirebaseService {
                 "name": member.name,
                 "roleType": member.role.rawValue,
                 "memberType": member.memberType.rawValue,
+                "createdAt": member.createdAt,
                 "updatedAt": member.updatedAt,
                 "generation": member.generation
             ]
