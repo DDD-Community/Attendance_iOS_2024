@@ -14,8 +14,10 @@ final class SignupInviteCodeReactor: Reactor {
         var uid: String
         var name: String
         var part: MemberRoleType
+        var isManager: Bool
         var inviteCode: String = ""
         var isSignupSuccess: Bool?
+        var errorMessage: String?
     }
     
     enum Action {
@@ -26,6 +28,7 @@ final class SignupInviteCodeReactor: Reactor {
     enum Mutation {
         case setInviteCode(String)
         case setSignupSuccess(Bool)
+        case setErrorMessage(String)
     }
     
     let initialState: State
@@ -34,9 +37,15 @@ final class SignupInviteCodeReactor: Reactor {
     init(
         uid: String,
         name: String,
+        isManager: Bool,
         part: MemberRoleType
     ) {
-        self.initialState = State(uid: uid, name: name, part: part)
+        self.initialState = State(
+            uid: uid,
+            name: name,
+            part: part,
+            isManager: isManager
+        )
         self.repository = UserRepository()
     }
     
@@ -56,6 +65,8 @@ final class SignupInviteCodeReactor: Reactor {
             newState.inviteCode = inviteCode
         case let .setSignupSuccess(isSignupSuccess):
             newState.isSignupSuccess = isSignupSuccess
+        case let .setErrorMessage(message):
+            newState.errorMessage = message
         }
         return newState
     }
@@ -73,7 +84,7 @@ extension SignupInviteCodeReactor {
                     uid: self.currentState.uid,
                     name: self.currentState.name,
                     role: self.currentState.part,
-                    memberType: .member,
+                    memberType: self.currentState.isManager ? .coreMember : .member,
                     createdAt: Date(),
                     updatedAt: Date(),
                     generation: 11
@@ -81,6 +92,17 @@ extension SignupInviteCodeReactor {
                 return self.repository.saveMember(member)
             }
             .map { Mutation.setSignupSuccess($0) }
+            .catch { error -> Single<Mutation> in
+                guard error is UserRepositoryError else {
+                    return .just(.setSignupSuccess(false))
+                }
+                switch error as! UserRepositoryError {
+                case .invalidInviteCode:
+                    return .just(.setErrorMessage("유효하지 않은 코드입니다."))
+                default:
+                    return .just(.setSignupSuccess(false))
+                }
+            }
             .asObservable()
     }
 }

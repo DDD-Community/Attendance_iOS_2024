@@ -33,11 +33,13 @@ final class SNSLoginViewController: UIViewController {
     
     // MARK: - Private helpers
     private func routeToSignup() {
-        if mainView.coreMemberCheckSwitch.isOn {
-            self.routeToCoreMemberSignup()
-        } else {
-            self.routeToMemberSignup()
-        }
+        guard let uid = reactor?.currentState.userUID else { return }
+        let isManager: Bool = mainView.coreMemberCheckSwitch.isOn
+        let signupNameViewController = SignupNameViewController(
+            uid: uid,
+            isManager: isManager
+        )
+        self.navigationController?.pushViewController(signupNameViewController, animated: true)
     }
     
     private func routeToMemberSignup() {
@@ -46,11 +48,6 @@ final class SNSLoginViewController: UIViewController {
     
     private func routeToMemberMain() {
         self.alertMessage(#function)
-    }
-    
-    private func routeToCoreMemberSignup() {
-        let signupNameViewController = SignupNameViewController(uid: "")
-        self.navigationController?.pushViewController(signupNameViewController, animated: true)
     }
     
     private func routeToCoreMemberMain() {
@@ -72,15 +69,9 @@ extension SNSLoginViewController: View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-//        mainView.googleLoginButton.rx.throttleTap
-//            .map { Reactor.Action.didTapGoogleLogin }
-//            .bind(to: reactor.action)
-//            .disposed(by: disposeBag)
-        
         mainView.googleLoginButton.rx.throttleTap
-            .bind { [weak self] in
-                self?.routeToCoreMemberSignup()
-            }
+            .map { Reactor.Action.didTapGoogleLogin }
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         reactor.state.map { $0.oAuthTokenResponse }

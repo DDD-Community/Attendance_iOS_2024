@@ -20,9 +20,17 @@ final class SignupPartViewController: UIViewController {
     var disposeBag: DisposeBag = .init()
     
     // MARK: - Lifecycles
-    init(uid: String, name: String) {
+    init(
+        uid: String,
+        name: String,
+        isManager: Bool
+    ) {
         super.init(nibName: nil, bundle: nil)
-        self.reactor = Reactor(uid: uid, name: name)
+        self.reactor = Reactor(
+            uid: uid,
+            name: name,
+            isManager: isManager
+        )
     }
     
     required init?(coder: NSCoder) {
@@ -44,7 +52,8 @@ final class SignupPartViewController: UIViewController {
         let inviteCodeVC = SignupInviteCodeViewController(
             uid: state.uid,
             name: state.name,
-            part: part
+            part: part,
+            isManager: state.isManager
         )
         self.navigationController?.pushViewController(
             inviteCodeVC,

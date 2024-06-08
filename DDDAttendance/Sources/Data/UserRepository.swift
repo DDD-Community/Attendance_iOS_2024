@@ -52,11 +52,7 @@ final class UserRepository: UserRepositoryProtocol {
     }
     
     func validateInviteCode(_ code: String) -> Single<Bool> {
-        return Single.create { single in
-            // Firestore에서 code를 이용하여 Invite Code의 유효성을 확인한다.
-            single(.success(true))
-            return Disposables.create()
-        }
+        return firebaseService.validateInviteCode(code)
     }
     
     func fetchInviteCodeList() -> Single<[InvitedCode]> {

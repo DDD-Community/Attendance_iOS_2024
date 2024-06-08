@@ -21,9 +21,19 @@ final class SignupInviteCodeViewController: UIViewController {
     
     
     // MARK: - Lifecycles
-    init(uid: String, name: String, part: MemberRoleType) {
+    init(
+        uid: String,
+        name: String,
+        part: MemberRoleType,
+        isManager: Bool
+    ) {
         super.init(nibName: nil, bundle: nil)
-        self.reactor = SignupInviteCodeReactor(uid: uid, name: name, part: part)
+        self.reactor = SignupInviteCodeReactor(
+            uid: uid,
+            name: name,
+            isManager: isManager,
+            part: part
+        )
     }
     
     required init?(coder: NSCoder) {
@@ -45,14 +55,24 @@ final class SignupInviteCodeViewController: UIViewController {
     // MARK: - Public helpers
     
     // MARK: - Private helpers
+    private func getViewController() -> UIViewController? {
+        guard let isManager: Bool = self.reactor?.currentState.isManager else {
+            return nil
+        }
+        if isManager {
+            return UIViewController()
+        } else {
+            return MemberMainViewController()
+        }
+    }
+    
     private func switchView() {
         guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate,
               let window = sceneDelegate.window else {
             return
         }
-        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
-            let viewController: UIViewController = .init()
-            viewController.view.backgroundColor = .green
+        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) { [weak self] in
+            guard let viewController = self?.getViewController() else { return }
             let navigationController: UINavigationController = .init(rootViewController: viewController)
             window.rootViewController = navigationController
         }
@@ -78,6 +98,14 @@ extension SignupInviteCodeViewController: View {
             .observe(on: MainScheduler.asyncInstance)
             .bind(to: mainView.nextButton.rx.isEnabled)
             .disposed(by: disposeBag)
+        
+        reactor.state.map { $0.errorMessage }
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
+            .bind { [weak self] errorMessage in
+                self?.mainView.codeErrorLabel.text = errorMessage
+                self?.mainView.codeErrorLabel.isHidden = errorMessage == nil
+            }.disposed(by: disposeBag)
         
         reactor.state.map { $0.isSignupSuccess }
             .distinctUntilChanged()

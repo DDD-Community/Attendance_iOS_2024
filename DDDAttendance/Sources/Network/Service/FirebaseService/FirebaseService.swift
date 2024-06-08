@@ -46,6 +46,28 @@ final class FirebaseService {
         }
     }
     
+    func validateInviteCode(_ code: String) -> Single<Bool> {
+        return Single.create { single in
+            let db = Firestore.firestore()
+            let inviteCodesRef = db.collection("invite_code")
+            inviteCodesRef.whereField("code", isEqualTo: code).getDocuments { (querySnapshot, error) in
+                if let error {
+                    single(.success(false))
+                    return
+                }
+                guard let documents = querySnapshot?.documents,
+                      !documents.isEmpty,
+                      let timeStamp = documents.first?.data()["expired_date"] as? Timestamp,
+                      timeStamp.seconds > Int(Date().timeIntervalSince1970) else {
+                    single(.failure(UserRepositoryError.invalidInviteCode))
+                    return
+                }
+                single(.success(true))
+            }
+            return Disposables.create()
+        }
+    }
+    
     func saveMember(_ member: Member) -> Single<Bool> {
         return Single.create { single in
             let db = Firestore.firestore()

@@ -35,6 +35,13 @@ final class SignupInviteCodeView: BaseView {
         )
     }
     
+    let codeErrorLabel: UILabel = .init().then {
+        $0.textColor = .systemRed
+        $0.textAlignment = .center
+        $0.font = .systemFont(ofSize: 16, weight: .semibold)
+        $0.isHidden = true
+    }
+    
     private let nextButtonContainer: UIView = .init().then {
         $0.backgroundColor = .white
     }
@@ -73,6 +80,11 @@ final class SignupInviteCodeView: BaseView {
             flex.addItem(codeTextField)
                 .width(100%)
                 .height(50)
+                .marginBottom(10)
+            
+            flex.addItem(codeErrorLabel)
+                .height(28)
+                .width(100%)
         }
     }
     

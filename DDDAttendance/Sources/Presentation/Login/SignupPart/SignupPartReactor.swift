@@ -13,6 +13,7 @@ final class SignupPartReactor: Reactor {
     struct State {
         var uid: String
         var name: String
+        var isManager: Bool
         var selectedPart: MemberRoleType?
     }
     
@@ -26,8 +27,17 @@ final class SignupPartReactor: Reactor {
     
     let initialState: State
     
-    init(uid: String, name: String) {
-        self.initialState = State(uid: uid, name: name, selectedPart: nil)
+    init(
+        uid: String,
+        name: String,
+        isManager: Bool
+    ) {
+        self.initialState = State(
+            uid: uid,
+            name: name,
+            isManager: isManager,
+            selectedPart: nil
+        )
     }
     
     func mutate(action: Action) -> Observable<Mutation> {

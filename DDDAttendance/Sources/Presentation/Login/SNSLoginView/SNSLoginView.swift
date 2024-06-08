@@ -95,6 +95,6 @@ final class SNSLoginView: BaseView {
     }
 }
 
-#Preview {
-    SNSLoginView()
-}
+//#Preview {
+//    SNSLoginView()
+//}

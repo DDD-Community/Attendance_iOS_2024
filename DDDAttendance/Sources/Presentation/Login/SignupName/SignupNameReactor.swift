@@ -13,6 +13,7 @@ final class SignupNameReactor: Reactor {
     struct State {
         var name: String = ""
         var uid: String
+        var isManager: Bool
     }
     
     enum Action {
@@ -25,8 +26,8 @@ final class SignupNameReactor: Reactor {
     
     var initialState: State
     
-    init(uid: String) {
-        self.initialState = .init(uid: uid)
+    init(uid: String, isManager: Bool) {
+        self.initialState = .init(uid: uid, isManager: isManager)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
