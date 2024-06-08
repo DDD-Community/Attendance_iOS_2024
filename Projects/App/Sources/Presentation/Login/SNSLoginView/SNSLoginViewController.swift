@@ -47,7 +47,8 @@ final class SNSLoginViewController: UIViewController {
     }
     
     private func routeToMemberMain() {
-        self.alertMessage(#function)
+        let vc: MemberMainViewController = .init()
+        self.switchViewController(vc)
     }
     
     private func routeToCoreMemberMain() {
@@ -59,6 +60,17 @@ final class SNSLoginViewController: UIViewController {
         let okAction = UIAlertAction(title: "확인", style: .default, handler: nil)
         alert.addAction(okAction)
         present(alert, animated: true, completion: nil)
+    }
+    
+    private func switchViewController(_ viewController: UIViewController) {
+        guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate,
+              let window = sceneDelegate.window else {
+            return
+        }
+        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
+            let navigationController: UINavigationController = .init(rootViewController: viewController)
+            window.rootViewController = navigationController
+        }
     }
 }
 
