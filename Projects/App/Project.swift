@@ -10,25 +10,6 @@ import DependencyPlugin
 import ProjectTemplatePlugin
 
 
-let infoPlist: [String: ProjectDescription.Plist.Value] = [
-    "UILaunchStoryboardName": "LaunchScreen.storyboard",
-    "UIApplicationSceneManifest": [
-        "UIApplicationSupportsMultipleScenes": false,
-        "UISceneConfigurations": [
-            "UIWindowSceneSessionRoleApplication": [
-                [
-                    "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate",
-                    "UISceneConfigurationName": "Default Configuration"
-                ]
-            ]
-        ]
-    ],
-    "GIDClientID": "882277748169-ouegejt3kc6jo5enbfjmmre2nnbthj82.apps.googleusercontent.com",
-    "CFBundleURLTypes": [
-        ["CFBundleURLSchemes": ["com.googleusercontent.apps.882277748169-ouegejt3kc6jo5enbfjmmre2nnbthj82"]]
-    ]
-]
-
 let project = Project.makeAppModule(
     name: Project.Environment.appName,
     bundleId: .mainBundleID(),
@@ -36,7 +17,8 @@ let project = Project.makeAppModule(
     settings: .appMainSetting,
     scripts: [],
     dependencies: [
-        .Shared(implements: .Shareds)
+        .Shared(implements: .Shareds),
+        .Networking(implements: .DiContainer)
     ],
     sources: ["Sources/**"],
     resources: ["Resources/**"],

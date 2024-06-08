@@ -26,8 +26,6 @@ public extension Project {
         schemes: [ProjectDescription.Scheme] = []
     ) -> Project {
         
-        
-        
         let appTarget: Target = .target(
             name: name,
             destinations: destinations,
