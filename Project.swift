@@ -45,6 +45,7 @@ let project = Project(
                 .external(name: "FirebaseAnalytics"),
                 .external(name: "FirebaseCrashlytics"),
                 .external(name: "FirebaseRemoteConfig"),
+                .external(name: "ComposableArchitecture", condition: .none)
             ],
             settings: .settings(
                 base: ["OTHER_LDFLAGS": "$(inherited) -ObjC"]
