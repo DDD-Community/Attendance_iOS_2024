@@ -24,19 +24,34 @@ final class SNSLoginViewController: UIViewController {
         reactor = SNSLoginReactor()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
+    }
+    
     // MARK: - Public helpers
     
     // MARK: - Private helpers
     private func routeToSignup() {
-        
+        guard let uid = reactor?.currentState.userUID else { return }
+        let isManager: Bool = mainView.coreMemberCheckSwitch.isOn
+        let signupNameViewController = SignupNameViewController(
+            uid: uid,
+            isManager: isManager
+        )
+        self.navigationController?.pushViewController(signupNameViewController, animated: true)
     }
     
-    private func routeToCoreMemberMain() {
-        
+    private func routeToMemberSignup() {
+        self.alertMessage(#function)
     }
     
     private func routeToMemberMain() {
-        
+        self.alertMessage(#function)
+    }
+    
+    private func routeToCoreMemberMain() {
+        self.alertMessage(#function)
     }
     
     private func alertMessage(_ message: String) {
@@ -49,11 +64,6 @@ final class SNSLoginViewController: UIViewController {
 
 extension SNSLoginViewController: View {
     func bind(reactor: Reactor) {
-        mainView.coreMemberCheckSwitch.rx.isOn
-            .map(Reactor.Action.toggleIsCoreMember)
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         mainView.appleLoginButton.rx.throttleTap
             .map { Reactor.Action.didTapAppleLogin }
             .bind(to: reactor.action)
@@ -88,7 +98,7 @@ extension SNSLoginViewController: View {
                 switch memberType {
                 case .master, .coreMember: self?.routeToCoreMemberMain()
                 case .member: self?.routeToMemberMain()
-                case .notYet: self?.routeToSignup()
+                case .notYet:  self?.routeToSignup()
                 case .run: self?.alertMessage("탈주자 계정입니다.")
                 }
             }.disposed(by: disposeBag)
