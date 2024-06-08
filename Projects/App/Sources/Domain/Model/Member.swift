@@ -14,6 +14,7 @@ struct Member: Codable, Hashable {
     var role: MemberRoleType
     var memberType: MemberType
     var snsURL: String?
+    var createdAt: Date
     var updatedAt: Date
     
     /// 기수

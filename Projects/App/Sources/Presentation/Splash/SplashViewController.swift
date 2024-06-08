@@ -37,7 +37,8 @@ final class SplashViewController: UIViewController {
         }
         UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
             let viewController: SNSLoginViewController = .init()
-            window.rootViewController = viewController
+            let navigationController: UINavigationController = .init(rootViewController: viewController)
+            window.rootViewController = navigationController
         }
     }
 }

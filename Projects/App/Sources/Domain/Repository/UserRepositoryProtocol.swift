@@ -28,6 +28,17 @@ protocol UserRepositoryProtocol {
 
 enum UserRepositoryError: Error {
     case fetchMember
+    case memberNotExist
+    case saveMember
+    case editMember
+    case fetchAttendanceList
+    case checkMemberAttendance
+    case editMemberAttendance
+    case inviteCodeNotExist
+    case invalidInviteCode
+    case fetchInviteCodeList
+    case createInviteCode
+    case removeInviteCode    
 }
 
 final class DefaultUserRepository: UserRepositoryProtocol {
