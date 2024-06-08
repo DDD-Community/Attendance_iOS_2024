@@ -33,6 +33,9 @@ struct CoreMemberMainView: View {
                 }
             }
         }
+        .task {
+            store.send(.fetchMember)
+        }
         .onAppear {
             store.send(.appearSelectPart(selectPart: .all))
         }

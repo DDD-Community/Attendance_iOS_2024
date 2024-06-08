@@ -55,11 +55,11 @@ public extension ProjectDescription.Path {
 
 public extension ProjectDescription.Path {
     static var Networking: Self {
-        return .relativeToRoot("Projects/\(ModulePath.Cores.name)/\(ModulePath.Networkings.name)")
+        return .relativeToRoot("Projects/\(ModulePath.Networkings.name)")
     }
     
     static func Networking(implementation module: ModulePath.Networkings) -> Self {
-        return .relativeToRoot("Projects/\(ModulePath.Cores.name)/\(ModulePath.Networkings.name)/\(module.rawValue)")
+        return .relativeToRoot("Projects/\(ModulePath.Networkings.name)/\(module.rawValue)")
     }
 }
 

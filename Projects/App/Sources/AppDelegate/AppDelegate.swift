@@ -9,6 +9,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         FirebaseApp.configure()
+        registerDependencies()
         return true
     }
     
@@ -24,5 +25,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didDiscardSceneSessions sceneSessions: Set<UISceneSession>
     ) {
+    }
+    
+    private func registerDependencies() {
+        Task {
+            await AppDIContainer.shared.registerDependencies()
+        }
     }
 }

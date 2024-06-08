@@ -6,8 +6,11 @@
 //
 
 import ReactorKit
+import ComposableArchitecture
 
 import UIKit
+import SwiftUI
+
 
 final class SNSLoginViewController: UIViewController {
     typealias Reactor = SNSLoginReactor
@@ -36,7 +39,12 @@ final class SNSLoginViewController: UIViewController {
     }
     
     private func routeToMemberMain() {
+        let coreMainView = CoreMemberMainView(store:  Store(initialState: CoreMember.State(), reducer: {
+            CoreMember()
+        }))
         
+        let hostingCoreMainView = UIHostingController(rootView: coreMainView)
+        self.parent?.present(hostingCoreMainView, animated: false)
     }
     
     private func alertMessage(_ message: String) {

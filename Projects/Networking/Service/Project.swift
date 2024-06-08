@@ -4,12 +4,12 @@ import DependencyPlugin
 import ProjectTemplatePlugin
 
 let project = Project.makeAppModule(
-    name: "DiContainer",
-    bundleId: .appBundleID(name: ".DiContainer"),
+    name: "Service",
+    bundleId: .appBundleID(name: ".Service"),
     product: .staticFramework,
     settings:  .settings(),
     dependencies: [
-        .Networking(implements: .Service)
+        .sdk(name: "OSLog", type: .framework)
     ],
     sources: ["Sources/**"]
 )
