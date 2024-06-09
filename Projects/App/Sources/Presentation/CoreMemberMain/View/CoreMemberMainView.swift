@@ -11,6 +11,7 @@ import ComposableArchitecture
 
 struct CoreMemberMainView: View {
     @Bindable var store: StoreOf<CoreMember>
+    var test: FireStoreRepository = FireStoreRepository()
     
     init(store: StoreOf<CoreMember>) {
         self.store = store
@@ -50,6 +51,13 @@ struct CoreMemberMainView: View {
                 }
         )
         
+        
+    }
+    
+    private func registerDependencies() {
+        Task {
+            await AppDIContainer.shared.registerDependencies()
+        }
     }
 }
 
@@ -150,6 +158,10 @@ extension CoreMemberMainView {
                 EmptyView()
             }
         }
+    }
+    
+    fileprivate func attendanceMemberList() -> some View {
+        
     }
     
     

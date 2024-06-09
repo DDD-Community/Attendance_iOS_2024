@@ -6,8 +6,10 @@
 //
 
 import ReactorKit
+import ComposableArchitecture
 
 import UIKit
+import SwiftUI
 
 final class SignupInviteCodeViewController: UIViewController {
     
@@ -60,7 +62,13 @@ final class SignupInviteCodeViewController: UIViewController {
             return nil
         }
         if isManager {
-            return UIViewController()
+            let coreMemberView = CoreMemberMainView(store: Store(
+                initialState: CoreMember.State(),
+                reducer: {
+                CoreMember()
+            }))
+            let coreMemberHostingViewController = UIHostingController(rootView: coreMemberView)
+            return coreMemberHostingViewController
         } else {
             return MemberMainViewController()
         }
@@ -79,7 +87,7 @@ final class SignupInviteCodeViewController: UIViewController {
     }
 }
 
-extension SignupInviteCodeViewController: View {
+extension SignupInviteCodeViewController: ReactorKit.View {
     func bind(reactor: Reactor) {
         mainView.codeTextField.rx.text
             .orEmpty

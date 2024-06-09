@@ -8,12 +8,11 @@
 import Foundation
 import DiContainer
 
-
 public final class AppDIContainer {
     public static let shared: AppDIContainer = .init()
 
     private let diContainer: DependencyContainer = .live
-    
+
     private init() {
     }
 
@@ -21,29 +20,29 @@ public final class AppDIContainer {
         await registerRepositories()
         await registerUseCases()
     }
-    
+
     // MARK: - Use Cases
     private func registerUseCases() async {
         await registerFireStoreUseCase()
     }
-    
+
     private func registerFireStoreUseCase() async {
-        await diContainer.register(FirestoreUseCaseProtocol.self) {
-            guard let repository =  self.diContainer.resolve(FirestoreRepositiryProtocol.self) else {
-                assertionFailure("AuthRepositoryProtocol must be registered before registering AuthUseCaseProtocol")
+        await diContainer.register(FireStoreUseCaseProtocol.self) {
+            guard let repository = self.diContainer.resolve(FireStoreRepositoryProtocol.self) else {
+                assertionFailure("FirestoreRepositoryProtocol must be registered before registering FirestoreUseCaseProtocol")
                 return FireStoreUseCase(repository: DefaultFireStoreRepository())
             }
             return FireStoreUseCase(repository: repository)
         }
     }
-    
+
     // MARK: - Repositories Registration
     private func registerRepositories() async {
         await registerFireStoreRepositories()
     }
-    
+
     private func registerFireStoreRepositories() async {
-        await diContainer.register(FireStoreRepository.self) {
+        await diContainer.register(FireStoreRepositoryProtocol.self) {
             FireStoreRepository()
         }
     }

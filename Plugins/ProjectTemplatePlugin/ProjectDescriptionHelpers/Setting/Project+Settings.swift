@@ -21,7 +21,7 @@ extension Settings {
                 "OTHER_LDFLAGS": "$(inherited) -ObjC",
                 "CURRENT_PROJECT_VERSION": .string(.appBuildVersion()),
                 "CODE_SIGN_IDENTITY": "iPhone Developer",
-//                "CODE_SIGN_STYLE": "Automatic",
+                "CODE_SIGN_STYLE": "Automatic",
                 "VERSIONING_SYSTEM": "apple-generic",
                 "DEBUG_INFORMATION_FORMAT": "DWARF with dSYM File"
                 ]

@@ -10,10 +10,11 @@ import ComposableArchitecture
 import Service
 
 @Reducer
- struct CoreMember {
-    
+ public struct CoreMember {
+     public init() {}
+     
     @ObservableState
-     struct State: Equatable {
+     public struct State: Equatable {
         public init() {}
         var headerTitle: String = "출석 현황"
         var selectPart: SelectPart? = nil
@@ -23,7 +24,7 @@ import Service
         
     }
     
-     enum Action {
+     public enum Action {
         case selectPartButton(selectPart: SelectPart)
         case appearSelectPart(selectPart: SelectPart)
         case swipeNext
@@ -36,7 +37,7 @@ import Service
     
     @Dependency(FireStoreUseCase.self) var fireStoreUseCase
     
-     var body: some ReducerOf<Self> {
+     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case let .selectPartButton(selectPart: selectPart):
@@ -75,7 +76,7 @@ import Service
             case .fetchMember:
                 return .run { send in
                     do {
-                        let fetchedData = try await fireStoreUseCase.fetchData(from: "members", as: Attendance.self)
+                        let fetchedData = try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
                         await send(.fetchDataResponse(.success(fetchedData)))
                     } catch {
                         await send(.fetchDataResponse(.failure(error)))

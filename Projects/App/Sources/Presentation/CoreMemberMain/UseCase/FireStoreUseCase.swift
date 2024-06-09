@@ -2,49 +2,40 @@
 //  FireStoreUseCase.swift
 //  DDDAttendance
 //
-//  Created by 서원지 on 6/8/24.
+//  Created by 서원지 on 6/9/24.
 //
 
 import Foundation
-import ComposableArchitecture
 import DiContainer
 
-public struct FireStoreUseCase: FirestoreUseCaseProtocol {
+import ComposableArchitecture
+
+public struct FireStoreUseCase: FireStoreUseCaseProtocol {
     
-    private let repository: FirestoreRepositiryProtocol
+    private let repository: FireStoreRepositoryProtocol
     
     public init(
-        repository: FirestoreRepositiryProtocol
+        repository: FireStoreRepositoryProtocol
     ) {
         self.repository = repository
     }
     
-    public func fetchData<T>(from collection: String, as type: T.Type) async throws -> [T] where T : Decodable, T : Encodable {
-        return try await repository.fetchData(from: collection , as: type)
-    }
     
-    public func fetchData<T>(from collection: String, withID id: String, as type: T.Type) async throws -> T? where T : Decodable, T : Encodable {
-        return try await repository.fetchData(from: collection, withID: id, as: type)
+    public func fetchFireStoreData<T>(from collection: String, as type: T.Type) async throws -> [T] where T : Decodable {
+        try await repository.fetchFireStoreData(from: collection, as: T.self)
     }
 }
 
 extension FireStoreUseCase: DependencyKey {
-    public static let liveValue: FireStoreUseCase = {
-        let authRepository = DependencyContainer.live.resolve(FirestoreRepositiryProtocol.self) ?? DefaultFireStoreRepository()
-         return FireStoreUseCase(repository: authRepository)
-       }()
-    
-    public static let testValue: FireStoreUseCase = {
-        let authRepository = DependencyContainer.live.resolve(FirestoreRepositiryProtocol.self) ?? DefaultFireStoreRepository()
-         return FireStoreUseCase(repository: authRepository)
+    public static var liveValue: FireStoreUseCase = {
+        let fireStoreRepository = DependencyContainer.live.resolve(FireStoreRepositoryProtocol.self) ?? DefaultFireStoreRepository()
+        return FireStoreUseCase(repository: fireStoreRepository)
     }()
 }
 
 public extension DependencyValues {
-    var authUseCase: FirestoreUseCaseProtocol {
+    var fireStoreUseCase: FireStoreUseCaseProtocol {
         get { self[FireStoreUseCase.self] }
         set { self[FireStoreUseCase.self] = newValue as! FireStoreUseCase}
     }
 }
-
-

@@ -6,8 +6,10 @@
 //
 
 import ReactorKit
+import ComposableArchitecture
 
 import UIKit
+import SwiftUI
 
 final class SNSLoginViewController: UIViewController {
     typealias Reactor = SNSLoginReactor
@@ -51,7 +53,14 @@ final class SNSLoginViewController: UIViewController {
     }
     
     private func routeToCoreMemberMain() {
-        self.alertMessage(#function)
+        let coreMemberView = CoreMemberMainView(store: Store(
+            initialState: CoreMember.State(),
+            reducer: {
+            CoreMember()
+        }))
+        let coreMemberHostingViewController = UIHostingController(rootView: coreMemberView)
+        self.parent?.present(coreMemberHostingViewController, animated: false)
+//        self.alertMessage(#function)
     }
     
     private func alertMessage(_ message: String) {
@@ -62,7 +71,7 @@ final class SNSLoginViewController: UIViewController {
     }
 }
 
-extension SNSLoginViewController: View {
+extension SNSLoginViewController: ReactorKit.View {
     func bind(reactor: Reactor) {
         mainView.appleLoginButton.rx.throttleTap
             .map { Reactor.Action.didTapAppleLogin }
