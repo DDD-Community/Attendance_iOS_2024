@@ -11,6 +11,8 @@ let project = Project.makeAppModule(
     settings:  .settings(),
     dependencies: [
         .SPM.composableArchitecture,
+        .SPM.sdwebImage,
+        .SPM.gifu,
         .SPM.then,
         .SPM.firebaseAuth,
         .SPM.flexLayout,

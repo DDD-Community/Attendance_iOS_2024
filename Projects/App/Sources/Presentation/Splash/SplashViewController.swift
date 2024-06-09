@@ -8,6 +8,8 @@
 import FirebaseAuth
 
 import UIKit
+import SwiftUI
+import ComposableArchitecture
 
 final class SplashViewController: UIViewController {
     
@@ -21,7 +23,7 @@ final class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        self.switchView(1)
+        self.switchView(Int(Double(4.0)))
     }
     
     private func switchView(_ after: Int) {
@@ -29,12 +31,21 @@ final class SplashViewController: UIViewController {
             deadline: .now() + .seconds(after)
         ) { [weak self] in
             self?.checkIsSigned { [weak self] isSigned in
-                let viewController = if isSigned {
-                    MemberMainViewController()
+                guard let self = self else { return }
+                
+                let viewController: UIViewController
+                if isSigned {
+                    let coreMemberView = CoreMemberMainView(store: Store(
+                        initialState: CoreMember.State(),
+                        reducer: {
+                            CoreMember()
+                        }))
+                    let coreMemberHostingViewController = UIHostingController(rootView: coreMemberView)
+                    viewController = coreMemberHostingViewController
                 } else {
-                    SNSLoginViewController()
+                    viewController = SNSLoginViewController()
                 }
-                self?.switchView(viewController)
+                self.switchView(viewController)
             }
         }
     }
@@ -46,6 +57,7 @@ final class SplashViewController: UIViewController {
         }
         UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
             let navigationController: UINavigationController = .init(rootViewController: viewController)
+            navigationController.isNavigationBarHidden = true
             window.rootViewController = navigationController
         }
     }

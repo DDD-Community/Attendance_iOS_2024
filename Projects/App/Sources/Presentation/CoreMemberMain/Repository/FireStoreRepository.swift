@@ -19,13 +19,21 @@ import Service
         
     }
     
-    public func fetchFireStoreData<T>(from collection: String, as type: T.Type) async throws -> [T] where T : Decodable {
+    public func fetchFireStoreData<T: Decodable>(from collection: String, as type: T.Type) async throws -> [T] {
         let querySnapshot = try await fireStoreDB.collection(collection).getDocuments()
-        Log.debug("firebasee 데이터 가져오기 성공", collection, querySnapshot.documents.first?.data())
-        return try querySnapshot.documents.compactMap { document in
-            try document.data(as: T.self)
+        Log.debug("firebase 데이터 가져오기 성공", collection, querySnapshot.documents.forEach { Log.debug($0.data()) })
+
+        return querySnapshot.documents.compactMap { document in
+            if T.self == Attendance.self {
+                return try? Attendance(from: document) as? T
+            } else {
+                return try? document.data(as: T.self)
+            }
         }
     }
+
+
+
     
 }
 

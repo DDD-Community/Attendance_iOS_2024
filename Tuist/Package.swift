@@ -27,6 +27,8 @@ let package = Package(
         .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "7.1.0"),
         .package(url: "https://github.com/EFPrefix/EFQRCode.git", from: "6.2.2"),
         .package(url: "https://github.com/devxoul/Then", from: "3.0.0"),
-        .package(url: "http://github.com/pointfreeco/swift-composable-architecture", from: "1.10.4")
+        .package(url: "http://github.com/pointfreeco/swift-composable-architecture", from: "1.10.4"),
+        .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI.git", from: "2.0.0"),
+        .package(url: "https://github.com/kaishin/Gifu.git", from: "3.4.0")
     ]
 )

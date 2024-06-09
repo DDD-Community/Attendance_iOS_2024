@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum SelectPart: String, CaseIterable {
+public enum SelectPart: String, CaseIterable, Codable {
     case all
     case web
     case design
