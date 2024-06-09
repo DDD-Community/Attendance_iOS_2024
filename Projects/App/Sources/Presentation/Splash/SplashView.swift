@@ -8,18 +8,17 @@
 import FlexLayout
 import PinLayout
 import Then
+import Gifu
 
 import UIKit
 
 final class SplashView: BaseView {
     
-    // MARK: - UI properties
-    private let label: UILabel = .init().then {
-        $0.text = "DDD"
-        $0.textColor = .white
-        $0.font = .systemFont(ofSize: 64, weight: .black)
-        $0.textAlignment = .center
-    }
+    private let animatedImageView: GIFImageView = {
+        let imageView = GIFImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
     
     // MARK: - Properties
     
@@ -30,12 +29,18 @@ final class SplashView: BaseView {
     }
     
     override func configureViews() {
-        backgroundColor = .black
+        backgroundColor = .basicBlack
+        
+        if let gifURL = Bundle.main.url(forResource: "DDDLodingBlack", withExtension: "gif") {
+            animatedImageView.animate(withGIFURL: gifURL)
+        }
+        
         flex.justifyContent(.center)
             .alignItems(.center)
             .define { flex in
-                flex.addItem(label)
-                    .width(100%)
+                flex.addItem(animatedImageView)
+                    .width(200)
+                    .height(200)
             }
     }
     
@@ -46,6 +51,7 @@ final class SplashView: BaseView {
         flex.layout()
     }
 }
+
 
 #Preview {
     SplashView()

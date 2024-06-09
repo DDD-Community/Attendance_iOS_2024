@@ -10,34 +10,36 @@ import ComposableArchitecture
 import Service
 
 @Reducer
- public struct CoreMember {
-     public init() {}
-     
+public struct CoreMember {
+    public init() {}
+    
     @ObservableState
-     public struct State: Equatable {
+    public struct State: Equatable {
         public init() {}
         var headerTitle: String = "출석 현황"
         var selectPart: SelectPart? = nil
         var attendaceModel : [Attendance] = []
         var disableSelectButton: Bool = false
         var isActiveBoldText: Bool = false
+        var isLoading: Bool = false
         
     }
     
-     public enum Action {
+    public enum Action {
         case selectPartButton(selectPart: SelectPart)
         case appearSelectPart(selectPart: SelectPart)
         case swipeNext
         case swipePrevious
         case fetchMember
+        case upDateFetchMember(selectPart: SelectPart)
         case fetchDataResponse(Result<[Attendance], Error>)
-         
+        
         
     }
     
     @Dependency(FireStoreUseCase.self) var fireStoreUseCase
     
-     public var body: some ReducerOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case let .selectPartButton(selectPart: selectPart):
@@ -83,12 +85,33 @@ import Service
                     }
                 }
                 
+            case let .upDateFetchMember(selectPart: selectPart):
+                //                state.attendaceModel = []
+                return .run { send in
+                    do {
+                        // Fetch the data from Firestore
+                        let fetchedData = try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
+                        let filteredData = fetchedData.filter { $0.roleType != .all && (selectPart == .all || $0.roleType == selectPart) }
+                        await send(.fetchDataResponse(.success(filteredData)))
+                    } catch {
+                        await send(.fetchDataResponse(.failure(error)))
+                    }
+                }
+                
             case let .fetchDataResponse(.success(fetchedData)):
+                state.isLoading = false
                 state.attendaceModel = fetchedData
                 return .none
                 
             case let .fetchDataResponse(.failure(error)):
                 Log.error("Error fetching data", error)
+                state.isLoading = true
+                return .none
+            }
+        }
+        .onChange(of: \.attendaceModel) { oldValue, newValue in
+            Reduce { state, action in
+                state.attendaceModel = newValue
                 return .none
             }
         }
