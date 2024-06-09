@@ -5,6 +5,8 @@
 //  Created by 고병학 on 6/6/24.
 //
 
+import FirebaseAuth
+
 import UIKit
 
 final class SplashViewController: UIViewController {
@@ -26,19 +28,33 @@ final class SplashViewController: UIViewController {
         DispatchQueue.main.asyncAfter(
             deadline: .now() + .seconds(after)
         ) { [weak self] in
-            self?.switchView()
+            self?.checkIsSigned { [weak self] isSigned in
+                let viewController = if isSigned {
+                    MemberMainViewController()
+                } else {
+                    SNSLoginViewController()
+                }
+                self?.switchView(viewController)
+            }
         }
     }
     
-    private func switchView() {
+    private func switchView(_ viewController: UIViewController) {
         guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate,
               let window = sceneDelegate.window else {
             return
         }
         UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
-            let viewController: SNSLoginViewController = .init()
             let navigationController: UINavigationController = .init(rootViewController: viewController)
             window.rootViewController = navigationController
+        }
+    }
+    
+    private func checkIsSigned(_ completion: @escaping (Bool) -> Void) {
+        if Auth.auth().currentUser != nil {
+            completion(true)
+        } else {
+            completion(false)
         }
     }
 }
