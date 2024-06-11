@@ -21,12 +21,12 @@ final class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        self.switchView(1)
+        self.switchView(0.3)
     }
     
-    private func switchView(_ after: Int) {
+    private func switchView(_ after: Double) {
         DispatchQueue.main.asyncAfter(
-            deadline: .now() + .seconds(after)
+            deadline: .now() + .milliseconds(Int(after * 1000))
         ) { [weak self] in
             self?.checkIsSigned { [weak self] isSigned in
                 let viewController = if isSigned {

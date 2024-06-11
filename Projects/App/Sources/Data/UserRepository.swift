@@ -14,8 +14,12 @@ final class UserRepository: UserRepositoryProtocol {
     private let firebaseService = FirebaseService()
     
     /// Firestore에서 uid를 이용하여 Member를 가져온다.
-    func fetchMember(_ uid: String) -> Single<Member> {
-        return firebaseService.fetchMember(uid)
+    func fetchMember() -> Single<Member> {
+        return firebaseService.fetchUID()
+            .flatMap { [weak self] uid in
+                guard let self else { throw UserRepositoryError.fetchMember }
+                return self.firebaseService.fetchMember(uid)
+            }
     }
     
     /// Firestore에 Member를 저장한다.
@@ -30,18 +34,20 @@ final class UserRepository: UserRepositoryProtocol {
         }
     }
     
-    func fetchAttendanceList(_ userId: String) -> Single<[Attendance]> {
-        return Single.create { single in
-            // Firestore에서 userId를 이용하여 Attendance List를 가져온다.
-            return Disposables.create()
-        }
+    func logout() -> Single<Bool> {
+        return firebaseService.logout()
     }
     
-    func checkMemberAttendance(_ userId: String, _ time: Date) -> Single<Bool> {
-        return Single.create { single in
-            // Firestore에서 userId와 time을 이용하여 Member의 출석 여부를 확인한다.
-            return Disposables.create()
-        }
+    func fetchAttendanceList() -> Single<[Attendance]> {
+        return firebaseService.fetchUID()
+            .flatMap { [weak self] uid in
+                guard let self else { throw UserRepositoryError.fetchMember }
+                return self.firebaseService.fetchAttendanceHistory(uid)
+            }
+    }
+    
+    func checkMemberAttendance(_ attendance: Attendance) -> Single<Bool> {
+        return firebaseService.saveAttendance(attendance)
     }
     
     func editMemberAttendance(_ userId: String, _ attendance: Attendance) -> Single<Bool> {
