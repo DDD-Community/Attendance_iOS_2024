@@ -49,23 +49,23 @@ final class SNSLoginViewController: UIViewController {
     }
     
     private func routeToMemberMain() {
-        let coreMemberView = CoreMemberMainView(store: Store(
-            initialState: CoreMember.State(),
+        let rootCoreMemberView = RootCoreMemberView(store: Store(
+            initialState: RootCoreMember.State(),
             reducer: {
-            CoreMember()
+            RootCoreMember()
         }))
-        let coreMemberHostingViewController = UIHostingController(rootView: coreMemberView)
+        let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
         let vc: MemberMainViewController = .init()
         self.switchViewController(coreMemberHostingViewController)
     }
     
     private func routeToCoreMemberMain() {
-        let coreMemberView = CoreMemberMainView(store: Store(
-            initialState: CoreMember.State(),
+        let rootCoreMemberView = RootCoreMemberView(store: Store(
+            initialState: RootCoreMember.State(),
             reducer: {
-            CoreMember()
+            RootCoreMember()
         }))
-        let coreMemberHostingViewController = UIHostingController(rootView: coreMemberView)
+        let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
         self.switchViewController(coreMemberHostingViewController)
 //        self.alertMessage(#function)
     }

@@ -35,12 +35,12 @@ final class SplashViewController: UIViewController {
                 
                 let viewController: UIViewController
                 if isSigned {
-                    let coreMemberView = CoreMemberMainView(store: Store(
-                        initialState: CoreMember.State(),
+                    let rootCoreMemberView = RootCoreMemberView(store: Store(
+                        initialState: RootCoreMember.State(),
                         reducer: {
-                            CoreMember()
+                            RootCoreMember()
                         }))
-                    let coreMemberHostingViewController = UIHostingController(rootView: coreMemberView)
+                    let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
                     viewController = coreMemberHostingViewController
                 } else {
                     viewController = SNSLoginViewController()

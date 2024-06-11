@@ -23,6 +23,9 @@ struct CoreMemberMainView: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
+                
+                navigationTrallingButton()
+                
                 titleView()
                 
                 attendanceStatus(selectPart: store.selectPart ?? .all)
@@ -37,13 +40,18 @@ struct CoreMemberMainView: View {
                 
             }
         }
-        .navigationBarBackButtonHidden(true)
-        
         .task {
             store.send(.fetchMember)
         }
         .onAppear {
+            #if targetEnvironment(simulator)
+
+            #endif
             store.send(.appearSelectPart(selectPart: .all))
+        }
+        .onChange(of: store.attendaceModel) { oldValue , newValue in
+            print(newValue)
+            store.send(.updateAttendanceModel(newValue))
         }
         .gesture(
             DragGesture()
@@ -71,9 +79,6 @@ extension CoreMemberMainView {
     @ViewBuilder
     fileprivate func titleView() -> some View {
         VStack {
-            Spacer()
-                .frame(height: UIScreen.screenHeight*0.02)
-            
             HStack {
                 Text(store.headerTitle)
                     .foregroundStyle(Color.basicWhite)
@@ -131,7 +136,6 @@ extension CoreMemberMainView {
     
     @ViewBuilder
     fileprivate func selctAttendance(selectPart: SelectPart) -> some View {
-        
         LazyVStack {
             switch store.selectPart {
             case .all:
@@ -228,6 +232,49 @@ extension CoreMemberMainView {
         }
         .padding(.horizontal , 20)
         
+    }
+    
+    @ViewBuilder
+    fileprivate func selectAttendaceDate() -> some View {
+        
+    }
+    
+    @ViewBuilder
+    fileprivate func navigationTrallingButton() -> some View {
+        VStack {
+            Spacer()
+                .frame(height: UIScreen.screenHeight * 0.02)
+            
+            HStack {
+                Spacer()
+                
+                Image(systemName: store.qrcodeImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(.basicWhite)
+                    .onTapGesture {
+                        store.send(.presntQrcode)
+                    }
+                
+                Spacer()
+                    .frame(width: 12)
+                
+                Image(systemName: store.eventImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(.basicWhite)
+                    .onTapGesture {
+                        store.send(.presntQrcode)
+                    }
+                
+            }
+            
+            Spacer()
+                .frame(height: UIScreen.screenHeight * 0.02)
+        }
+        .padding(.horizontal, 20)
     }
 }
 

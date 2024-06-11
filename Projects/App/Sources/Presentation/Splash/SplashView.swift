@@ -31,7 +31,7 @@ final class SplashView: BaseView {
     override func configureViews() {
         backgroundColor = .basicBlack
         
-        if let gifURL = Bundle.main.url(forResource: "DDDLodingBlack", withExtension: "gif") {
+        if let gifURL = Bundle.main.url(forResource: "DDDLoding", withExtension: "gif") {
             animatedImageView.animate(withGIFURL: gifURL)
         }
         

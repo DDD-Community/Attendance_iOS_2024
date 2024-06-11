@@ -62,20 +62,20 @@ final class SignupInviteCodeViewController: UIViewController {
             return nil
         }
         if isManager {
-            let coreMemberView = CoreMemberMainView(store: Store(
-                initialState: CoreMember.State(),
+            let rootCoreMemberView = RootCoreMemberView(store: Store(
+                initialState: RootCoreMember.State(),
                 reducer: {
-                CoreMember()
+                RootCoreMember()
             }))
-            let coreMemberHostingViewController = UIHostingController(rootView: coreMemberView)
+            let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
             return coreMemberHostingViewController
         } else {
-            let coreMemberView = CoreMemberMainView(store: Store(
-                initialState: CoreMember.State(),
+            let rootCoreMemberView = RootCoreMemberView(store: Store(
+                initialState: RootCoreMember.State(),
                 reducer: {
-                CoreMember()
+                RootCoreMember()
             }))
-            let coreMemberHostingViewController = UIHostingController(rootView: coreMemberView)
+            let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
             return coreMemberHostingViewController
 //            return MemberMainViewController()
         }

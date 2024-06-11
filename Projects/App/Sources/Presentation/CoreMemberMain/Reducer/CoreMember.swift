@@ -6,8 +6,11 @@
 //
 
 import Foundation
-import ComposableArchitecture
 import Service
+
+import ComposableArchitecture
+import KeychainAccess
+
 
 @Reducer
 public struct CoreMember {
@@ -22,10 +25,15 @@ public struct CoreMember {
         var disableSelectButton: Bool = false
         var isActiveBoldText: Bool = false
         var isLoading: Bool = false
+        var qrcodeImage: String = "qrcode"
+        var eventImage: String = "flag.square"
+        
+        @Presents var destination: Destination.State?
+        
         
     }
     
-    public enum Action {
+    public enum Action  {
         case selectPartButton(selectPart: SelectPart)
         case appearSelectPart(selectPart: SelectPart)
         case swipeNext
@@ -33,10 +41,18 @@ public struct CoreMember {
         case fetchMember
         case upDateFetchMember(selectPart: SelectPart)
         case fetchDataResponse(Result<[Attendance], Error>)
-        
-        
+        case destination(PresentationAction<Destination.Action>)
+        case presntQrcode
+        case upDateDataQRCode
+        case updateAttendanceModel([Attendance])
     }
     
+    @Reducer(state: .equatable)
+    public enum Destination {
+        case qrcode(QrCode)
+    }
+    
+        
     @Dependency(FireStoreUseCase.self) var fireStoreUseCase
     
     public var body: some ReducerOf<Self> {
@@ -56,6 +72,23 @@ public struct CoreMember {
                 
             case let .appearSelectPart(selectPart: selectPart):
                 state.selectPart = selectPart
+                return .none
+                
+            case .destination(_):
+                return .none
+                
+            case .presntQrcode:
+                
+                try? Keychain().set(state.attendaceModel.first?.id ?? "" , key: "userID")
+                return .none
+                
+            case .upDateDataQRCode:
+                state.destination = .qrcode(.init(userID: state.attendaceModel.first?.id ?? ""))
+                return .none
+                
+            case let .updateAttendanceModel(newValue):
+                state.attendaceModel = newValue
+                // Add any additional logic if needed
                 return .none
                 
             case .swipeNext:
@@ -109,12 +142,13 @@ public struct CoreMember {
                 return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
         .onChange(of: \.attendaceModel) { oldValue, newValue in
             Reduce { state, action in
                 state.attendaceModel = newValue
+                
                 return .none
             }
         }
     }
 }
-
