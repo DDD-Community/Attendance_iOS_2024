@@ -70,3 +70,4 @@ Derived/
 Tuist/.build
 Tuist/Package.resolved
 DDDAttendance/Resources/GoogleService-Info.plist
+Plugins/ProjectTemplatePlugin/.build
