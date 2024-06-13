@@ -23,7 +23,7 @@ final class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        self.switchView(Int(Double(4.0)))
+        self.switchView(Int(Double(3.8)))
     }
     
     private func switchView(_ after: Int) {

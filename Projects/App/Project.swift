@@ -9,6 +9,7 @@ import ProjectDescription
 import DependencyPlugin
 import ProjectTemplatePlugin
 
+let infoPlist: [String: Plist.Value] = InfoPlistValues.generateInfoPlist()
 
 let project = Project.makeAppModule(
     name: Project.Environment.appName,
@@ -23,6 +24,7 @@ let project = Project.makeAppModule(
     ],
     sources: ["Sources/**"],
     resources: ["Resources/**"],
-    infoPlist: .file(path: "../Support/Info.plist"),
+    infoPlist: .extendingDefault(with: infoPlist),
+//    infoPlist: .file(path: "../Support/Info.plist"),
     entitlements: .file(path: "../Entitlements/DDDAttendance.entitlements")
 )

@@ -161,3 +161,4 @@ final class SignupPartView: BaseView {
         rootView.flex.layout()
     }
 }
+
