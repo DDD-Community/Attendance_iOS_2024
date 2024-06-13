@@ -54,7 +54,7 @@ public extension SettingsDictionary {
         return self.merging(["CODE_SIGN_IDENTITY": SettingValue(stringLiteral: value)]) { (_, new) in new }
     }
     
-    func setCodeSignStyle(_ value: String = "Automatic") -> SettingsDictionary {
+    func setCodeSignStyle(_ value: String = "Manual") -> SettingsDictionary {
         return self.merging(["CODE_SIGN_STYLE": SettingValue(stringLiteral: value)]) { (_, new) in new }
     }
     
@@ -68,6 +68,14 @@ public extension SettingsDictionary {
     
     func setStripStyle(_ value: String = "non-global") -> SettingsDictionary {
         return self.merging(["STRIP_STYLE": SettingValue(stringLiteral: value)]) { (_, new) in new }
+    }
+    
+    func setProvisioningProfileSpecifier(_ value: String) -> SettingsDictionary {
+        return self.merging(["PROVISIONING_PROFILE_SPECIFIER": SettingValue(stringLiteral: value)]) { (_, new) in new }
+    }
+    
+    func setDevelopmentTeam(_ value: String) -> SettingsDictionary {
+        return self.merging(["DEVELOPMENT_TEAM": SettingValue(stringLiteral: value)]) { (_, new) in new }
     }
 }
 

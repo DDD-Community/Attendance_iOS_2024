@@ -66,8 +66,8 @@ public struct QrCode {
                 
                 Log.debug(state.userID, state.eventID, state.creationTime)
                 return .run { send in
-                    let combinedString = String.combine(userID: userID, eventID: eventID, creationTime: creationTime)
-                    let qrCodeImage = await qrCodeUseCase.generateQRCode(from: combinedString)
+                    let qrCodeGenerateString = String.combine(userID: userID, eventID: eventID, creationTime: creationTime)
+                    let qrCodeImage = await qrCodeUseCase.generateQRCode(from: qrCodeGenerateString)
                     await send(.qrCodeGenerated(image: qrCodeImage))
                 }
 

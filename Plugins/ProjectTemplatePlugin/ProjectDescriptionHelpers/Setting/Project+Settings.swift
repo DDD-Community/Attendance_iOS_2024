@@ -23,25 +23,31 @@ extension Settings {
             .setCodeSignIdentity()
             .setCodeSignStyle()
             .setVersioningSystem()
+//            .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
+//            .setDevelopmentTeam(Project.Environment.organizationTeamId)
             .setDebugInformationFormat(),
+        
         configurations: [
             .debug(name: .debug, settings: SettingsDictionary()
                 .setProductName(Project.Environment.appName)
                 .setCFBundleDisplayName(Project.Environment.appName)
                 .setOtherLdFlags("-ObjC -all_load")
                 .setDebugInformationFormat("non-global")
+                .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
             ),
             .debug(name: "QA", settings: SettingsDictionary()
                 .setProductName(Project.Environment.appDevName)
                 .setCFBundleDisplayName(Project.Environment.appDevName)
                 .setOtherLdFlags("-ObjC -all_load")
                 .setDebugInformationFormat("non-global")
+                .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
             ),
             .release(name: .release, settings: SettingsDictionary()
                 .setProductName(Project.Environment.appName)
                 .setCFBundleDisplayName(Project.Environment.appName)
                 .setOtherLdFlags("-ObjC -all_load")
                 .setDebugInformationFormat("non-global")
+                .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
             )
         ], defaultSettings: .recommended
     )

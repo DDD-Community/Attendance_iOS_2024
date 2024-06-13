@@ -22,7 +22,7 @@ public struct NavigationBackButton: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 10, height: 18)
-                .foregroundColor(.basicGray8)
+                .foregroundColor(.white)
                 .onTapGesture {
                     buttonAction()
                 }
