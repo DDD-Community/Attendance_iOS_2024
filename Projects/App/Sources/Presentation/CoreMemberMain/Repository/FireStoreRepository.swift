@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 import Combine
 import FirebaseFirestore
+import FirebaseAuth
+
 import Service
 
 @Observable public class FireStoreRepository: FireStoreRepositoryProtocol {
@@ -30,6 +32,10 @@ import Service
                 return try? document.data(as: T.self)
             }
         }
+    }
+    
+    public func getCurrentUser() async throws -> User? {
+        return Auth.auth().currentUser
     }
 }
 

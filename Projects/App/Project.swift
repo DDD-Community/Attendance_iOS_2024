@@ -25,6 +25,5 @@ let project = Project.makeAppModule(
     sources: ["Sources/**"],
     resources: ["Resources/**"],
     infoPlist: .extendingDefault(with: infoPlist),
-//    infoPlist: .file(path: "../Support/Info.plist"),
     entitlements: .file(path: "../Entitlements/DDDAttendance.entitlements")
 )

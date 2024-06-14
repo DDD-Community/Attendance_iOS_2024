@@ -10,6 +10,7 @@ import Service
 
 import ComposableArchitecture
 import KeychainAccess
+import FirebaseAuth
 
 
 @Reducer
@@ -27,6 +28,7 @@ public struct CoreMember {
         var isLoading: Bool = false
         var qrcodeImage: String = "qrcode"
         var eventImage: String = "flag.square"
+        var user: User? =  nil
         
         @Presents var destination: Destination.State?
         
@@ -45,6 +47,9 @@ public struct CoreMember {
         case presntQrcode
         case upDateDataQRCode
         case updateAttendanceModel([Attendance])
+        case fetchModel([Attendance])
+        case fetchCurrentUser
+        case fetchUserDataResponse(Result<User, Error>)
     }
     
     @Reducer(state: .equatable)
@@ -79,7 +84,7 @@ public struct CoreMember {
                 
             case .presntQrcode:
                 
-                try? Keychain().set(state.attendaceModel.first?.id ?? "" , key: "userID")
+                try? Keychain().set(state.user?.uid ?? "" , key: "userID")
                 return .none
                 
             case .upDateDataQRCode:
@@ -87,8 +92,13 @@ public struct CoreMember {
                 return .none
                 
             case let .updateAttendanceModel(newValue):
+                state.attendaceModel = [ ]
                 state.attendaceModel = newValue
                 // Add any additional logic if needed
+                return .none
+                
+            case let .fetchModel(newValue):
+                state.attendaceModel = [ ]
                 return .none
                 
             case .swipeNext:
@@ -119,12 +129,11 @@ public struct CoreMember {
                 }
                 
             case let .upDateFetchMember(selectPart: selectPart):
-                //                state.attendaceModel = []
                 return .run { send in
                     do {
-                        // Fetch the data from Firestore
                         let fetchedData = try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
                         let filteredData = fetchedData.filter { $0.roleType != .all && (selectPart == .all || $0.roleType == selectPart) }
+                        await send(.updateAttendanceModel(fetchedData))
                         await send(.fetchDataResponse(.success(filteredData)))
                     } catch {
                         await send(.fetchDataResponse(.failure(error)))
@@ -140,6 +149,27 @@ public struct CoreMember {
                 Log.error("Error fetching data", error)
                 state.isLoading = true
                 return .none
+                
+            case .fetchCurrentUser:
+                return .run { send in
+                    do {
+                        guard  let fetchedUserData = try await fireStoreUseCase.getCurrentUser() else { return  }
+                        await send(.fetchUserDataResponse(.success(fetchedUserData)))
+                    } catch {
+                        await send(.fetchUserDataResponse(.failure(error)))
+                    }
+                }
+                
+            case let .fetchUserDataResponse(.success(fetchUser)):
+                state.user = fetchUser
+                Log.error("fetching data", fetchUser.uid)
+                return .none
+            
+            case let .fetchUserDataResponse(.failure(error)):
+                Log.error("Error fetching User", error)
+                state.user = nil
+                return .none
+                
             }
         }
         .ifLet(\.$destination, action: \.destination)

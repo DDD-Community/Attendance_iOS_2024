@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseAuth
 
 public final class DefaultFireStoreRepository: FireStoreRepositoryProtocol {
     
@@ -13,5 +14,9 @@ public final class DefaultFireStoreRepository: FireStoreRepositoryProtocol {
     
     public func fetchFireStoreData<T>(from collection: String, as type: T.Type) async throws -> [T] where T : Decodable {
         return []
+    }
+    
+    public func getCurrentUser() async throws -> User? {
+        return nil
     }
 }

@@ -42,15 +42,10 @@ struct CoreMemberMainView: View {
         }
         .task {
             store.send(.fetchMember)
-        }
-        .onAppear {
-            #if targetEnvironment(simulator)
-
-            #endif
             store.send(.appearSelectPart(selectPart: .all))
+            store.send(.fetchCurrentUser)
         }
         .onChange(of: store.attendaceModel) { oldValue , newValue in
-            print(newValue)
             store.send(.updateAttendanceModel(newValue))
         }
         .gesture(
@@ -58,8 +53,11 @@ struct CoreMemberMainView: View {
                 .onEnded { value in
                     if value.translation.width < -UIScreen.screenWidth * 0.02 {
                         store.send(.swipeNext)
+                        store.send(.upDateFetchMember(selectPart: store.selectPart ?? .all))
+                        
                     } else if value.translation.width > UIScreen.screenWidth * 0.02 {
                         store.send(.swipePrevious)
+                        store.send(.upDateFetchMember(selectPart: store.selectPart ?? .all))
                     }
                 }
         )

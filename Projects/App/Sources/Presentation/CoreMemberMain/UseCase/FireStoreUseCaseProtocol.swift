@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import FirebaseAuth
 
 public protocol FireStoreUseCaseProtocol {
     func fetchFireStoreData<T: Decodable>(from collection: String, as type: T.Type) async throws -> [T]
+    func getCurrentUser() async throws -> User?
 }

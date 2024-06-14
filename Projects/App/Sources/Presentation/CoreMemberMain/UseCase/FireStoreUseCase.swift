@@ -9,6 +9,7 @@ import Foundation
 import DiContainer
 
 import ComposableArchitecture
+import Firebase
 
 public struct FireStoreUseCase: FireStoreUseCaseProtocol {
     
@@ -23,6 +24,10 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
     
     public func fetchFireStoreData<T>(from collection: String, as type: T.Type) async throws -> [T] where T : Decodable {
         try await repository.fetchFireStoreData(from: collection, as: T.self)
+    }
+    
+    public func getCurrentUser() async throws -> User? {
+        try await repository.getCurrentUser()
     }
 }
 

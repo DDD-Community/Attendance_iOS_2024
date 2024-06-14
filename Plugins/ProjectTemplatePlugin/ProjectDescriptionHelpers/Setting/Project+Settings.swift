@@ -23,8 +23,8 @@ extension Settings {
             .setCodeSignIdentity()
             .setCodeSignStyle()
             .setVersioningSystem()
-//            .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
-//            .setDevelopmentTeam(Project.Environment.organizationTeamId)
+            .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
+            .setDevelopmentTeam(Project.Environment.organizationTeamId)
             .setDebugInformationFormat(),
         
         configurations: [
