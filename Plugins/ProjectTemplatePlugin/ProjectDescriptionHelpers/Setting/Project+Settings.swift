@@ -13,7 +13,7 @@ extension Settings {
         base: SettingsDictionary()
             .setProductName(Project.Environment.appName)
             .setCFBundleDisplayName(Project.Environment.appName)
-            .setMarketingVersion(.appVersion())
+            .setMarketingVersion(.appVersion(version: "1.0.0"))
             .setASAuthenticationServicesEnabled()
             .setPushNotificationsEnabled()
             .setEnableBackgroundModes()

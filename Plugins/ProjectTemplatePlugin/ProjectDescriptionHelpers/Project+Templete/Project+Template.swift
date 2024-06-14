@@ -26,44 +26,46 @@ public extension Project {
         schemes: [ProjectDescription.Scheme] = []
     ) -> Project {
         
-        let appTarget: Target = .target(
-            name: name,
-            destinations: destinations,
-            product: product,
-            bundleId: bundleId,
-            deploymentTargets: deploymentTarget,
-            infoPlist: infoPlist,
-            sources: sources,
-            resources: resources,
-            entitlements: entitlements,
-            scripts: scripts,
-            dependencies: dependencies
-        )
+        let appTarget: Target = .appTarget(
+            factory: .init(
+                name: name,
+                platform: platform,
+                bundleId: bundleId,
+                deploymentTarget: deploymentTarget,
+                destinations:  destinations,
+                infoPlist: infoPlist,
+                sources:  sources,
+                resources: resources,
+                entitlements: entitlements,
+                dependencies:  dependencies
+            ))
         
-        let appDevTarget: Target = .target(
-            name: "\(name)-QA",
-            destinations: destinations,
-            product: product,
-            bundleId: "\(bundleId)",
-            deploymentTargets: deploymentTarget,
-            infoPlist: infoPlist,
-            sources: sources,
-            resources: resources,
-            entitlements: entitlements,
-            scripts: scripts,
-            dependencies: dependencies
-        )
+        let appDevTarget: Target = .appTarget(
+            factory: .init(
+                name: "\(name)-QA",
+                platform: platform,
+                bundleId: bundleId,
+                deploymentTarget: deploymentTarget,
+                destinations:  destinations,
+                infoPlist: infoPlist,
+                sources:  sources,
+                resources: resources,
+                entitlements: entitlements,
+                dependencies:  dependencies
+            ))
         
-        let appTestTarget : Target = .target(
-            name: "\(name)Tests",
-            destinations: destinations,
-            product: .unitTests,
-            bundleId: "\(bundleId).\(name)Tests",
-            deploymentTargets: deploymentTarget,
-            infoPlist: .default,
-            sources: ["\(name)Tests/Sources/**"],
-            dependencies: [.target(name: name)]
-        )
+        let appTestTarget: Target = .appTarget(
+            factory: .init(
+                name: "\(name)Tests",
+                product: .unitTests,
+                bundleId: "\(bundleId).\(name)Tests",
+                deploymentTarget:  deploymentTarget,
+                destinations: destinations,
+                infoPlist: .default,
+                sources: ["\(name)Tests/Sources/**"],
+                dependencies: [.target(name: name)]
+            ))
+        
         
         let targets = [appTarget, appDevTarget, appTestTarget]
         

@@ -104,7 +104,7 @@ public struct InfoPlistValues {
         infoPlist.merge(setCFBundleInfoDictionaryVersion("6.0")) { (_, new) in new }
         infoPlist.merge(setCFBundleName("$(PRODUCT_NAME)")) { (_, new) in new }
         infoPlist.merge(setCFBundlePackageType("APPL")) { (_, new) in new }
-        infoPlist.merge(setCFBundleShortVersionString("1.0")) { (_, new) in new }
+        infoPlist.merge(setCFBundleShortVersionString(.appVersion(version: "1.0.0"))) { (_, new) in new }
         infoPlist.merge(setCFBundleURLTypes([
             [
                 "CFBundleURLSchemes": [
@@ -112,7 +112,7 @@ public struct InfoPlistValues {
                 ]
             ]
         ])) { (_, new) in new }
-        infoPlist.merge(setCFBundleVersion("1")) { (_, new) in new }
+        infoPlist.merge(setCFBundleVersion(.appBuildVersion())) { (_, new) in new }
         infoPlist.merge(setGIDClientID("882277748169-ouegejt3kc6jo5enbfjmmre2nnbthj82.apps.googleusercontent.com")) { (_, new) in new }
         infoPlist.merge(setLSRequiresIPhoneOS(true)) { (_, new) in new }
         infoPlist.merge(setUIAppFonts(["PretendardVariable.ttf"])) { (_, new) in new }
