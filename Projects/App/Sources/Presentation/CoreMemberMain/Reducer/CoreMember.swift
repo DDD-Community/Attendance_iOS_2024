@@ -57,7 +57,7 @@ public struct CoreMember {
         case qrcode(QrCode)
     }
     
-        
+    
     @Dependency(FireStoreUseCase.self) var fireStoreUseCase
     
     public var body: some ReducerOf<Self> {
@@ -120,22 +120,35 @@ public struct CoreMember {
                 
             case .fetchMember:
                 return .run { send in
-                    do {
-                        let fetchedData = try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
+                    let fetchedDataResult = await Result {
+                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
+                    }
+                    
+                    switch fetchedDataResult {
+                        
+                    case let .success(fetchedData):
                         await send(.fetchDataResponse(.success(fetchedData)))
-                    } catch {
+                        
+                    case let .failure(error):
                         await send(.fetchDataResponse(.failure(error)))
                     }
+                    
                 }
                 
             case let .upDateFetchMember(selectPart: selectPart):
                 return .run { send in
-                    do {
-                        let fetchedData = try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
+                    let fetchedDataResult = await Result {
+                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
+                    }
+                    
+                    switch fetchedDataResult {
+                        
+                    case let .success(fetchedData):
                         let filteredData = fetchedData.filter { $0.roleType != .all && (selectPart == .all || $0.roleType == selectPart) }
                         await send(.updateAttendanceModel(fetchedData))
                         await send(.fetchDataResponse(.success(filteredData)))
-                    } catch {
+                        
+                    case let .failure(error):
                         await send(.fetchDataResponse(.failure(error)))
                     }
                 }
@@ -152,10 +165,17 @@ public struct CoreMember {
                 
             case .fetchCurrentUser:
                 return .run { send in
-                    do {
-                        guard  let fetchedUserData = try await fireStoreUseCase.getCurrentUser() else { return  }
-                        await send(.fetchUserDataResponse(.success(fetchedUserData)))
-                    } catch {
+                    let fetchUserResult = await Result {
+                        try await fireStoreUseCase.getCurrentUser()
+                    }
+                    
+                    switch fetchUserResult {
+                        
+                    case let .success(fetchUserResult):
+                        guard let fetchUserResult = fetchUserResult else {return}
+                        await send(.fetchUserDataResponse(.success(fetchUserResult)))
+                        
+                    case let .failure(error):
                         await send(.fetchUserDataResponse(.failure(error)))
                     }
                 }
@@ -164,7 +184,7 @@ public struct CoreMember {
                 state.user = fetchUser
                 Log.error("fetching data", fetchUser.uid)
                 return .none
-            
+                
             case let .fetchUserDataResponse(.failure(error)):
                 Log.error("Error fetching User", error)
                 state.user = nil
