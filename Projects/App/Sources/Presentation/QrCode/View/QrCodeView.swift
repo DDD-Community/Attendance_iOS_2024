@@ -35,14 +35,23 @@ struct QrCodeView: View {
               
               generateQrImage()
               
-              Spacer()
+              if store.loadingQRImage {
+                  qrCodeReaderText()
+                  
+              } else {
+                  Spacer()
+              }
           }
           .navigationBarBackButtonHidden()
           .onAppear {
               store.send(.appearLoading)
               
-              DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+              DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
                   store.send(.generateQRCode)
+              }
+              
+              DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                  store.qrCodeReaderText = "QRCode를 찍어주셔야 출석이 가능 합니다!"
               }
           }
       }
@@ -72,6 +81,19 @@ extension QrCodeView {
                     .frame(width: 200, height: 200)
                     
             }
+        }
+    }
+    
+    @ViewBuilder
+    fileprivate func qrCodeReaderText() -> some View {
+        VStack {
+            Spacer()
+                .frame(height: 40)
+            
+            Text(store.qrCodeReaderText)
+                .pretendardFont(family: .Bold, size: 20)
+            
+            Spacer()
         }
     }
 }

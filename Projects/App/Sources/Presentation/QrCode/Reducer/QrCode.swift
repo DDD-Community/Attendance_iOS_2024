@@ -24,6 +24,7 @@ public struct QrCode {
         var creationTime: Date = Date()
         var qrCodeImage: Image? = nil
         var loadingQRImage: Bool = false
+        var qrCodeReaderText: String = ""
         
         public init(userID: String) {
             self.userID = userID
@@ -79,6 +80,7 @@ public struct QrCode {
                 return .none
             }
         }
+        
     }
 }
 

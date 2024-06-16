@@ -29,6 +29,10 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
     public func getCurrentUser() async throws -> User? {
         try await repository.getCurrentUser()
     }
+    
+    public func observeAttendanceChanges(from collection: String) async throws -> AsyncStream<Result<[Attendance], CustomError>> {
+        try await repository.observeAttendanceChanges(from: collection)
+    }
 }
 
 extension FireStoreUseCase: DependencyKey {

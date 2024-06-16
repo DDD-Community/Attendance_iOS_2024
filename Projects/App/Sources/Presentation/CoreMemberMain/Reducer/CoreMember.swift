@@ -31,8 +31,7 @@ public struct CoreMember {
         var user: User? =  nil
         
         @Presents var destination: Destination.State?
-        
-        
+    
     }
     
     public enum Action  {
@@ -42,19 +41,21 @@ public struct CoreMember {
         case swipePrevious
         case fetchMember
         case upDateFetchMember(selectPart: SelectPart)
-        case fetchDataResponse(Result<[Attendance], Error>)
+        case fetchDataResponse(Result<[Attendance], CustomError>)
         case destination(PresentationAction<Destination.Action>)
         case presntQrcode
         case upDateDataQRCode
         case updateAttendanceModel([Attendance])
-        case fetchModel([Attendance])
         case fetchCurrentUser
-        case fetchUserDataResponse(Result<User, Error>)
+        case fetchUserDataResponse(Result<User, CustomError>)
+        case observeAttendance
+        case presntEventModal
     }
     
     @Reducer(state: .equatable)
     public enum Destination {
         case qrcode(QrCode)
+        case makeEvent(MakeEvent)
     }
     
     
@@ -97,10 +98,6 @@ public struct CoreMember {
                 // Add any additional logic if needed
                 return .none
                 
-            case let .fetchModel(newValue):
-                state.attendaceModel = [ ]
-                return .none
-                
             case .swipeNext:
                 guard let selectPart = state.selectPart else { return .none }
                 if let currentIndex = SelectPart.allCases.firstIndex(of: selectPart),
@@ -117,9 +114,8 @@ public struct CoreMember {
                 }
                 return .none
                 
-                
             case .fetchMember:
-                return .run { send in
+                return .run { @MainActor send  in
                     let fetchedDataResult = await Result {
                         try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
                     }
@@ -127,16 +123,16 @@ public struct CoreMember {
                     switch fetchedDataResult {
                         
                     case let .success(fetchedData):
-                        await send(.fetchDataResponse(.success(fetchedData)))
+                         send(.fetchDataResponse(.success(fetchedData)))
                         
                     case let .failure(error):
-                        await send(.fetchDataResponse(.failure(error)))
+                         send(.fetchDataResponse(.failure(CustomError.map(error))))
                     }
                     
                 }
                 
             case let .upDateFetchMember(selectPart: selectPart):
-                return .run { send in
+                return .run { @MainActor send in
                     let fetchedDataResult = await Result {
                         try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
                     }
@@ -145,11 +141,18 @@ public struct CoreMember {
                         
                     case let .success(fetchedData):
                         let filteredData = fetchedData.filter { $0.roleType != .all && (selectPart == .all || $0.roleType == selectPart) }
-                        await send(.updateAttendanceModel(fetchedData))
-                        await send(.fetchDataResponse(.success(filteredData)))
+                         send(.updateAttendanceModel(fetchedData))
+                         send(.fetchDataResponse(.success(filteredData)))
                         
                     case let .failure(error):
-                        await send(.fetchDataResponse(.failure(error)))
+                        send(.fetchDataResponse(.failure(CustomError.map(error))))
+                    }
+                }
+                
+            case .observeAttendance:
+                return .run { send in
+                    for await result in try await fireStoreUseCase.observeAttendanceChanges(from: "members") {
+                        await send(.fetchDataResponse(result))
                     }
                 }
                 
@@ -164,7 +167,7 @@ public struct CoreMember {
                 return .none
                 
             case .fetchCurrentUser:
-                return .run { send in
+                return .run { @MainActor send in
                     let fetchUserResult = await Result {
                         try await fireStoreUseCase.getCurrentUser()
                     }
@@ -173,10 +176,10 @@ public struct CoreMember {
                         
                     case let .success(fetchUserResult):
                         guard let fetchUserResult = fetchUserResult else {return}
-                        await send(.fetchUserDataResponse(.success(fetchUserResult)))
+                         send(.fetchUserDataResponse(.success(fetchUserResult)))
                         
                     case let .failure(error):
-                        await send(.fetchUserDataResponse(.failure(error)))
+                        send(.fetchDataResponse(.failure(CustomError.map(error))))
                     }
                 }
                 
@@ -190,6 +193,9 @@ public struct CoreMember {
                 state.user = nil
                 return .none
                 
+            case .presntEventModal:
+                state.destination = .makeEvent(MakeEvent.State())
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)

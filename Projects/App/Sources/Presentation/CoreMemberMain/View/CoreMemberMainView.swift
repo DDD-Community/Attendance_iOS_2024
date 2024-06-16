@@ -40,10 +40,19 @@ struct CoreMemberMainView: View {
                 
             }
         }
+        .sheet(item: $store.scope(state: \.destination?.makeEvent, action: \.destination.makeEvent)) { makeEvent in
+            MakeEventView(store: makeEvent)
+                .frame(width: UIScreen.screenWidth)
+                .presentationDetents([.medium])
+                .presentationCornerRadius(20)
+                .presentationDragIndicator(.hidden)
+                .presentationBackground(Color.basicBlackDimmed)
+        }
         .task {
             store.send(.fetchMember)
             store.send(.appearSelectPart(selectPart: .all))
             store.send(.fetchCurrentUser)
+            store.send(.observeAttendance)
         }
         .onChange(of: store.attendaceModel) { oldValue , newValue in
             store.send(.updateAttendanceModel(newValue))
@@ -264,7 +273,7 @@ extension CoreMemberMainView {
                     .frame(width: 20, height: 20)
                     .foregroundColor(.basicWhite)
                     .onTapGesture {
-                        store.send(.presntQrcode)
+                        store.send(.presntEventModal)
                     }
                 
             }
@@ -277,8 +286,8 @@ extension CoreMemberMainView {
 }
 
 
-#Preview {
-    CoreMemberMainView(store: Store(initialState: CoreMember.State(), reducer: {
-        CoreMember()
-    }))
-}
+//#Preview {
+//    CoreMemberMainView(store: Store(initialState: CoreMember.State(), reducer: {
+//        CoreMember()
+//    }))
+//}

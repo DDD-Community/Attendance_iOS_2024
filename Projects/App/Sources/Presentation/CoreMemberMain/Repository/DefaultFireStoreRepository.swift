@@ -19,4 +19,11 @@ public final class DefaultFireStoreRepository: FireStoreRepositoryProtocol {
     public func getCurrentUser() async throws -> User? {
         return nil
     }
+    
+    public func observeAttendanceChanges(from collection: String) async throws -> AsyncStream<Result<[Attendance],  CustomError>> {
+        return AsyncStream { continuation in
+                // Placeholder implementation: immediately terminate the stream
+                continuation.finish()
+            }
+    }
 }

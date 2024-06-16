@@ -17,7 +17,7 @@ public extension Color {
     
     static let basicWhite = Color(hex: "#FFFFFF")
     static let basicBlack = Color(hex: "#000000")
-    static let basicBlackDimmed = Color(hex: "#333332").opacity(0.7)
+    static let basicBlackDimmed = Color(hex: "#333332")
     static let basicGray1BG = Color(hex: "#FFFDFA")
     static let basicGray2 = Color(hex: "#F9F9F9")
     static let basicGray3 = Color(hex: "#F2F2F1")

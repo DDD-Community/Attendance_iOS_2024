@@ -10,7 +10,7 @@ import ProjectDescription
 public struct TargetFactory {
     var name: String
     var platform: Platform
-    var product: Product
+    var product: Product?
     var productName: String?
     var bundleId: String?
     var deploymentTarget: ProjectDescription.DeploymentTargets?
@@ -32,7 +32,7 @@ public struct TargetFactory {
     public init(
         name: String = "",
         platform: Platform = .iOS,
-        product: Product = .staticLibrary,
+        product: Product? = nil,
         productName: String? = nil,
         bundleId: String? = nil,
         deploymentTarget: ProjectDescription.DeploymentTargets? = nil,

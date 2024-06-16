@@ -13,7 +13,7 @@ public extension Target {
         return .target(
             name: factory.name,
             destinations: factory.destinations ?? .iOS,
-            product: factory.product,
+            product: factory.product ?? .app,
             bundleId: factory.bundleId ?? Project.Environment.bundlePrefix + ".\(factory.name)",
             deploymentTargets: factory.deploymentTarget,
             infoPlist: factory.infoPlist,
