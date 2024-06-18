@@ -31,6 +31,16 @@ public struct MakeEventView: View {
                     
                 } else {
                     selectAttentMemberType()
+                    
+                    
+                    Spacer()
+                        .frame(height: 10)
+                    
+                    Text("이벤트 생성")
+                        .foregroundColor(Color.basicWhite)
+                        .onTapGesture {
+                            store.send(.makeEventToFireBase(eventName: store.selectMakeEventReason))
+                        }
                 }
                 
                 Spacer()
@@ -38,6 +48,9 @@ public struct MakeEventView: View {
         }
         .onTapGesture {
             store.send(.tapCloseDropDown)
+        }
+        .task {
+            store.send(.observeEvent)
         }
     }
 }

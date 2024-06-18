@@ -16,6 +16,7 @@ public enum CustomError: Error {
     case decodeFailed
     case invalidURL
     case unknownError(String)
+    case firestoreError(String)
     case none
 }
 
@@ -38,11 +39,13 @@ extension CustomError: LocalizedError {
             return "잘못된 접근입니다"
         case .unknownError:
             return "원인을 알 수 없는 에러 발생"
+        case .firestoreError(let message):
+            return "파이어 베이스 에러 발생: \(message)"
         case .none:
             return nil
         }
     }
-    
+
     public var recoverySuggestion: String? {
         switch self {
         case .wrongQueryType:
@@ -61,11 +64,13 @@ extension CustomError: LocalizedError {
             return "개발팀에게 문의해주세요"
         case .unknownError:
             return "개발팀에게 문의해주세요"
+        case .firestoreError(_):
+            return "개발팀에게 문의해주세요"
         case .none:
             return nil
         }
     }
-    
+
     static func map(_ error: Error) -> CustomError {
         if let customError = error as? CustomError {
             return customError
@@ -74,4 +79,3 @@ extension CustomError: LocalizedError {
         }
     }
 }
-

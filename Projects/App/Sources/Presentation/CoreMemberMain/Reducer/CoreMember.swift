@@ -29,9 +29,10 @@ public struct CoreMember {
         var qrcodeImage: String = "qrcode"
         var eventImage: String = "flag.square"
         var user: User? =  nil
+        var errorMessage: String?
         
         @Presents var destination: Destination.State?
-    
+        
     }
     
     public enum Action  {
@@ -72,7 +73,7 @@ public struct CoreMember {
                     state.selectPart = selectPart
                     state.isActiveBoldText = true
                 }
-                state.disableSelectButton = state.selectPart != nil
+                //                state.disableSelectButton = state.selectPart != nil
                 
                 return .none
                 
@@ -84,7 +85,6 @@ public struct CoreMember {
                 return .none
                 
             case .presntQrcode:
-                
                 try? Keychain().set(state.user?.uid ?? "" , key: "userID")
                 return .none
                 
@@ -151,20 +151,22 @@ public struct CoreMember {
                 
             case .observeAttendance:
                 return .run { send in
-                    for await result in try await fireStoreUseCase.observeAttendanceChanges(from: "members") {
+                    for await result in try await fireStoreUseCase.observeFireBaseChanges(from: "members", as: Attendance.self) {
                         await send(.fetchDataResponse(result))
                     }
                 }
                 
-            case let .fetchDataResponse(.success(fetchedData)):
-                state.isLoading = false
-                state.attendaceModel = fetchedData
+            case let .fetchDataResponse(fetchedData):
+                switch fetchedData {
+                case let .success(fetchedData):
+                    state.isLoading = false
+                    state.attendaceModel = fetchedData
+                case let .failure(error):
+                    Log.error("Error fetching data", error)
+                    state.isLoading = true
+                }
                 return .none
                 
-            case let .fetchDataResponse(.failure(error)):
-                Log.error("Error fetching data", error)
-                state.isLoading = true
-                return .none
                 
             case .fetchCurrentUser:
                 return .run { @MainActor send in
@@ -183,15 +185,18 @@ public struct CoreMember {
                     }
                 }
                 
-            case let .fetchUserDataResponse(.success(fetchUser)):
-                state.user = fetchUser
-                Log.error("fetching data", fetchUser.uid)
+                
+            case let .fetchUserDataResponse(fetchUser):
+                switch fetchUser {
+                case let .success(fetchUser):
+                    state.user = fetchUser
+                    Log.error("fetching data", fetchUser.uid)
+                case let .failure(error):
+                    Log.error("Error fetching User", error)
+                    state.user = nil
+                }
                 return .none
                 
-            case let .fetchUserDataResponse(.failure(error)):
-                Log.error("Error fetching User", error)
-                state.user = nil
-                return .none
                 
             case .presntEventModal:
                 state.destination = .makeEvent(MakeEvent.State())
@@ -202,7 +207,6 @@ public struct CoreMember {
         .onChange(of: \.attendaceModel) { oldValue, newValue in
             Reduce { state, action in
                 state.attendaceModel = newValue
-                
                 return .none
             }
         }

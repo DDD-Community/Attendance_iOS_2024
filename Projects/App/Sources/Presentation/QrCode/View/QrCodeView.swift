@@ -43,15 +43,14 @@ struct QrCodeView: View {
               }
           }
           .navigationBarBackButtonHidden()
-          .onAppear {
+          .task {
               store.send(.appearLoading)
-              
-              DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
-                  store.send(.generateQRCode)
-              }
-              
-              DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                  store.qrCodeReaderText = "QRCode를 찍어주셔야 출석이 가능 합니다!"
+              Task {
+                  await Task.sleep(seconds: 1.7)
+                              store.send(.generateQRCode)
+                  
+                  await Task.sleep(seconds: 0.2)
+                             store.qrCodeReaderText = "QRCode를 찍어주셔야 출석이 가능 합니다!"
               }
           }
       }
