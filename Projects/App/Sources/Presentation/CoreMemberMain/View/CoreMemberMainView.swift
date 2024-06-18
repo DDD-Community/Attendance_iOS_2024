@@ -286,8 +286,8 @@ extension CoreMemberMainView {
 }
 
 
-//#Preview {
-//    CoreMemberMainView(store: Store(initialState: CoreMember.State(), reducer: {
-//        CoreMember()
-//    }))
-//}
+#Preview {
+    CoreMemberMainView(store: Store(initialState: CoreMember.State(), reducer: {
+        CoreMember()
+    }))
+}

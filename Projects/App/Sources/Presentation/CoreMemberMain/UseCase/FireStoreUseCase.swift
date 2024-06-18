@@ -12,6 +12,8 @@ import ComposableArchitecture
 import Firebase
 
 public struct FireStoreUseCase: FireStoreUseCaseProtocol {
+   
+    
     
     private let repository: FireStoreRepositoryProtocol
     
@@ -30,9 +32,14 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
         try await repository.getCurrentUser()
     }
     
-    public func observeAttendanceChanges(from collection: String) async throws -> AsyncStream<Result<[Attendance], CustomError>> {
-        try await repository.observeAttendanceChanges(from: collection)
+    public func observeFireBaseChanges<T>(from collection: String, as type: T.Type) async throws -> AsyncStream<Result<[T], CustomError>> where T : Decodable {
+        try await repository.observeFireBaseChanges(from: collection, as: T.self)
     }
+   
+    public func createEvent(event: DDDEvent, from collection: String) async throws -> DDDEvent? {
+        try await repository.createEvent(event: event, from: collection)
+    }
+    
 }
 
 extension FireStoreUseCase: DependencyKey {

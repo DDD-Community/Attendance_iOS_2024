@@ -28,13 +28,15 @@ import Service
         Log.debug("firebase 데이터 가져오기 성공", collection, querySnapshot.documents.forEach { Log.debug($0.data()) })
         
         return querySnapshot.documents.compactMap { document in
-            if T.self == Attendance.self {
-                return try? Attendance(from: document) as? T
-            } else {
-                return try? document.data(as: T.self)
+            do {
+                return try document.data(as: T.self)
+            } catch {
+                Log.error("Failed to decode document to \(T.self): \(error)")
+                return nil
             }
         }
     }
+    
     
     //MARK: - firebase 유저 정보가져오기
     public func getCurrentUser() async throws -> User? {
@@ -42,33 +44,52 @@ import Service
     }
     
     //MARK: - firebase 실시간 정보 가져오기
-    public func observeAttendanceChanges(from collection: String) async throws -> AsyncStream<Result<[Attendance], CustomError>> {
+    public func observeFireBaseChanges<T>(from collection: String, as type: T.Type) async throws -> AsyncStream<Result<[T], CustomError>> where T: Decodable {
         AsyncStream { continuation in
-            let collectionRef = Firestore.firestore().collection(collection)
+            let collectionRef = fireStoreDB.collection(collection)
             
             listener = collectionRef.addSnapshotListener { querySnapshot, error in
-                let result: Result<[Attendance], CustomError> = {
+                let result: Result<[T], CustomError> = {
                     guard let snapshot = querySnapshot else {
                         let customError = error.map { CustomError.unknownError($0.localizedDescription) } ?? CustomError.unknownError("Unknown error")
                         return .failure(customError)
                     }
                     
                     do {
-                        let attendanceRecords = try snapshot.documents.compactMap { document in
-                            try Attendance(from: document)
+                        let records = try snapshot.documents.compactMap { document in
+                            try document.data(as: T.self)
                         }
-                        return .success(attendanceRecords)
+                        Log.debug("firebase 데이터 실시간 변경", records.map { $0 }, #function)
+                        return .success(records)
                     } catch {
                         return .failure(.decodeFailed)
                     }
                 }()
                 
-                continuation.yield(result)
+                switch result {
+                case .success(let records):
+                    continuation.yield(.success(records))
+                case .failure(let error):
+                    continuation.yield(.failure(error))
+                }
             }
             
             continuation.onTermination = { @Sendable _ in
                 self.listener?.remove()
             }
+        }
+    }
+    
+    //MARK: - firebase 로 이벤트 만들기
+    public func createEvent(event: DDDEvent, from collection: String) async throws -> DDDEvent? {
+        var newEvent = event
+        if let documentReference = try? await fireStoreDB.collection(collection).addDocument(data: event.toDictionary()) {
+            newEvent.id = documentReference.documentID
+            Log.debug("Document added with ID: ", "\(#function)", "\(documentReference.documentID)")
+            return newEvent
+        } else {
+            Log.error("Error adding document")
+            return nil
         }
     }
 }

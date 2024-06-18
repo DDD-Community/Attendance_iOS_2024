@@ -11,7 +11,7 @@ public struct CustomDropdownMenu: View {
     @Binding var isSelecting: Bool
     @Binding var selectionTitle: String
     @State var selectedRowId = 0
-
+    
     public init(
         isSelecting: Binding<Bool>,
         selectionTitle: Binding<String>
@@ -32,6 +32,10 @@ public struct CustomDropdownMenu: View {
                             .pretendardFont(family: isSelecting ? .Medium : .Bold, size: 16)
                             .foregroundColor(isSelecting ? .basicGray7 : .basicWhite)
                             .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 0))
+                            .onTapGesture {
+                                isSelecting.toggle()
+                                selectionTitle = "이번주 세션 이벤트를 선택 해주세요!"
+                            }
                         Spacer()
                         
                         VStack {
@@ -44,9 +48,9 @@ public struct CustomDropdownMenu: View {
                         }
                     }
                     .frame(height: 48)
+                    
                     ScrollView(.vertical, showsIndicators: false) {
                         if isSelecting {
-                            
                             VStack(spacing: 0) {
                                 DropdownMenuItemView(isSelecting: $isSelecting, selectiontitle: $selectionTitle, selectionId: $selectedRowId, item: .init(id: 1, title: "부스팅 데이 1", onSelect: {}))
                                 DropdownMenuItemView(isSelecting: $isSelecting, selectiontitle: $selectionTitle, selectionId: $selectedRowId, item: .init(id: 2, title: "직군 모임 1", onSelect: {}))
@@ -56,7 +60,6 @@ public struct CustomDropdownMenu: View {
                                 DropdownMenuItemView(isSelecting: $isSelecting, selectiontitle: $selectionTitle, selectionId: $selectedRowId, item: .init(id: 6, title: "직군 모임2", onSelect: {}))
                                 DropdownMenuItemView(isSelecting: $isSelecting, selectiontitle: $selectionTitle, selectionId: $selectedRowId, item: .init(id: 7, title: "해커톤", onSelect: {}))
                                 DropdownMenuItemView(isSelecting: $isSelecting, selectiontitle: $selectionTitle, selectionId: $selectedRowId, item: .init(id: 8, title: "최종 발표", onSelect: {}))
-                                
                             }
                         }
                     }
@@ -80,7 +83,7 @@ public struct CustomDropdownMenu: View {
             isSelecting.toggle()
         }
     }
-    
 }
+
 
 

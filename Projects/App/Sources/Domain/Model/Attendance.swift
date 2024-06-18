@@ -7,6 +7,7 @@
 
 import FirebaseFirestore
 
+
 public struct Attendance: Codable, Hashable {
     var id: String
     var memberId: String
@@ -41,20 +42,20 @@ public struct Attendance: Codable, Hashable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case memberId, name, roleType, eventId, createdAt, updatedAt, attendanceType, generation
+        case id, memberId, name, roleType, eventId, createdAt, updatedAt, attendanceType, generation
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = "" // Placeholder, will be set later from document ID
-        self.memberId = try container.decode(String.self, forKey: .memberId)
-        self.name = try container.decode(String.self, forKey: .name)
-        self.roleType = try container.decode(SelectPart.self, forKey: .roleType)
-        self.eventId = try container.decode(String.self, forKey: .eventId)
-        self.createdAt = try container.decode(Date.self, forKey: .createdAt)
-        self.updatedAt = try container.decode(Date.self, forKey: .updatedAt)
-        self.attendanceType = try container.decode(AttendanceType.self, forKey: .attendanceType)
-        self.generation = try container.decode(Int.self, forKey: .generation)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
+        self.memberId = try container.decodeIfPresent(String.self, forKey: .memberId) ?? ""
+        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+        self.roleType = try container.decodeIfPresent(SelectPart.self, forKey: .roleType) ?? .all
+        self.eventId = try container.decodeIfPresent(String.self, forKey: .eventId) ?? ""
+        self.createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
+        self.updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? Date()
+        self.attendanceType = try container.decodeIfPresent(AttendanceType.self, forKey: .attendanceType) ?? .run
+        self.generation = try container.decodeIfPresent(Int.self, forKey: .generation) ?? 0
     }
     
     public init(from document: DocumentSnapshot) throws {
@@ -62,12 +63,11 @@ public struct Attendance: Codable, Hashable {
         self.id = document.documentID
         self.memberId = data["memberId"] as? String ?? ""
         self.name = data["name"] as? String ?? ""
-        self.roleType = SelectPart(rawValue: data["roleType"] as? String ?? "") ?? .all // Adjust accordingly
+        self.roleType = SelectPart(rawValue: data["roleType"] as? String ?? "") ?? .all
         self.eventId = data["eventId"] as? String ?? ""
         self.createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
         self.updatedAt = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
-        self.attendanceType = AttendanceType(rawValue: data["attendanceType"] as? String ?? "") ?? .run // Adjust accordingly
+        self.attendanceType = AttendanceType(rawValue: data["attendanceType"] as? String ?? "") ?? .run
         self.generation = data["generation"] as? Int ?? 0
     }
 }
-

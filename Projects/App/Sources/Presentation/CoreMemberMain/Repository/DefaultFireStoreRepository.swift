@@ -10,20 +10,27 @@ import FirebaseAuth
 
 public final class DefaultFireStoreRepository: FireStoreRepositoryProtocol {
     
+    
+   
+    
     public init() {}
     
     public func fetchFireStoreData<T>(from collection: String, as type: T.Type) async throws -> [T] where T : Decodable {
-        return []
+        return[]
     }
     
     public func getCurrentUser() async throws -> User? {
         return nil
     }
     
-    public func observeAttendanceChanges(from collection: String) async throws -> AsyncStream<Result<[Attendance],  CustomError>> {
+    public func observeFireBaseChanges<T>(from collection: String, as type: T.Type) async throws -> AsyncStream<Result<[T], CustomError>> where T : Decodable {
         return AsyncStream { continuation in
-                // Placeholder implementation: immediately terminate the stream
-                continuation.finish()
-            }
+            continuation.finish()
+        }
     }
+    
+    public func createEvent(event: DDDEvent, from collection: String) async throws -> DDDEvent? {
+        return nil
+    }
+    
 }
