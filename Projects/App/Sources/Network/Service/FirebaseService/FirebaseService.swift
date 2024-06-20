@@ -83,7 +83,7 @@ final class FirebaseService {
                 let member: Member = .init(
                     uid: uid,
                     name: name,
-                    role: MemberRoleType(rawValue: roleType) ?? .ios,
+                    role: SelectPart(rawValue: roleType) ?? .iOS,
                     memberType: MemberType(rawValue: memberType) ?? .notYet,
                     createdAt: createdAt,
                     updatedAt: updatedAt,
@@ -167,6 +167,8 @@ final class FirebaseService {
                     return Attendance(
                         id: id,
                         memberId: memberId,
+                        name: data["name"] as? String ?? "",
+                        roleType: .init(rawValue: data["roleType"] as? String ?? "") ?? .all,
                         eventId: eventId,
                         createdAt: createdAt,
                         updatedAt: updatedAt,
@@ -223,7 +225,11 @@ final class FirebaseService {
     func saveEvent(_ event: DDDEvent) -> Single<Bool> {
         return Single.create { [weak self] single in
             let db = Firestore.firestore()
-            let eventRef = db.collection("events").document(event.id)
+            guard let eventId: String = event.id else {
+                single(.failure(EventRepositoryError.saveEvent))
+                return Disposables.create()
+            }
+            let eventRef = db.collection("events").document()
             let data: [String: Any] = self?.convertEvent(event) ?? [:]
             eventRef.setData(data) { error in
                 guard error == nil else {
@@ -239,11 +245,15 @@ final class FirebaseService {
     func updateEvent(_ event: DDDEvent) -> Single<Bool> {
         return Single.create { [weak self] single in
             let db = Firestore.firestore()
-            let eventRef = db.collection("events").document(event.id)
+            guard let eventId: String = event.id else {
+                single(.failure(EventRepositoryError.updateEvent))
+                return Disposables.create()
+            }
+            let eventRef = db.collection("events").document(eventId)
             let data: [String: Any] = self?.convertEvent(event) ?? [:]
             eventRef.updateData(data) { error in
                 guard error == nil else {
-                    single(.failure(EventRepositoryError.saveEvent))
+                    single(.failure(EventRepositoryError.updateEvent))
                     return
                 }
                 single(.success(true))
@@ -290,9 +300,6 @@ extension FirebaseService {
         let description: String = data?["description"] as? String ?? ""
         let startTime: Date = (data?["startTime"] as? Timestamp)?.dateValue() ?? Date()
         let endTime: Date = (data?["endTime"] as? Timestamp)?.dateValue() ?? Date()
-        let location: String = data?["location"] as? String ?? ""
-        let latitude: Double = data?["latitude"] as? Double ?? 0
-        let longitude: Double = data?["longitude"] as? Double ?? 0
         let generation: Int = data?["generation"] as? Int ?? 0
         return DDDEvent(
             id: id,
@@ -300,24 +307,18 @@ extension FirebaseService {
             description: description,
             startTime: startTime,
             endTime: endTime,
-            location: location,
-            latitude: latitude,
-            longitude: longitude,
             generation: generation
         )
     }
     
     private func convertEvent(_ event: DDDEvent) -> [String: Any] {
         return [
-            "id": event.id,
+            "id": event.id as Any,
             "name": event.name,
-            "description": event.description,
+            "description": event.description as Any,
             "startTime": Timestamp(date: event.startTime),
             "endTime": Timestamp(date: event.endTime),
-            "location": event.location,
-            "latitude": event.latitude,
-            "longitude": event.longitude,
-            "generation": event.generation
+            "generation": event.generation as Any
         ]
     }
 }

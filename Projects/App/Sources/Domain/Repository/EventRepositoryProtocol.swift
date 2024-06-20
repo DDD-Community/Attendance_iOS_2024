@@ -20,4 +20,5 @@ protocol EventRepositoryProtocol {
 enum EventRepositoryError: Error {
     case eventNotExist
     case saveEvent
+    case updateEvent
 }

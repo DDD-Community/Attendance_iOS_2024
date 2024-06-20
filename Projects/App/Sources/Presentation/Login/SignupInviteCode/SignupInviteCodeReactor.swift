@@ -13,7 +13,7 @@ final class SignupInviteCodeReactor: Reactor {
     struct State {
         var uid: String
         var name: String
-        var part: MemberRoleType
+        var part: SelectPart
         var isManager: Bool
         var inviteCode: String = ""
         var isSignupSuccess: Bool?
@@ -38,7 +38,7 @@ final class SignupInviteCodeReactor: Reactor {
         uid: String,
         name: String,
         isManager: Bool,
-        part: MemberRoleType
+        part: SelectPart
     ) {
         self.initialState = State(
             uid: uid,

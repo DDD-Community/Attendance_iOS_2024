@@ -11,7 +11,7 @@ struct Member: Codable, Hashable {
     /// Firebase Auth의 uid
     var uid: String
     var name: String
-    var role: MemberRoleType
+    var role: SelectPart
     var memberType: MemberType
     var snsURL: String?
     var createdAt: Date

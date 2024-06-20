@@ -118,12 +118,16 @@ extension MemberMainReactor {
     private func buildAttendance() -> Attendance {
         let date: Date = .init()
         let memberId: String = self.currentState.userProfile?.uid ?? ""
+        let name: String = self.currentState.userProfile?.name ?? ""
+        let roleType: SelectPart = self.currentState.userProfile?.role ?? .all
         let eventId: String = self.currentState.todayEvent?.id ?? ""
         let attendanceType: AttendanceType = buildAttendanceType()
         
         return .init(
             id: UUID().uuidString,
             memberId: memberId,
+            name: name,
+            roleType: roleType,
             eventId: eventId,
             createdAt: date,
             updatedAt: date,

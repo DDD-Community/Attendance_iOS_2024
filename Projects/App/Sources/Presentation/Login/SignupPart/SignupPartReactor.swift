@@ -14,15 +14,15 @@ final class SignupPartReactor: Reactor {
         var uid: String
         var name: String
         var isManager: Bool
-        var selectedPart: MemberRoleType?
+        var selectedPart: SelectPart?
     }
     
     enum Action {
-        case selectPart(MemberRoleType)
+        case selectPart(SelectPart)
     }
     
     enum Mutation {
-        case setPart(MemberRoleType)
+        case setPart(SelectPart)
     }
     
     let initialState: State
