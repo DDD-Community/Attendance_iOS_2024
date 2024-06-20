@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:DDD-Attendance}/Plugins/ProjectTemplatePlugin",
+            "name": "Debug tuist-my-cli (Plugins/ProjectTemplatePlugin)",
+            "program": "${workspaceFolder:DDD-Attendance}/Plugins/ProjectTemplatePlugin/.build/debug/tuist-my-cli",
+            "preLaunchTask": "swift: Build Debug tuist-my-cli (Plugins/ProjectTemplatePlugin)"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:DDD-Attendance}/Plugins/ProjectTemplatePlugin",
+            "name": "Release tuist-my-cli (Plugins/ProjectTemplatePlugin)",
+            "program": "${workspaceFolder:DDD-Attendance}/Plugins/ProjectTemplatePlugin/.build/release/tuist-my-cli",
+            "preLaunchTask": "swift: Build Release tuist-my-cli (Plugins/ProjectTemplatePlugin)"
+        }
+    ]
+}

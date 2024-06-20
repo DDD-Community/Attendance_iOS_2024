@@ -26,9 +26,9 @@ final class SplashViewController: UIViewController {
         self.switchView(Int(Double(3.8)))
     }
     
-    private func switchView(_ after: Int) {
+    private func switchView(_ after: Double) {
         DispatchQueue.main.asyncAfter(
-            deadline: .now() + .seconds(after)
+            deadline: .now() + .milliseconds(Int(after * 1000))
         ) { [weak self] in
             self?.checkIsSigned { [weak self] isSigned in
                 guard let self = self else { return }
