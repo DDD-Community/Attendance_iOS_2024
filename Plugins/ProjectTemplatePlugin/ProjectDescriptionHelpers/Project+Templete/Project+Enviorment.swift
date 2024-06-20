@@ -20,4 +20,3 @@ public extension Project {
         public static let mainBundleId = "io.DDD.DDDAttendance"
     }
 }
-

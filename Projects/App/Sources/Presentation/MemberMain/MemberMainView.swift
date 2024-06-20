@@ -88,7 +88,7 @@ final class MemberMainView: BaseView {
                 .direction(.row)
                 .justifyContent(.center)
                 .columnGap(4)
-                .marginBottom(8)
+                .marginBottom(4)
                 .height(150)
                 .define { flex in
                     flex.addItem(qrCheckInButton)

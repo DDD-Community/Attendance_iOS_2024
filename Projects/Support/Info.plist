@@ -29,8 +29,12 @@
 	<string>1</string>
 	<key>GIDClientID</key>
 	<string>882277748169-ouegejt3kc6jo5enbfjmmre2nnbthj82.apps.googleusercontent.com</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>필요해요~</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -28,7 +28,8 @@ final class MemberMainViewController: UIViewController {
     
     // MARK: - Private helpers
     private func presentQRLoginView() {
-        
+        let vc: QRCheckInViewController = .init()
+        self.present(vc, animated: true)
     }
     
     private func switchToLoginView() {
@@ -59,6 +60,7 @@ extension MemberMainViewController: View {
         
         mainView.qrCheckInButton.rx.throttleTap
             .bind { [weak self] in
+                self?.presentQRLoginView()
             }.disposed(by: disposeBag)
         
         reactor.state.map { $0.userAttendanceHistory }

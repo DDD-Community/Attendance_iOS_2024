@@ -26,7 +26,8 @@ let infoPlist: [String: ProjectDescription.Plist.Value] = [
     "GIDClientID": "882277748169-ouegejt3kc6jo5enbfjmmre2nnbthj82.apps.googleusercontent.com",
     "CFBundleURLTypes": [
         ["CFBundleURLSchemes": ["com.googleusercontent.apps.882277748169-ouegejt3kc6jo5enbfjmmre2nnbthj82"]]
-    ]
+    ],
+    "NSCameraUsageDescription": "We need access to the camera to take photos."
 ]
 
 let project = Project.makeAppModule(
