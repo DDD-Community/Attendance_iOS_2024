@@ -19,15 +19,16 @@ public struct QrCode {
     
     @ObservableState
     public struct State: Equatable {
-        var userID: String = ""
+        var userID: String? = ""
         var eventID: String = ""
-        var creationTime: Date = Date()
+        var creationTime: Date?
         var qrCodeImage: Image? = nil
         var loadingQRImage: Bool = false
         var qrCodeReaderText: String = ""
         
-        public init(userID: String) {
+        public init(userID: String? = nil, createTime: Date? = nil) {
             self.userID = userID
+            self.creationTime = createTime
         }
     }
     
@@ -67,7 +68,7 @@ public struct QrCode {
                 
                 Log.debug(state.userID, state.eventID, state.creationTime)
                 return .run { send in
-                    let qrCodeGenerateString = String.combine(userID: userID, eventID: eventID, creationTime: creationTime)
+                    let qrCodeGenerateString = String.combine(userID: userID ?? "", eventID: eventID, creationTime: creationTime ?? Date())
                     let qrCodeImage = await qrCodeUseCase.generateQRCode(from: qrCodeGenerateString)
                     await send(.qrCodeGenerated(image: qrCodeImage))
                 }

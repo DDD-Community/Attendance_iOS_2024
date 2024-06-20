@@ -26,7 +26,9 @@ public extension TargetDependency.SPM {
     static let firebaseAnalytics = TargetDependency.external(name: "FirebaseAnalytics", condition: .none)
     static let firebaseCrashlytics = TargetDependency.external(name: "FirebaseCrashlytics", condition: .none)
     static let firebaseRemoteConfig = TargetDependency.external(name: "FirebaseRemoteConfig", condition: .none)
+    static let firebaseDatabase = TargetDependency.external(name: "FirebaseDatabase", condition: .none)
     static let keychainAccess = TargetDependency.external(name: "KeychainAccess", condition: .none)
+    static let popupView = TargetDependency.external(name: "PopupView", condition: .none)
     
     
 

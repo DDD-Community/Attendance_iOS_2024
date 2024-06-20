@@ -13,8 +13,6 @@ import Firebase
 
 public struct FireStoreUseCase: FireStoreUseCaseProtocol {
    
-    
-    
     private let repository: FireStoreRepositoryProtocol
     
     public init(
@@ -32,12 +30,23 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
         try await repository.getCurrentUser()
     }
     
-    public func observeFireBaseChanges<T>(from collection: String, as type: T.Type) async throws -> AsyncStream<Result<[T], CustomError>> where T : Decodable {
+    public func observeFireBaseChanges<T>(
+        from collection: String,
+        as type: T.Type
+    ) async throws -> AsyncStream<Result<[T], CustomError>> where T : Decodable {
         try await repository.observeFireBaseChanges(from: collection, as: T.self)
     }
    
     public func createEvent(event: DDDEvent, from collection: String) async throws -> DDDEvent? {
         try await repository.createEvent(event: event, from: collection)
+    }
+    
+    public func editEventStream(event: DDDEvent, in collection: String) async throws -> AsyncStream<Result<DDDEvent, CustomError>> {
+        try await repository.editEventStream(event: event, in: collection)
+    }
+    
+    public func deleteEvent(from collection: String) async throws {
+        try await repository.deleteEvent(from: collection)
     }
     
 }

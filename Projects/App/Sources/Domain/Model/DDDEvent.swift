@@ -8,9 +8,9 @@
 import Foundation
 
 public struct DDDEvent: Codable, Hashable {
-    var id: String
+    var id: String?
     var name: String
-    var description: String
+    var description: String?
     var startTime: Date
     var endTime: Date
 //    var location: String?
@@ -22,9 +22,9 @@ public struct DDDEvent: Codable, Hashable {
     
     public func toDictionary() -> [String: Any] {
         return [
-            "id": id,
+            "id": id ?? "",
             "name": name,
-            "description": description,
+            "description": description ?? "", 
             "startTime": startTime,
             "endTime": endTime,
 //            "latitude": latitude,

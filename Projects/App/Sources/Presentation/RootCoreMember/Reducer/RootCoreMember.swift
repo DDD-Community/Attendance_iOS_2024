@@ -28,12 +28,14 @@ public struct RootCoreMember {
         case binding(BindingAction<State>)
         case removePath
         case appearPath
+        case removeAllPath
     }
     
     @Reducer(state: .equatable)
     public enum Path {
         case coreMember(CoreMember)
         case qrCode(QrCode)
+        case editEvent(EditEvent)
     }
     
     public var body: some ReducerOf<Self> {
@@ -47,10 +49,19 @@ public struct RootCoreMember {
                 
             case let .path(action):
                 switch action {
-                case .element(id: _, action: .coreMember(.presntQrcode)):
+                case .element(id: _, action: .coreMember(.presentQrcode)):
                     let qrCode = try? Keychain().get("userID")
+                    let eventId = try? Keychain().get("")
                     Log.debug("키체인", qrCode)
                     state.path.append(.qrCode(.init(userID: qrCode ?? "")))
+                    
+                case .element(id: _, action: .coreMember(.presentEditEvent)):
+                    state.path.append(.editEvent(.init()))
+                    
+                case .element(id: _, action: .editEvent(.creatEvents)):
+                    state.path.append(.coreMember(.init()))
+//                case .element(id: _, action: .editEvent(.createEvent)): break
+//                    state.path.removeFirst()
                     
                 default:
                     break
@@ -60,6 +71,10 @@ public struct RootCoreMember {
                 
             case .removePath:
                 state.path.removeLast()
+                return .none
+                
+            case .removeAllPath:
+                state.path.removeAll()
                 return .none
                 
             case  .binding(_):

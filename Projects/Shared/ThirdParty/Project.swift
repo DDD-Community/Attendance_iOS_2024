@@ -27,7 +27,9 @@ let project = Project.makeAppModule(
         .SPM.firebaseAnalytics,
         .SPM.firebaseCrashlytics,
         .SPM.firebaseRemoteConfig,
-        .SPM.keychainAccess
+        .SPM.firebaseDatabase,
+        .SPM.keychainAccess,
+        .SPM.popupView
             
     ],
     sources: ["Sources/**"]

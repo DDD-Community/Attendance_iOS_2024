@@ -11,6 +11,7 @@ import Service
 import ComposableArchitecture
 import KeychainAccess
 import FirebaseAuth
+import SwiftUI
 
 
 @Reducer
@@ -28,14 +29,19 @@ public struct CoreMember {
         var isLoading: Bool = false
         var qrcodeImage: String = "qrcode"
         var eventImage: String = "flag.square"
+        var editEventImage: String = "pencil"
         var user: User? =  nil
         var errorMessage: String?
         
         @Presents var destination: Destination.State?
+        var selectDate: Date = Date.now
+        var selectDatePicker: Bool = false
+        @Presents var alert: AlertState<Action.Alert>?
         
     }
     
-    public enum Action  {
+    public enum Action : BindableAction {
+        case binding(BindingAction<State>)
         case selectPartButton(selectPart: SelectPart)
         case appearSelectPart(selectPart: SelectPart)
         case swipeNext
@@ -44,27 +50,42 @@ public struct CoreMember {
         case upDateFetchMember(selectPart: SelectPart)
         case fetchDataResponse(Result<[Attendance], CustomError>)
         case destination(PresentationAction<Destination.Action>)
-        case presntQrcode
+        case presentQrcode
+        case presentEditEvent
         case upDateDataQRCode
         case updateAttendanceModel([Attendance])
         case fetchCurrentUser
         case fetchUserDataResponse(Result<User, CustomError>)
         case observeAttendance
         case presntEventModal
+        case closePresntEventModal
+        case presntEventEditViewToModal
+        case selectDate(date: Date)
+        case alert(PresentationAction<Alert>)
+        
+            @CasePathable
+           public enum Alert {
+                case presentAlert
+            }
     }
     
     @Reducer(state: .equatable)
     public enum Destination {
         case qrcode(QrCode)
         case makeEvent(MakeEvent)
+        
     }
     
     
     @Dependency(FireStoreUseCase.self) var fireStoreUseCase
     
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
+            case .binding(_):
+                return .none
+                
             case let .selectPartButton(selectPart: selectPart):
                 if state.selectPart == selectPart {
                     state.selectPart = nil
@@ -73,9 +94,34 @@ public struct CoreMember {
                     state.selectPart = selectPart
                     state.isActiveBoldText = true
                 }
-                //                state.disableSelectButton = state.selectPart != nil
-                
                 return .none
+                
+            case .selectDate(let date):
+                if  state.selectDate == date {
+                    state.selectDatePicker.toggle()
+                } else {
+                    state.selectDate = date
+                    state.selectDatePicker.toggle()
+                }
+                
+                return .run { @MainActor send in
+                    let fetchedDataResult = await Result {
+                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
+                    }
+                    
+                    
+                    switch fetchedDataResult {
+                        
+                    case let .success(fetchedData):
+                        let filteredData = fetchedData.filter { $0.updatedAt.formattedDateToString() == date.formattedDateToString() }
+                        Log.debug("날짜 홗인", fetchedData.map { $0.updatedAt.formattedDateToString() }, date.formattedDateToString(), filteredData)
+                         send(.updateAttendanceModel(fetchedData))
+                         send(.fetchDataResponse(.success(filteredData)))
+                        
+                    case let .failure(error):
+                        send(.fetchDataResponse(.failure(CustomError.map(error))))
+                    }
+                }
                 
             case let .appearSelectPart(selectPart: selectPart):
                 state.selectPart = selectPart
@@ -84,12 +130,20 @@ public struct CoreMember {
             case .destination(_):
                 return .none
                 
-            case .presntQrcode:
+            case .presentQrcode:
                 try? Keychain().set(state.user?.uid ?? "" , key: "userID")
+                try?Keychain().set(state.selectDate.formattedDateToString() , key: "createTIme")
+                return .none
+                
+                
+            case .presentEditEvent:
+                return .none
+                
+            case .alert(.presented(.presentAlert)):
                 return .none
                 
             case .upDateDataQRCode:
-                state.destination = .qrcode(.init(userID: state.attendaceModel.first?.id ?? ""))
+                state.destination = .qrcode(.init(userID: state.attendaceModel.first?.id ?? "", createTime: state.selectDate))
                 return .none
                 
             case let .updateAttendanceModel(newValue):
@@ -201,9 +255,24 @@ public struct CoreMember {
             case .presntEventModal:
                 state.destination = .makeEvent(MakeEvent.State())
                 return .none
+                
+            case .closePresntEventModal:
+                state.destination = nil
+                return .none
+              
+            case .presntEventEditViewToModal:
+                state.destination = .makeEvent(MakeEvent.State())
+                return .none
+                
+                
+            case .alert(.dismiss):
+                state.alert = nil
+                return .none
             }
         }
+        
         .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$alert, action: \.alert)
         .onChange(of: \.attendaceModel) { oldValue, newValue in
             Reduce { state, action in
                 state.attendaceModel = newValue

@@ -28,6 +28,8 @@ struct CoreMemberMainView: View {
                 
                 titleView()
                 
+                selectAttendaceDate()
+                
                 attendanceStatus(selectPart: store.selectPart ?? .all)
                 
                 ScrollView(.vertical, showsIndicators: false) {
@@ -41,13 +43,16 @@ struct CoreMemberMainView: View {
             }
         }
         .sheet(item: $store.scope(state: \.destination?.makeEvent, action: \.destination.makeEvent)) { makeEvent in
-            MakeEventView(store: makeEvent)
+            MakeEventView(store: makeEvent, completion:  {
+                store.send(.closePresntEventModal)
+            })
                 .frame(width: UIScreen.screenWidth)
-                .presentationDetents([.medium])
+                .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
                 .presentationCornerRadius(20)
                 .presentationDragIndicator(.hidden)
                 .presentationBackground(Color.basicBlackDimmed)
         }
+        
         .task {
             store.send(.fetchMember)
             store.send(.appearSelectPart(selectPart: .all))
@@ -57,6 +62,7 @@ struct CoreMemberMainView: View {
         .onChange(of: store.attendaceModel) { oldValue , newValue in
             store.send(.updateAttendanceModel(newValue))
         }
+        
         .gesture(
             DragGesture()
                 .onEnded { value in
@@ -70,14 +76,6 @@ struct CoreMemberMainView: View {
                     }
                 }
         )
-        
-        
-    }
-    
-    private func registerDependencies() {
-        Task {
-            await AppDIContainer.shared.registerDependencies()
-        }
     }
 }
 
@@ -146,7 +144,23 @@ extension CoreMemberMainView {
         LazyVStack {
             switch store.selectPart {
             case .all:
-                attendanceMemberList(roleType: selectPart)
+                if store.attendaceModel.isEmpty {
+                   
+                    VStack {
+                        Spacer()
+                            .frame(height: UIScreen.screenHeight * 0.2)
+                        
+                        AnimatedImage(name: "DDDLoding.gif", isAnimating: .constant(true))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 200, height: 200)
+                        
+                        Spacer()
+                    }
+                    
+                } else {
+                    attendanceMemberList(roleType: selectPart)
+                }
                 
             default:
                 if store.attendaceModel.isEmpty {
@@ -185,6 +199,7 @@ extension CoreMemberMainView {
                         Spacer()
                     }
                 }
+                
             default:
                 ForEach(store.attendaceModel.filter { $0.roleType == roleType}, id: \.self) { item in
                     attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc)
@@ -243,16 +258,48 @@ extension CoreMemberMainView {
     
     @ViewBuilder
     fileprivate func selectAttendaceDate() -> some View {
-        
+        VStack {
+            Spacer()
+                .frame(height: 20)
+            
+            HStack {
+                
+                DatePicker(selection: $store.selectDate.sending(\.selectDate), in: ...Date(), displayedComponents: [.date]) {
+                    //                    Text(date.formattedString())
+                }
+                .frame(width: UIScreen.screenWidth * 0.35)
+                .environment(\.locale, Locale(identifier: "ko_KR"))
+                .labelsHidden()
+               
+                
+                
+                Spacer()
+                
+            }
+            Spacer()
+                .frame(height: 20)
+            
+        }
+        .frame(height:  30)
     }
     
     @ViewBuilder
     fileprivate func navigationTrallingButton() -> some View {
         VStack {
             Spacer()
-                .frame(height: UIScreen.screenHeight * 0.02)
+                .frame(height: UIScreen.screenHeight * 0.025)
             
             HStack {
+                Image(systemName: store.editEventImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(.basicWhite)
+                    .onTapGesture {
+                        store.send(.presentEditEvent)
+                    }
+                
+                
                 Spacer()
                 
                 Image(systemName: store.qrcodeImage)
@@ -261,7 +308,7 @@ extension CoreMemberMainView {
                     .frame(width: 20, height: 20)
                     .foregroundColor(.basicWhite)
                     .onTapGesture {
-                        store.send(.presntQrcode)
+                        store.send(.presentQrcode)
                     }
                 
                 Spacer()

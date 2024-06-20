@@ -21,13 +21,12 @@ public final class DependencyContainer {
         registry[key] = build
         Log.debug("Registered", key)
         
-        // Closure to release memory
         let releaseHandler = { [weak self] in
             self?.registry[key] = nil
             self?.releaseHandlers[key] = nil
             Log.debug("Released", key)
         }
-        // Store release handler for later use
+        
         releaseHandlers[key] = releaseHandler
         return releaseHandler
     }
@@ -35,7 +34,7 @@ public final class DependencyContainer {
     public func resolve<T>(_ type: T.Type) -> T? {
         let key = String(describing: type)
         if let factory = registry[key] as? () -> T {
-            // If factory exists, call the release handler after resolving
+            
             let result = factory()
             if let releaseHandler = releaseHandlers[key] {
                 releaseHandler()

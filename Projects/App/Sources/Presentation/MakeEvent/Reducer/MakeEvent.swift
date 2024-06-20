@@ -7,6 +7,8 @@
 
 import Foundation
 import ComposableArchitecture
+import KeychainAccess
+
 import Service
 
 @Reducer
@@ -20,9 +22,12 @@ public struct MakeEvent {
         var makeEventTitle: String = "이벤트 생성"
         var isSelectDropDownMenu: Bool = false
         var selectMakeEventReason: String = "이번주 세션 이벤트를 선택 해주세요!"
+        var selectMakeEventReasonTitle: String =  "생성할 이벤트 이름을 선택 해주세요!"
+        var selectMakeEventTiltle: String = "이벤트를 생성할 날짜를 선택해주세요!"
         var selectPart: SelectPart? = nil
         var eventModel: [DDDEvent] = []
-        
+        var selectMakeEventDate: Date = Date.now
+        var selectMakeEventDatePicker: Bool = false
     }
     
     public enum Action: BindableAction {
@@ -30,9 +35,10 @@ public struct MakeEvent {
         case tapCloseDropDown
         case selectAttendaceMemberButton(selectPart: SelectPart)
         case makeEventToFireBaseModel(eventName: String, eventDate: Date)
-        case makeEventToFireBase(eventName: String)
+        case makeEventToFireBase(eventName: String, eventDate: Date)
         case observeEvent
         case fetchEventResponse(Result<[DDDEvent], CustomError>)
+        case selectMakeEventDate(date: Date)
     }
     
     @Dependency(FireStoreUseCase.self) var fireStoreUseCase
@@ -58,13 +64,15 @@ public struct MakeEvent {
                 }
                 return .none
                 
-            case let .makeEventToFireBase(eventName: eventName):
+            case let .makeEventToFireBase(eventName: eventName, eventDate: eventDate):
+                let convertStartDate = eventDate.formattedDate(date: eventDate)
+                let convertTime = eventDate.formattedTime(date: eventDate)
+                let convertDate = convertStartDate + convertTime
                 let event = DDDEvent(
-                    id: uuid.callAsFunction().uuidString,
+                    id: UUID().uuidString,
                     name: eventName,
-                    description: eventName,
-                    startTime: Date(),
-                    endTime: Date().addingTimeInterval(3600))
+                    startTime: eventDate.dateFromString(dateString: convertDate),
+                    endTime: eventDate.dateFromString(dateString: convertDate).addingTimeInterval(1800))
                 state.eventModel = [event]
                 return .run  { @MainActor  send in
                     let events = try await fireStoreUseCase.createEvent(event: event, from: "events")
@@ -80,6 +88,7 @@ public struct MakeEvent {
                     endTime: eventDate.addingTimeInterval(3600))
                 state.eventModel = [event]
                    
+                
                 return .none
                 
             case .observeEvent:
@@ -89,7 +98,6 @@ public struct MakeEvent {
                     }
                 }
                 
-                
             case let .fetchEventResponse(fetchedData):
                 switch fetchedData {
                 case let .success(fetchedData):
@@ -98,6 +106,15 @@ public struct MakeEvent {
                     Log.error("Error fetching data", error)
                 }
                 return .none
+                
+            case .binding(\.selectMakeEventDate):
+                state.selectMakeEventDate = state.selectMakeEventDate
+                return .none
+                
+            case .selectMakeEventDate(let date):
+                state.selectMakeEventDate = date
+                return .none
+                
             }
         }
     }
