@@ -9,9 +9,58 @@ import FirebaseAuth
 import FirebaseFirestore
 import RxSwift
 
+import Shareds
+
 import Foundation
 
 final class FirebaseService {
+    
+    // MARK: - Invite code
+    func validateInviteCode(_ code: String) -> Single<Bool> {
+        return Single.create { single in
+            let db = Firestore.firestore()
+            let inviteCodesRef = db.collection("invite_code")
+            inviteCodesRef.whereField("code", isEqualTo: code).getDocuments { (querySnapshot, error) in
+                if error != nil {
+                    single(.success(false))
+                    return
+                }
+                guard let documents = querySnapshot?.documents,
+                      !documents.isEmpty,
+                      let timeStamp = documents.first?.data()["expired_date"] as? Timestamp,
+                      timeStamp.seconds > Int(Date().timeIntervalSince1970) else {
+                    single(.failure(UserRepositoryError.invalidInviteCode))
+                    return
+                }
+                single(.success(true))
+            }
+            return Disposables.create()
+        }
+    }
+    
+    // MARK: - Member
+    func logout() -> Single<Bool> {
+        return Single.create { single in
+            do {
+                try Auth.auth().signOut()
+                single(.success(true))
+            } catch {
+                single(.failure(UserRepositoryError.logout))
+            }
+            return Disposables.create()
+        }
+    }
+    
+    func fetchUID() -> Single<String> {
+        return Single.create { single in
+            guard let uid: String = Auth.auth().currentUser?.uid else {
+                single(.failure(UserRepositoryError.memberNotExist))
+                return Disposables.create()
+            }
+            single(.success(uid))
+            return Disposables.create()
+        }
+    }
     
     func fetchMember(_ uid: String) -> Single<Member> {
         return Single.create { single in
@@ -34,35 +83,13 @@ final class FirebaseService {
                 let member: Member = .init(
                     uid: uid,
                     name: name,
-                    role: MemberRoleType(rawValue: roleType) ?? .ios,
+                    role: SelectPart(rawValue: roleType) ?? .iOS,
                     memberType: MemberType(rawValue: memberType) ?? .notYet,
                     createdAt: createdAt,
                     updatedAt: updatedAt,
                     generation: generation
                 )
                 single(.success(member))
-            }
-            return Disposables.create()
-        }
-    }
-    
-    func validateInviteCode(_ code: String) -> Single<Bool> {
-        return Single.create { single in
-            let db = Firestore.firestore()
-            let inviteCodesRef = db.collection("invite_code")
-            inviteCodesRef.whereField("code", isEqualTo: code).getDocuments { (querySnapshot, error) in
-                if let error {
-                    single(.success(false))
-                    return
-                }
-                guard let documents = querySnapshot?.documents,
-                      !documents.isEmpty,
-                      let timeStamp = documents.first?.data()["expired_date"] as? Timestamp,
-                      timeStamp.seconds > Int(Date().timeIntervalSince1970) else {
-                    single(.failure(UserRepositoryError.invalidInviteCode))
-                    return
-                }
-                single(.success(true))
             }
             return Disposables.create()
         }
@@ -92,6 +119,165 @@ final class FirebaseService {
         }
     }
     
+    // MARK: - Attendance
+    func saveAttendance(_ attendance: Attendance) -> Single<Bool> {
+        return Single.create { single in
+            let db = Firestore.firestore()
+            let attendanceRef = db.collection("attendance").document(attendance.id)
+            let data: [String: Any] = [
+                "id": attendance.id,
+                "memberId": attendance.memberId,
+                "eventId": attendance.eventId,
+                "date": Timestamp(date: attendance.createdAt),
+                "updatedAt": Timestamp(date: attendance.updatedAt),
+                "status": attendance.attendanceType.rawValue,
+                "generation": attendance.generation
+            ]
+            attendanceRef.setData(data) { error in
+                guard error == nil else {
+                    single(.failure(UserRepositoryError.saveAttendance))
+                    return
+                }
+                single(.success(true))
+            }
+            return Disposables.create()
+        }
+    }
+    
+    func fetchAttendanceHistory(_ uid: String) -> Single<[Attendance]> {
+        return Single.create { single in
+            let db = Firestore.firestore()
+            let attendanceRef = db.collection("attendance").whereField("memberId", isEqualTo: uid)
+            attendanceRef.getDocuments {
+                querySnapshot,
+                error in
+                guard let documents = querySnapshot?.documents else {
+                    single(.failure(UserRepositoryError.fetchAttendanceList))
+                    return
+                }
+                let attendances: [Attendance] = documents.compactMap { document in
+                    let data = document.data()
+                    let id: String = data["id"] as? String ?? ""
+                    let memberId: String = data["memberId"] as? String ?? ""
+                    let eventId: String = data["eventId"] as? String ?? ""
+                    let createdAt: Date = (data["date"] as? Timestamp)?.dateValue() ?? Date()
+                    let updatedAt: Date = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
+                    let status: AttendanceType = AttendanceType(rawValue: data["status"] as? String ?? "") ?? .absent
+                    let generation: Int = data["generation"] as? Int ?? 0
+                    return Attendance(
+                        id: id,
+                        memberId: memberId,
+                        name: data["name"] as? String ?? "",
+                        roleType: .init(rawValue: data["roleType"] as? String ?? "") ?? .all,
+                        eventId: eventId,
+                        createdAt: createdAt,
+                        updatedAt: updatedAt,
+                        attendanceType: .absent,
+                        generation: generation
+                    )
+                }
+                single(.success(attendances))
+            }
+            return Disposables.create()
+        }
+    }
+    
+    // MARK: - Event
+    func fetchTodayEvent() -> Single<DDDEvent> {
+        return Single.create { [weak self] single in
+            let db = Firestore.firestore()
+            let eventRef = db.collection("events")
+                .whereField("startTime", isGreaterThan: Date().startOfDay)
+                .whereField("startTime", isLessThan: Date().endOfDay)
+            eventRef.getDocuments { querySnapshot, error in
+                guard let documents = querySnapshot?.documents,
+                      !documents.isEmpty,
+                      let data = documents.first?.data(),
+                      let event = self?.convertEventData(data) else {
+                    single(.failure(EventRepositoryError.eventNotExist))
+                    return
+                }
+                single(.success(event))
+            }
+            return Disposables.create()
+        }
+    }
+    
+    func fetchEventList(generation: Int) -> Single<[DDDEvent]> {
+        return Single.create { [weak self] single in
+            let db = Firestore.firestore()
+            let eventRef = db.collection("events").whereField("generation", isEqualTo: generation)
+            eventRef.getDocuments { querySnapshot, error in
+                guard let documents = querySnapshot?.documents else {
+                    single(.failure(EventRepositoryError.eventNotExist))
+                    return
+                }
+                let events: [DDDEvent] = documents.compactMap { document in
+                    let data = document.data()
+                    return self?.convertEventData(data)
+                }
+                single(.success(events))
+            }
+            return Disposables.create()
+        }
+    }
+    
+    func saveEvent(_ event: DDDEvent) -> Single<Bool> {
+        return Single.create { [weak self] single in
+            let db = Firestore.firestore()
+            guard let eventId: String = event.id else {
+                single(.failure(EventRepositoryError.saveEvent))
+                return Disposables.create()
+            }
+            let eventRef = db.collection("events").document()
+            let data: [String: Any] = self?.convertEvent(event) ?? [:]
+            eventRef.setData(data) { error in
+                guard error == nil else {
+                    single(.failure(EventRepositoryError.saveEvent))
+                    return
+                }
+                single(.success(true))
+            }
+            return Disposables.create()
+        }
+    }
+    
+    func updateEvent(_ event: DDDEvent) -> Single<Bool> {
+        return Single.create { [weak self] single in
+            let db = Firestore.firestore()
+            guard let eventId: String = event.id else {
+                single(.failure(EventRepositoryError.updateEvent))
+                return Disposables.create()
+            }
+            let eventRef = db.collection("events").document(eventId)
+            let data: [String: Any] = self?.convertEvent(event) ?? [:]
+            eventRef.updateData(data) { error in
+                guard error == nil else {
+                    single(.failure(EventRepositoryError.updateEvent))
+                    return
+                }
+                single(.success(true))
+            }
+            return Disposables.create()
+        }
+    }
+    
+    func removeEvent(_ eventId: String) -> Single<Bool> {
+        return Single.create { single in
+            let db = Firestore.firestore()
+            let eventRef = db.collection("events").document(eventId)
+            eventRef.delete { error in
+                guard error == nil else {
+                    single(.failure(EventRepositoryError.saveEvent))
+                    return
+                }
+                single(.success(true))
+            }
+            return Disposables.create()
+        }
+    }
+    
+    // MARK: - Auth
     func auth(_ credential: AuthCredential) -> Single<AuthDataResult> {
         return Single.create { single in
             Auth.auth().signIn(with: credential) { authResult, error in
@@ -105,4 +291,34 @@ final class FirebaseService {
         }
     }
     
+}
+
+extension FirebaseService {
+    private func convertEventData(_ data: [String: Any]?) -> DDDEvent {
+        let id: String = data?["id"] as? String ?? ""
+        let name: String = data?["name"] as? String ?? ""
+        let description: String = data?["description"] as? String ?? ""
+        let startTime: Date = (data?["startTime"] as? Timestamp)?.dateValue() ?? Date()
+        let endTime: Date = (data?["endTime"] as? Timestamp)?.dateValue() ?? Date()
+        let generation: Int = data?["generation"] as? Int ?? 0
+        return DDDEvent(
+            id: id,
+            name: name,
+            description: description,
+            startTime: startTime,
+            endTime: endTime,
+            generation: generation
+        )
+    }
+    
+    private func convertEvent(_ event: DDDEvent) -> [String: Any] {
+        return [
+            "id": event.id as Any,
+            "name": event.name,
+            "description": event.description as Any,
+            "startTime": Timestamp(date: event.startTime),
+            "endTime": Timestamp(date: event.endTime),
+            "generation": event.generation as Any
+        ]
+    }
 }

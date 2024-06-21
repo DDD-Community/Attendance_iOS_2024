@@ -26,7 +26,7 @@ final class SignupInviteCodeViewController: UIViewController {
     init(
         uid: String,
         name: String,
-        part: MemberRoleType,
+        part: SelectPart,
         isManager: Bool
     ) {
         super.init(nibName: nil, bundle: nil)

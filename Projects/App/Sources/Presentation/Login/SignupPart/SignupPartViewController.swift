@@ -66,7 +66,7 @@ extension SignupPartViewController: View {
     func bind(reactor: SignupPartReactor) {
         // Action
         mainView.iOSButton.rx.tap
-            .map { Reactor.Action.selectPart(.ios) }
+            .map { Reactor.Action.selectPart(.iOS) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -81,17 +81,17 @@ extension SignupPartViewController: View {
             .disposed(by: disposeBag)
         
         mainView.androidButton.rx.tap
-            .map { Reactor.Action.selectPart(.android) }
+            .map { Reactor.Action.selectPart(.Android) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         mainView.designerButton.rx.tap
-            .map { Reactor.Action.selectPart(.designer) }
+            .map { Reactor.Action.selectPart(.design) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         mainView.pmButton.rx.tap
-            .map { Reactor.Action.selectPart(.pm) }
+            .map { Reactor.Action.selectPart(.productManger) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -104,12 +104,12 @@ extension SignupPartViewController: View {
             .distinctUntilChanged()
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [weak self] part in
-                self?.mainView.iOSButton.isSelected = part == .ios
+                self?.mainView.iOSButton.isSelected = part == .iOS
                 self?.mainView.webButton.isSelected = part == .web
                 self?.mainView.serverButton.isSelected = part == .server
-                self?.mainView.androidButton.isSelected = part == .android
-                self?.mainView.designerButton.isSelected = part == .designer
-                self?.mainView.pmButton.isSelected = part == .pm
+                self?.mainView.androidButton.isSelected = part == .Android
+                self?.mainView.designerButton.isSelected = part == .design
+                self?.mainView.pmButton.isSelected = part == .productManger
                 
                 self?.mainView.nextButton.isEnabled = part != nil
             })

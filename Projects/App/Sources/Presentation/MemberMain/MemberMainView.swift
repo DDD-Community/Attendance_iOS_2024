@@ -48,6 +48,12 @@ final class MemberMainView: BaseView {
         $0.backgroundColor = .black
     }
     
+    let logoutButton: UIButton = .init().then {
+        $0.setTitle("로그아웃", for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
+        $0.backgroundColor = .black
+    }
+    
     // MARK: - Properties
     
     // MARK: - Lifecycles
@@ -82,6 +88,7 @@ final class MemberMainView: BaseView {
                 .direction(.row)
                 .justifyContent(.center)
                 .columnGap(4)
+                .marginBottom(4)
                 .height(150)
                 .define { flex in
                     flex.addItem(qrCheckInButton)
@@ -104,10 +111,29 @@ final class MemberMainView: BaseView {
                                 .grow(1)
                         }
                 }
+            
+            flex.addItem(logoutButton)
+                .marginHorizontal(16)
+                .height(80)
+                .cornerRadius(12)
         }
     }
     
     // MARK: - Public helpers
+    func bindAttendances(_ attendances: [Attendance]) {
+        let attendances = attendances.reduce(into: (attendance: 0, late: 0, absent: 0)) { result, attendance in
+            switch attendance.attendanceType {
+            case .present:
+                result.attendance += 1
+            case .late:
+                result.late += 1
+            case .absent:
+                result.absent += 1
+            default: return
+            }
+        }
+        checkInStatusLabel.text = "출석 \(attendances.attendance)회 | 지각 \(attendances.late)회 | 결석 \(attendances.absent)회"
+    }
     
     // MARK: - Private helpers
     private func layout() {

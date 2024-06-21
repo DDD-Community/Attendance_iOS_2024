@@ -93,7 +93,7 @@ extension SNSLoginReactor {
     }
     
     private func checkMemberType(_ uid: String) -> Observable<Mutation> {
-        return self.userRepository.fetchMember(uid)
+        return self.userRepository.fetchMember()
             .map { Mutation.setMemberType($0.memberType) }
             .catch { _ in .just(.setMemberType(.notYet)) }
             .asObservable()
