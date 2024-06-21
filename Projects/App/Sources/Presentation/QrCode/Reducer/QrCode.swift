@@ -20,27 +20,33 @@ public struct QrCode {
     @ObservableState
     public struct State: Equatable {
         var userID: String? = ""
-        var eventID: String = ""
-        var creationTime: Date?
+        var eventID: String? = ""
+        var startTime: Date? = Date.now
         var qrCodeImage: Image? = nil
         var loadingQRImage: Bool = false
         var qrCodeReaderText: String = ""
+        var eventModel: [DDDEvent] = []
         
-        public init(userID: String? = nil, createTime: Date? = nil) {
+        
+        public init(userID: String? = nil, startTime: Date? = nil, eventID: String? = nil) {
             self.userID = userID
-            self.creationTime = createTime
+            self.startTime = startTime
+            self.eventID = eventID
         }
     }
     
-    public enum Action: Equatable, BindableAction {
+    public enum Action: BindableAction {
         case appearQRcodeUserid
         case generateQRCode
         case qrCodeGenerated(image: Image?)
         case binding(BindingAction<State>)
         case appearLoading
+        case fetchEvent
+        case fetchEventResponse(Result<[DDDEvent], CustomError>)
     }
     
     @Dependency(QrCodeUseCase.self) var qrCodeUseCase
+    @Dependency(FireStoreUseCase.self) var fireStoreUseCase
     @Dependency(\.continuousClock) var clock
     
     public var body: some ReducerOf<Self> {
@@ -64,13 +70,16 @@ public struct QrCode {
             case .generateQRCode:
                 let userID = state.userID
                 let eventID = state.eventID
-                let creationTime = state.creationTime
+                let startTime = state.startTime
                 
-                Log.debug(state.userID, state.eventID, state.creationTime)
                 return .run { send in
-                    let qrCodeGenerateString = String.combine(userID: userID ?? "", eventID: eventID, creationTime: creationTime ?? Date())
-                    let qrCodeImage = await qrCodeUseCase.generateQRCode(from: qrCodeGenerateString)
-                    await send(.qrCodeGenerated(image: qrCodeImage))
+                    if eventID != "" {
+                        await send(.fetchEvent)
+                        let qrCodeGenerateString = String.combine(userID: userID ?? "", eventID: eventID ?? "", creationTime: startTime ?? Date())
+                        let qrCodeImage = await qrCodeUseCase.generateQRCode(from: qrCodeGenerateString)
+                        Log.debug(qrCodeGenerateString)
+                        await send(.qrCodeGenerated(image: qrCodeImage))
+                    }
                 }
 
             case let .qrCodeGenerated(image: qrCodeImage):
@@ -78,6 +87,40 @@ public struct QrCode {
                 return .none
                 
             case .binding(_):
+                return .none
+                
+            case .fetchEvent:
+                var userID = state.userID
+                var eventID = state.eventID
+                let startTime = state.startTime
+                
+                return .run { @MainActor send in
+                    let fetchedDataResult = await Result {
+                        try await fireStoreUseCase.fetchFireStoreData(from: "events", as: DDDEvent.self, shouldSave: false)
+                    }
+                    
+                    switch fetchedDataResult {
+                    case let .success(fetchedData):
+                        send(.fetchEventResponse(.success(fetchedData)))
+                        await Task.sleep(seconds: 1)
+                        send(.fetchEvent)
+                    case let .failure(error):
+                        send(.fetchEventResponse(.failure(CustomError.map(error))))
+                    }
+                }
+                
+                
+            case let .fetchEventResponse(fetchedData):
+                switch fetchedData {
+                case let .success(fetchedData):
+                    state.eventModel = fetchedData
+                    state.eventID = state.eventModel.first?.id
+                    let convertDate = (state.eventModel.first?.startTime.formattedDate(date: state.eventModel.first?.startTime ?? Date()) ?? "") +  (state.eventModel.first?.startTime.formattedTime(date: state.eventModel.first?.startTime ?? Date()) ?? "")
+                    
+                    state.startTime = convertDate.stringToTimeAndDate(convertDate)
+                case let .failure(error):
+                    Log.error("Error fetching data", error)
+                }
                 return .none
             }
         }

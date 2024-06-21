@@ -265,7 +265,7 @@ extension CoreMemberMainView {
             HStack {
                 
                 DatePicker(selection: $store.selectDate.sending(\.selectDate), in: ...Date(), displayedComponents: [.date]) {
-                    //                    Text(date.formattedString())
+                    
                 }
                 .frame(width: UIScreen.screenWidth * 0.35)
                 .environment(\.locale, Locale(identifier: "ko_KR"))
@@ -322,6 +322,19 @@ extension CoreMemberMainView {
                     .onTapGesture {
                         store.send(.presntEventModal)
                     }
+                
+                Spacer()
+                    .frame(width: 12)
+                
+                Image(systemName: store.logOutImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(.basicWhite)
+                    .onTapGesture {
+                        store.send(.tapLogOut)
+                    }
+                
                 
             }
             

@@ -65,14 +65,14 @@ public struct MakeEvent {
                 return .none
                 
             case let .makeEventToFireBase(eventName: eventName, eventDate: eventDate):
-                let convertStartDate = eventDate.formattedDate(date: eventDate)
-                let convertTime = eventDate.formattedTime(date: eventDate)
+                let convertStartDate = state.selectMakeEventDate.formattedDate(date: state.selectMakeEventDate)
+                let convertTime = state.selectMakeEventDate.formattedTime(date: state.selectMakeEventDate)
                 let convertDate = convertStartDate + convertTime
                 let event = DDDEvent(
                     id: UUID().uuidString,
                     name: eventName,
-                    startTime: eventDate.dateFromString(dateString: convertDate),
-                    endTime: eventDate.dateFromString(dateString: convertDate).addingTimeInterval(1800))
+                    startTime: state.selectMakeEventDate.dateFromString(dateString: convertDate),
+                    endTime: state.selectMakeEventDate.dateFromString(dateString: convertDate).addingTimeInterval(1800))
                 state.eventModel = [event]
                 return .run  { @MainActor  send in
                     let events = try await fireStoreUseCase.createEvent(event: event, from: "events")

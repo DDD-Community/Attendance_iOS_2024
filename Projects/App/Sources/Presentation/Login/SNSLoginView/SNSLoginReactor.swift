@@ -8,6 +8,7 @@
 import ReactorKit
 
 import Foundation
+import SwiftUI
 
 final class SNSLoginReactor: Reactor {
     
@@ -98,3 +99,5 @@ extension SNSLoginReactor {
             .asObservable()
     }
 }
+
+

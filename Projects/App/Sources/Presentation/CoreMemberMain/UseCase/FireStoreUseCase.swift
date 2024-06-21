@@ -21,9 +21,8 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
         self.repository = repository
     }
     
-    
-    public func fetchFireStoreData<T>(from collection: String, as type: T.Type) async throws -> [T] where T : Decodable {
-        try await repository.fetchFireStoreData(from: collection, as: T.self)
+    public func fetchFireStoreData<T>(from collection: String, as type: T.Type, shouldSave: Bool) async throws -> [T] where T : Decodable {
+        try await repository.fetchFireStoreData(from: collection, as: T.self, shouldSave: shouldSave)
     }
     
     public func getCurrentUser() async throws -> User? {
@@ -49,6 +48,9 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
         try await repository.deleteEvent(from: collection)
     }
     
+    public func getUserLogOut() async throws -> User? {
+        try await repository.getUserLogOut()
+    }
 }
 
 extension FireStoreUseCase: DependencyKey {

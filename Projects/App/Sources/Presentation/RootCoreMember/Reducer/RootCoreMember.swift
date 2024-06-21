@@ -36,6 +36,7 @@ public struct RootCoreMember {
         case coreMember(CoreMember)
         case qrCode(QrCode)
         case editEvent(EditEvent)
+        case snsLogin(SNSLoginViewReducer)
     }
     
     public var body: some ReducerOf<Self> {
@@ -50,18 +51,18 @@ public struct RootCoreMember {
             case let .path(action):
                 switch action {
                 case .element(id: _, action: .coreMember(.presentQrcode)):
-                    let qrCode = try? Keychain().get("userID")
-                    let eventId = try? Keychain().get("")
-                    Log.debug("키체인", qrCode)
-                    state.path.append(.qrCode(.init(userID: qrCode ?? "")))
+                    let userID = try? Keychain().get("userID")
+                    Log.debug("키체인", userID)
+                    state.path.append(.qrCode(.init(userID: userID ?? "")))
                     
                 case .element(id: _, action: .coreMember(.presentEditEvent)):
                     state.path.append(.editEvent(.init()))
                     
                 case .element(id: _, action: .editEvent(.creatEvents)):
                     state.path.append(.coreMember(.init()))
-//                case .element(id: _, action: .editEvent(.createEvent)): break
-//                    state.path.removeFirst()
+                    
+                case .element(id: _, action: .coreMember(.tapLogOut)):
+                    state.path.append(.snsLogin(.init()))
                     
                 default:
                     break

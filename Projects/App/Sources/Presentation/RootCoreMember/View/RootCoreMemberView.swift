@@ -41,6 +41,10 @@ struct RootCoreMemberView: View {
                     store.send(.removePath)
                 }
                 .navigationBarBackButtonHidden()
+                
+            case let .snsLogin(snsLoginStore):
+                SNSLoginViewRepresentable(store: snsLoginStore)
+                    .navigationBarBackButtonHidden()
             }
         }
     }

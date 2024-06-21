@@ -11,6 +11,7 @@ import FirebaseFirestore
 public struct Attendance: Codable, Hashable {
     var id: String
     var memberId: String
+    var memberType: MemberType
     var name: String
     var roleType: SelectPart
     var eventId: String
@@ -22,6 +23,7 @@ public struct Attendance: Codable, Hashable {
     init(
         id: String,
         memberId: String,
+        memberType: MemberType,
         name: String,
         roleType: SelectPart,
         eventId: String,
@@ -32,6 +34,7 @@ public struct Attendance: Codable, Hashable {
     ) {
         self.id = id
         self.memberId = memberId
+        self.memberType = memberType
         self.name = name
         self.roleType = roleType
         self.eventId = eventId
@@ -42,13 +45,14 @@ public struct Attendance: Codable, Hashable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, memberId, name, roleType, eventId, createdAt, updatedAt, attendanceType, generation
+        case id, memberId, name, roleType, eventId, createdAt, updatedAt, attendanceType, generation, memberType
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
         self.memberId = try container.decodeIfPresent(String.self, forKey: .memberId) ?? ""
+        self.memberType = try container.decodeIfPresent(MemberType.self, forKey: .memberType) ?? .coreMember
         self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
         self.roleType = try container.decodeIfPresent(SelectPart.self, forKey: .roleType) ?? .all
         self.eventId = try container.decodeIfPresent(String.self, forKey: .eventId) ?? ""
@@ -62,6 +66,7 @@ public struct Attendance: Codable, Hashable {
         let data = document.data() ?? [:]
         self.id = document.documentID
         self.memberId = data["memberId"] as? String ?? ""
+        self.memberType = MemberType(rawValue: data["memberType"] as? String ?? "") ?? .coreMember
         self.name = data["name"] as? String ?? ""
         self.roleType = SelectPart(rawValue: data["roleType"] as? String ?? "") ?? .all
         self.eventId = data["eventId"] as? String ?? ""

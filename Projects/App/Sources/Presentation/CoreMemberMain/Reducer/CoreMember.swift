@@ -30,13 +30,14 @@ public struct CoreMember {
         var qrcodeImage: String = "qrcode"
         var eventImage: String = "flag.square"
         var editEventImage: String = "pencil"
+        var logOutImage: String = "rectangle.portrait.and.arrow.right"
         var user: User? =  nil
         var errorMessage: String?
         
         @Presents var destination: Destination.State?
         var selectDate: Date = Date.now
         var selectDatePicker: Bool = false
-        @Presents var alert: AlertState<Action.Alert>?
+//        @Presents var alert: AlertState<Action.Alert>?
         
     }
     
@@ -52,6 +53,7 @@ public struct CoreMember {
         case destination(PresentationAction<Destination.Action>)
         case presentQrcode
         case presentEditEvent
+        case presentSNS
         case upDateDataQRCode
         case updateAttendanceModel([Attendance])
         case fetchCurrentUser
@@ -60,13 +62,15 @@ public struct CoreMember {
         case presntEventModal
         case closePresntEventModal
         case presntEventEditViewToModal
-        case selectDate(date: Date)
-        case alert(PresentationAction<Alert>)
+        case tapLogOut
         
-            @CasePathable
-           public enum Alert {
-                case presentAlert
-            }
+        case selectDate(date: Date)
+//        case alert(PresentationAction<Alert>)
+        
+//            @CasePathable
+//           public enum Alert {
+//                case presentAlert
+//            }
     }
     
     @Reducer(state: .equatable)
@@ -106,7 +110,7 @@ public struct CoreMember {
                 
                 return .run { @MainActor send in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
+                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self, shouldSave: false)
                     }
                     
                     
@@ -131,25 +135,27 @@ public struct CoreMember {
                 return .none
                 
             case .presentQrcode:
+                state.destination = .qrcode(.init(userID: state.user?.uid ?? ""))
                 try? Keychain().set(state.user?.uid ?? "" , key: "userID")
-                try?Keychain().set(state.selectDate.formattedDateToString() , key: "createTIme")
                 return .none
                 
                 
             case .presentEditEvent:
                 return .none
                 
-            case .alert(.presented(.presentAlert)):
+            case .presentSNS:
                 return .none
                 
+//            case .alert(.presented(.presentAlert)):
+//                return .none
+                
             case .upDateDataQRCode:
-                state.destination = .qrcode(.init(userID: state.attendaceModel.first?.id ?? "", createTime: state.selectDate))
+                state.destination = .qrcode(.init(userID: state.user?.uid ?? "" , startTime: state.selectDate))
                 return .none
                 
             case let .updateAttendanceModel(newValue):
                 state.attendaceModel = [ ]
                 state.attendaceModel = newValue
-                // Add any additional logic if needed
                 return .none
                 
             case .swipeNext:
@@ -171,13 +177,14 @@ public struct CoreMember {
             case .fetchMember:
                 return .run { @MainActor send  in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
+                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self, shouldSave: false)
                     }
                     
                     switch fetchedDataResult {
                         
                     case let .success(fetchedData):
-                         send(.fetchDataResponse(.success(fetchedData)))
+                        let filterData = fetchedData.filter { $0.memberType == .member }
+                         send(.fetchDataResponse(.success(filterData)))
                         
                     case let .failure(error):
                          send(.fetchDataResponse(.failure(CustomError.map(error))))
@@ -185,16 +192,33 @@ public struct CoreMember {
                     
                 }
                 
+            case .tapLogOut:
+                return .run { @MainActor send  in
+                    let fetchUserResult = await Result {
+                        try await fireStoreUseCase.getUserLogOut()
+                    }
+                    
+                    switch fetchUserResult {
+                        
+                    case let .success(fetchUserResult):
+                        guard let fetchUserResult = fetchUserResult else {return}
+                         send(.fetchUserDataResponse(.success(fetchUserResult)))
+                        
+                    case let .failure(error):
+                        send(.fetchUserDataResponse(.failure(CustomError.map(error))))
+                    }
+                }
+                
             case let .upDateFetchMember(selectPart: selectPart):
                 return .run { @MainActor send in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self)
+                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self, shouldSave: false)
                     }
                     
                     switch fetchedDataResult {
                         
                     case let .success(fetchedData):
-                        let filteredData = fetchedData.filter { $0.roleType != .all && (selectPart == .all || $0.roleType == selectPart) }
+                        let filteredData = fetchedData.filter { $0.roleType != .all && (selectPart == .all || $0.roleType == selectPart) && $0.memberType == .member }
                          send(.updateAttendanceModel(fetchedData))
                          send(.fetchDataResponse(.success(filteredData)))
                         
@@ -214,7 +238,7 @@ public struct CoreMember {
                 switch fetchedData {
                 case let .success(fetchedData):
                     state.isLoading = false
-                    state.attendaceModel = fetchedData
+                    state.attendaceModel = fetchedData.filter { $0.memberType == .member}
                 case let .failure(error):
                     Log.error("Error fetching data", error)
                     state.isLoading = true
@@ -265,14 +289,14 @@ public struct CoreMember {
                 return .none
                 
                 
-            case .alert(.dismiss):
-                state.alert = nil
-                return .none
+//            case .alert(.dismiss):
+//                state.alert = nil
+//                return .none
             }
         }
         
         .ifLet(\.$destination, action: \.destination)
-        .ifLet(\.$alert, action: \.alert)
+//        .ifLet(\.$alert, action: \.alert)
         .onChange(of: \.attendaceModel) { oldValue, newValue in
             Reduce { state, action in
                 state.attendaceModel = newValue

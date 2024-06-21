@@ -53,6 +53,7 @@ final class SNSLoginViewController: UIViewController {
             initialState: RootCoreMember.State(),
             reducer: {
             RootCoreMember()
+                    ._printChanges()
         }))
         let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
         let vc: MemberMainViewController = .init()
@@ -64,6 +65,7 @@ final class SNSLoginViewController: UIViewController {
             initialState: RootCoreMember.State(),
             reducer: {
             RootCoreMember()
+                    ._printChanges()
         }))
         let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
         self.switchViewController(coreMemberHostingViewController)
@@ -84,6 +86,7 @@ final class SNSLoginViewController: UIViewController {
         }
         UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
             let navigationController: UINavigationController = .init(rootViewController: viewController)
+            navigationController.navigationBar.isHidden = true
             window.rootViewController = navigationController
         }
     }

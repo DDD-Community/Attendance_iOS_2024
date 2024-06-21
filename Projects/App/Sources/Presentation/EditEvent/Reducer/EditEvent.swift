@@ -63,7 +63,7 @@ public struct EditEvent {
             case .fetchEvent:
                 return .run { @MainActor send in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "events", as: DDDEvent.self)
+                        try await fireStoreUseCase.fetchFireStoreData(from: "events", as: DDDEvent.self, shouldSave: true)
                     }
                     
                     switch fetchedDataResult {
@@ -108,8 +108,7 @@ public struct EditEvent {
                     
                 }
                 
-            case let .eventDeletedSuccessfully(eventID):
-//                s/*tate.eventModel.removeAll { $0.id ==  $0.id }*/
+            case .eventDeletedSuccessfully(_):
                 return .none
                 
             case let .eventDeletionFailed(error):

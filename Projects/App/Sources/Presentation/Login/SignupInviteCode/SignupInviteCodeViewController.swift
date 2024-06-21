@@ -66,6 +66,7 @@ final class SignupInviteCodeViewController: UIViewController {
                 initialState: RootCoreMember.State(),
                 reducer: {
                 RootCoreMember()
+                        ._printChanges()
             }))
             let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
             return coreMemberHostingViewController
@@ -74,6 +75,7 @@ final class SignupInviteCodeViewController: UIViewController {
                 initialState: RootCoreMember.State(),
                 reducer: {
                 RootCoreMember()
+                        ._printChanges()
             }))
             let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
             return coreMemberHostingViewController
@@ -89,6 +91,7 @@ final class SignupInviteCodeViewController: UIViewController {
         UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) { [weak self] in
             guard let viewController = self?.getViewController() else { return }
             let navigationController: UINavigationController = .init(rootViewController: viewController)
+            navigationController.navigationBar.isHidden = true
             window.rootViewController = navigationController
         }
     }

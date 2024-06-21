@@ -39,6 +39,7 @@ final class SplashViewController: UIViewController {
                         initialState: RootCoreMember.State(),
                         reducer: {
                             RootCoreMember()
+                                ._printChanges()
                         }))
                     let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
                     viewController = coreMemberHostingViewController
