@@ -21,6 +21,7 @@ extension Date {
         return dateFormatter.string(from: date)
     }
     
+
     func formattedTime(date: Date) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ko_KR")
@@ -69,5 +70,16 @@ extension Date {
         dateFormatter.locale = Locale(identifier: "ko_KR")
         dateFormatter.dateFormat = "yyyy년 MM월 dd일 EEEE"
         return dateFormatter.date(from: dateString) ?? Date()
+    }
+    
+    func filterEventsForToday(events: [DDDEvent]) -> [DDDEvent] {
+        let currentDate = Date()
+        let currentFormattedDate = currentDate.formattedDate(date: currentDate)
+        
+        return events.filter { event in
+            let eventStartTime = event.startTime
+            let eventFormattedDate = eventStartTime.formattedDate(date: eventStartTime)
+            return currentFormattedDate == eventFormattedDate
+        }
     }
 }

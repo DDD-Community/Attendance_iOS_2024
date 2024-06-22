@@ -86,11 +86,13 @@ public struct QrCode {
                 return .run { send in
                     if eventID != "" && userID == userID {
                         await send(.fetchEvent)
+                        let convertDateString = startTime?.formattedFireBaseDate(date: startTime ?? Date())
+                        let convertStringToDate = startTime?.formattedFireBaseStringToDate(dateString: convertDateString ?? "")
                         let qrCodeGenerateString = String.makeQrCodeValue(
                             userID: userID ?? "",
                             eventID: eventID ?? "",
-                            startTime: startTime ?? Date(),
-                            endTime: startTime ?? Date()
+                            startTime: convertStringToDate ?? Date(),
+                            endTime: convertStringToDate?.addingTimeInterval(1800) ?? Date()
                         )
                         let qrCodeImage = await qrCodeUseCase.generateQRCode(from: qrCodeGenerateString)
                         Log.debug(qrCodeGenerateString)
@@ -126,14 +128,14 @@ public struct QrCode {
                 switch fetchedData {
                 case let .success(fetchedData):
                     state.eventModel = fetchedData
-                    let currentDate = Date.now
-                    let convertDateToCurrent = currentDate.formattedDate(date: currentDate)
-                    let convertDate = (state.eventModel.first?.startTime.formattedDate(date: state.eventModel.first?.startTime ?? Date()) ?? "") +  (state.eventModel.first?.startTime.formattedTime(date: state.eventModel.first?.startTime ?? Date()) ?? "")
-                    let makeEventDate = state.eventModel.first?.startTime.formattedDate(date: state.eventModel.first?.startTime ?? Date())
-                    Log.debug(convertDateToCurrent, makeEventDate ?? "")
-                    if convertDateToCurrent == makeEventDate ?? "" {
-                        state.startTime = convertDate.stringToTimeAndDate(convertDate)
-                        state.eventID = state.eventModel.first?.id
+                    let todayEvents = Date().filterEventsForToday(events: state.eventModel)
+
+                    if let todayEvent = todayEvents.first {
+                        state.startTime = todayEvent.startTime
+                        state.eventID = todayEvent.id
+                        Log.debug("Today's event found: \(todayEvent.id)")
+                    } else {
+                        Log.debug("No event for today.")
                     }
                 case let .failure(error):
                     Log.error("Error fetching data", error)

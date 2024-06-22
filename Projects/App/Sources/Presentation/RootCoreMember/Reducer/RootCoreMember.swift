@@ -52,7 +52,8 @@ public struct RootCoreMember {
                 switch action {
                 case .element(id: _, action: .coreMember(.presentQrcode)):
                     let userID = try? Keychain().get("userID")
-                    Log.debug("키체인", userID)
+                    let eventID = try? Keychain().getData("deleteEventIDs")
+                    Log.debug("키체인", userID, eventID)
                     state.path.append(.qrCode(.init(userID: userID ?? "")))
                     
                 case .element(id: _, action: .coreMember(.presentEditEvent)):
