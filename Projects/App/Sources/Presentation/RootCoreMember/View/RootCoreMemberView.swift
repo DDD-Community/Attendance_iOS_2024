@@ -37,9 +37,7 @@ struct RootCoreMemberView: View {
             case let .editEvent(editEventStore):
                 EditEventView(store: editEventStore) {
                     store.send(.removePath)
-                } createEventAction: {
-                    store.send(.removePath)
-                }
+                } 
                 .navigationBarBackButtonHidden()
                 
             case let .snsLogin(snsLoginStore):

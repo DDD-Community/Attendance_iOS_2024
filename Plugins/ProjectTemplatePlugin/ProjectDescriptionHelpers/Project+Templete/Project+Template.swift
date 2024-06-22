@@ -65,8 +65,6 @@ public extension Project {
             dependencies: [.target(name: name)]
         )
         
-        
-        
         let targets = [appTarget, appDevTarget, appTestTarget]
         
         return Project(

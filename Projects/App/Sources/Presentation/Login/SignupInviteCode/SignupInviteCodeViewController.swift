@@ -71,15 +71,15 @@ final class SignupInviteCodeViewController: UIViewController {
             let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
             return coreMemberHostingViewController
         } else {
-            let rootCoreMemberView = RootCoreMemberView(store: Store(
-                initialState: RootCoreMember.State(),
-                reducer: {
-                RootCoreMember()
-                        ._printChanges()
-            }))
-            let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
-            return coreMemberHostingViewController
-//            return MemberMainViewController()
+//            let rootCoreMemberView = RootCoreMemberView(store: Store(
+//                initialState: RootCoreMember.State(),
+//                reducer: {
+//                RootCoreMember()
+//                        ._printChanges()
+//            }))
+//            let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
+//            return coreMemberHostingViewController
+            return MemberMainViewController()
         }
     }
     

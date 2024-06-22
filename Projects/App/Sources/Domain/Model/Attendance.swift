@@ -11,7 +11,7 @@ import FirebaseFirestore
 public struct Attendance: Codable, Hashable {
     var id: String
     var memberId: String
-    var memberType: MemberType
+    var memberType: MemberType?
     var name: String
     var roleType: SelectPart
     var eventId: String
@@ -23,7 +23,7 @@ public struct Attendance: Codable, Hashable {
     init(
         id: String,
         memberId: String,
-        memberType: MemberType,
+        memberType: MemberType? = nil,
         name: String,
         roleType: SelectPart,
         eventId: String,

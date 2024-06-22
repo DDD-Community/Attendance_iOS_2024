@@ -1,7 +1,7 @@
 GENERATE = tuist generate
 FETCH = tuist fetch
 BUILD = tuist build
-CACHE = tuist cache BeatMaster
+CACHE = tuist cache DDDAttendance
 CLEAN = tuist clean
 INSTALL = tuist install
 
@@ -34,7 +34,7 @@ module:
 	tuist scaffold  $(template) \
          --layer ${layer} \
 	 --name ${name} \
-	 --author "서원지"
+	 --author ${author}
 	 	 
 
 # Additional targets can be added as needed

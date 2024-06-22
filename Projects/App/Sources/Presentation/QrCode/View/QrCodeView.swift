@@ -40,22 +40,16 @@ struct QrCodeView: View {
               } else {
                   creatEventButton()
               }
-//              if store.loadingQRImage {
-//                  qrCodeReaderText()
-//              } else if store.eventID?.isEmpty == nil {
-//                  creatEventButton()
-//              } else {
-//                  creatEventButton()
-//              }
           }
           .navigationBarBackButtonHidden()
           .task {
               store.send(.appearLoading)
               store.send(.fetchEvent)
+              store.send(.observeEvent)
               
               Task {
                   await Task.sleep(seconds: 1.7)
-                              store.send(.generateQRCode)
+                      store.send(.generateQRCode)
                   
                   await Task.sleep(seconds: 0.2)
                   if store.eventID?.isEmpty != nil {
@@ -63,6 +57,18 @@ struct QrCodeView: View {
                   }
               }
           }
+      }
+      .onChange(of: store.eventModel) { oldValue , newValue in
+          store.send(.updateEventModel(newValue))    
+      }
+      
+      .sheet(item: $store.scope(state: \.destination?.makeEvent, action: \.destination.makeEvent)) { makeEventStore in
+          MakeEventView(store: makeEventStore, completion: {
+              store.send(.closeMakeEventModal)
+          })
+          .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
+          .presentationCornerRadius(20)
+          .presentationDragIndicator(.hidden)
       }
     }
 }
@@ -84,7 +90,7 @@ extension QrCodeView {
                         .scaledToFit()
                         .frame(width: UIScreen.screenHeight * 0.3, height: UIScreen.screenHeight * 0.3)
                 } else {
-                    AnimatedImage(name: "DDDLoding.gif", isAnimating: $store.loadingQRImage)
+                    AnimatedImage(name: "DDDLoding.gif", isAnimating: .constant(true))
                         .resizable()
                         .scaledToFit()
                         .frame(width: 200, height: 200)
@@ -100,14 +106,16 @@ extension QrCodeView {
     
     @ViewBuilder
     fileprivate func qrCodeReaderText() -> some View {
-        VStack {
-            Spacer()
-                .frame(height: UIScreen.screenHeight * 0.15)
-            
-            Text(store.qrCodeReaderText)
-                .pretendardFont(family: .Bold, size: 20)
-            
-            Spacer()
+        if store.eventModel != [ ] {
+            VStack {
+                Spacer()
+                    .frame(height: UIScreen.screenHeight * 0.1)
+                
+                Text(store.qrCodeReaderText)
+                    .pretendardFont(family: .Bold, size: 20)
+                
+                Spacer()
+            }
         }
     }
     
@@ -115,7 +123,7 @@ extension QrCodeView {
     fileprivate func creatEventButton() -> some View {
         if store.eventID?.isEmpty == nil  {
             Spacer()
-                .frame(height: UIScreen.screenHeight * 0.25)
+                .frame(height: UIScreen.screenHeight * 0.3)
             
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color.basicBlue200.opacity(0.4))
@@ -127,7 +135,7 @@ extension QrCodeView {
                         .foregroundColor(.basicWhite)
                 }
                 .onTapGesture {
-    //                store.send(.presntEventModal)
+                    store.send(.presntEventModal)
                 }
             
             Spacer()

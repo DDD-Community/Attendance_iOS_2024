@@ -31,10 +31,8 @@ public final class DefaultFireStoreRepository: FireStoreRepositoryProtocol {
         return nil
     }
     
-    public func editEventStream(event: DDDEvent, in collection: String) async throws -> AsyncStream<Result<DDDEvent, CustomError>> {
-        return AsyncStream { continuation in
-            continuation.finish()
-        }
+    public func editEvent(event: DDDEvent, in collection: String) async throws -> DDDEvent? {
+        return nil
     }
     
     public func deleteEvent(from collection: String) async throws   {

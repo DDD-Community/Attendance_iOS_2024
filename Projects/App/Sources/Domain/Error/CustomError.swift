@@ -18,6 +18,7 @@ public enum CustomError: Error {
     case invalidEventId
     case unknownError(String)
     case firestoreError(String)
+    case encodingError(String)
     case none
 }
 
@@ -44,6 +45,8 @@ extension CustomError: LocalizedError {
             return "원인을 알 수 없는 에러 발생"
         case .firestoreError(let message):
             return "파이어 베이스 에러 발생: \(message)"
+        case .encodingError(let message):
+            return "파이어 인코딩 에러 발생: \(message)"
         case .none:
             return nil
         }
@@ -70,6 +73,8 @@ extension CustomError: LocalizedError {
         case .unknownError:
             return "개발팀에게 문의해주세요"
         case .firestoreError(_):
+            return "개발팀에게 문의해주세요"
+        case .encodingError(_):
             return "개발팀에게 문의해주세요"
         case .none:
             return nil

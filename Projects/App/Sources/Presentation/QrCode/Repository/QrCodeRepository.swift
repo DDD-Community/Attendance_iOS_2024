@@ -10,6 +10,12 @@ import SwiftUI
 import CoreImage.CIFilterBuiltins
 
 @Observable public class QrCodeRepository: QrCodeRepositoryProtcool {
+
+    public init() {
+        
+    }
+    
+    //MARK: -  qrcode생성
     public func generateQRCode(from string: String) async -> Image? {
         await withCheckedContinuation { continuation in
             let context = CIContext()
@@ -29,8 +35,5 @@ import CoreImage.CIFilterBuiltins
             continuation.resume(returning: nil)
         }
     }
-    
-    
-
     
 }

@@ -35,10 +35,11 @@ public struct MakeEvent {
         case tapCloseDropDown
         case selectAttendaceMemberButton(selectPart: SelectPart)
         case makeEventToFireBaseModel(eventName: String, eventDate: Date)
-        case makeEventToFireBase(eventName: String, eventDate: Date)
+        case makeEventToFireBase(eventName: String)
         case observeEvent
         case fetchEventResponse(Result<[DDDEvent], CustomError>)
         case selectMakeEventDate(date: Date)
+        case selectMakeEventDatePicker(isBool: Bool)
     }
     
     @Dependency(FireStoreUseCase.self) var fireStoreUseCase
@@ -64,15 +65,16 @@ public struct MakeEvent {
                 }
                 return .none
                 
-            case let .makeEventToFireBase(eventName: eventName, eventDate: eventDate):
+            case let .makeEventToFireBase(eventName: eventName):
                 let convertStartDate = state.selectMakeEventDate.formattedDate(date: state.selectMakeEventDate)
                 let convertTime = state.selectMakeEventDate.formattedTime(date: state.selectMakeEventDate)
                 let convertDate = convertStartDate + convertTime
+                let convertStringToDate = state.selectMakeEventDate.formattedFireBaseStringToDate(dateString: convertDate)
                 let event = DDDEvent(
                     id: UUID().uuidString,
                     name: eventName,
-                    startTime: state.selectMakeEventDate.dateFromString(dateString: convertDate),
-                    endTime: state.selectMakeEventDate.dateFromString(dateString: convertDate).addingTimeInterval(1800))
+                    startTime: convertStringToDate,
+                    endTime: convertStringToDate.addingTimeInterval(1800))
                 state.eventModel = [event]
                 return .run  { @MainActor  send in
                     let events = try await fireStoreUseCase.createEvent(event: event, from: "events")
@@ -115,6 +117,15 @@ public struct MakeEvent {
                 state.selectMakeEventDate = date
                 return .none
                 
+            case .selectMakeEventDatePicker(let isBool):
+                state.selectMakeEventDatePicker = isBool
+                return .none
+            }
+        }
+        .onChange(of: \.eventModel) { oldValue, newValue in
+            Reduce { state, action in
+                state.eventModel = newValue
+                return .none
             }
         }
     }

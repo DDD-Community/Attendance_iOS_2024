@@ -12,16 +12,14 @@ import ComposableArchitecture
 public struct EditEventView: View {
     @Bindable var store: StoreOf<EditEvent>
     var backAction: () -> Void
-    var createEventAction: () -> Void
     
     init(
         store: StoreOf<EditEvent>,
-        backAction: @escaping () -> Void,
-        createEventAction: @escaping () -> Void
+        backAction: @escaping () -> Void
     ) {
         self.store = store
         self.backAction = backAction
-        self.createEventAction = createEventAction
+        
     }
     
     public var body: some View {
@@ -33,9 +31,11 @@ public struct EditEventView: View {
                 Spacer()
                     .frame(height: 20)
                 
-                NavigationBackButton(buttonAction: backAction)
+                CustomNavigationBar(backAction: backAction) {
+                    store.send(.presntEventModal)
+                }
                 
-                editEventNavigationTItle()
+                editEventNavigationTitle()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     if store.eventModel == [ ] {
@@ -68,13 +68,24 @@ public struct EditEventView: View {
             .presentationDragIndicator(.hidden)
             .presentationBackground(Color.basicBlackDimmed)
         }
+        
+        .sheet(item: $store.scope(state: \.destination?.editEventModal, action: \.destination.editEventModal)) { editEventModalStore in
+            EditEventModalView(store: editEventModalStore, completion: {
+                store.send(.closeEditEventModal)
+            })
+            .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
+            .presentationCornerRadius(20)
+            .presentationDragIndicator(.hidden)
+            .presentationBackground(Color.basicBlackDimmed)
+        }
+        
     }
 }
 
 extension EditEventView {
     
     @ViewBuilder
-    private func editEventNavigationTItle() -> some View {
+    private func editEventNavigationTitle() -> some View {
         LazyVStack {
             Spacer()
                 .frame(height: 20)
@@ -103,26 +114,29 @@ extension EditEventView {
                         name: item.name,
                         startTime: "\(item.startTime.formattedDateTimeToString(date: item.startTime)) \(item.startTime.formattedTime(date: item.startTime))",
                         endTime: "\(item.endTime.formattedDateTimeToString(date: item.endTime)) \(item.endTime.formattedTime(date: item.endTime))")
-                        .offset(x: item == store.selectedEvent && store.isEditing ? -10 : 0)
-                        .gesture(
-                            DragGesture()
-                                .onChanged { gesture in
-                                    withAnimation(.easeOut) {
-                                        if gesture.translation.width < -40 {
-                                            self.store.offset = gesture.translation.width
-                                        }
+                    .offset(x: item == store.selectedEvent && store.isEditing ? -10 : 0)
+                    .gesture(
+                        DragGesture()
+                            .onChanged { gesture in
+                                withAnimation(.easeOut) {
+                                    if gesture.translation.width < -40 {
+                                        self.store.offset = gesture.translation.width
                                     }
                                 }
-                                .onEnded { _ in
-                                    withAnimation(.spring()) {
-                                        if self.store.offset < -40 {
-                                            self.store.selectedEvent = item
-                                            self.store.isEditing = true
-                                        }
-                                        self.store.offset = 0
+                            }
+                            .onEnded { _ in
+                                withAnimation(.spring()) {
+                                    if self.store.offset < -40 {
+                                        self.store.selectedEvent = item
+                                        self.store.isEditing = true
                                     }
+                                    self.store.offset = 0
                                 }
-                        )
+                            }
+                    )
+                    .onTapGesture {
+                        store.send(.tapEditEvent(eventName:  item.name, eventID:  item.id ?? "", eventStartDate: item.startTime))
+                    }
                     
                     if store.isEditing && item == store.selectedEvent {
                         VStack {
@@ -141,6 +155,7 @@ extension EditEventView {
                                             .frame(width: 40, height: 40)
                                             .onTapGesture {
                                                 store.send(.deleteEvent)
+                                                store.isEditing = false
                                             }
                                             .offset(x: -10)
                                         

@@ -16,10 +16,7 @@ import Service
 
 @Observable public class FireStoreRepository: FireStoreRepositoryProtocol {
     
-    
-    
     private let fireStoreDB = Firestore.firestore()
-    private let ref = Database.database().reference()
     private var listener: ListenerRegistration?
     
     public init() {
@@ -126,31 +123,34 @@ import Service
     }
     
     //MARK: - event 수정하기
-    public func editEventStream(
-        event: DDDEvent,
-        in collection: String
-    ) async throws -> AsyncStream<Result<DDDEvent, CustomError>> {
-        AsyncStream { continuation in
-            guard let eventID = event.id else {
-                continuation.yield(.failure(.invalidEventId))
-                continuation.finish()
-                return
-            }
-            
+    public func editEvent(
+            event: DDDEvent,
+            in collection: String
+    ) async throws -> DDDEvent? {
+        var updateEvent = event
+        guard let storedData = try Keychain().getData("deleteEventIDs"),
+              let storedDocumentIDs = try? JSONDecoder().decode([String].self, from: storedData) else {
+            throw CustomError.unknownError("No stored document IDs found in Keychain.")
+        }
+        Log.debug("Document IDs from Firestore: \(storedDocumentIDs)")
+        let querySnapshot = try await fireStoreDB.collection(collection).getDocuments()
+        
+        Log.debug("Document IDs from Firestore: \(querySnapshot.documents.map { $0.documentID })")
+        Log.debug("update document IDs: \(storedDocumentIDs)")
+        
+        for document in querySnapshot.documents {
             do {
-                try fireStoreDB.collection(collection).document(eventID).setData(from: event) { error in
-                    if let error = error {
-                        continuation.yield(.failure(.firestoreError(error.localizedDescription)))
-                    } else {
-                        continuation.yield(.success(event))
-                    }
-                    continuation.finish()
-                }
+                Log.debug("Deleting document with ID: \(document.documentID)")
+                try await fireStoreDB.collection(collection).document(document.documentID).updateData(updateEvent.toDictionary())
+                Log.debug("Document successfully removed!")
+                return updateEvent
             } catch {
-                continuation.yield(.failure(.firestoreError(error.localizedDescription)))
-                continuation.finish()
+                Log.error("Error removing document: \(error)")
+                throw CustomError.unknownError("Error removing document: \(error.localizedDescription)")
             }
         }
+        return updateEvent
+        
     }
     
     //MARK: - evnet삭제 하기
@@ -184,8 +184,8 @@ import Service
             }
         }
     }
-    
 }
-
-
-
+    
+    
+    
+    

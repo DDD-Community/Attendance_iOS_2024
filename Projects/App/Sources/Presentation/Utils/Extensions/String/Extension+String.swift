@@ -7,9 +7,11 @@
 
 import Foundation
 extension String {
-    static func combine(userID: String, eventID: String, creationTime: Date) -> String {
-        let creationTimeString = creationTime.formattedString()
-        return "\(userID)+\(eventID)+\(creationTimeString)"
+    static func makeQrCodeValue(userID: String, eventID: String, startTime: Date, endTime: Date) -> String {
+        let startTimeString = startTime.formattedString()
+        let setEndTime = endTime.addingTimeInterval(1800)
+        let endTimeString = setEndTime.formattedString()
+        return "\(userID)+\(eventID)+\(startTimeString)+\(endTimeString)"
     }
     
     func stringToDate(_ dateString: String) -> Date? {

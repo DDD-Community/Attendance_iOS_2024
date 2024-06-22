@@ -20,9 +20,13 @@ public struct EditEvent {
         var eventModel: [DDDEvent] = []
         var naivgationTitle: String = "이벤트 수정"
         var isEditing: Bool = false
+        var isEditEvent: Bool = false
         var offset: CGFloat = 0
         var selectedEvent: DDDEvent?
         var deleteImage: String = "minus.circle"
+        var editMakeEventResaon: String = ""
+        var editEventid: String = ""
+        var editEventDate: Date = Date.now
         
         @Presents var destination: Destination.State?
         public init() {}
@@ -41,11 +45,14 @@ public struct EditEvent {
         case destination(PresentationAction<Destination.Action>)
         case presntEventModal
         case closePresntEventModal
+        case tapEditEvent(eventName: String, eventID: String, eventStartDate: Date)
+        case closeEditEventModal
     }
     
     @Reducer(state: .equatable)
     public enum Destination {
         case makeEvent(MakeEvent)
+        case editEventModal(EditEventModal)
         
     }
     
@@ -119,7 +126,7 @@ public struct EditEvent {
             case .creatEvents:
                 return .none
                 
-            case  let .updateEventModel(newValue):
+            case let .updateEventModel(newValue):
                 state.eventModel = []
                 state.eventModel = newValue
                 return .none
@@ -135,6 +142,25 @@ public struct EditEvent {
                 state.destination = nil
                 return .none
                 
+            case .closeEditEventModal:
+                state.destination = nil
+                return .none
+                
+            case let .tapEditEvent(eventName: eventName,
+                 eventID: eventID,
+                 eventStartDate: eventStartDate):
+                state.editMakeEventResaon =  eventName
+                state.editEventid = eventID
+                let convertDate = "\(eventStartDate.formattedDateTimeToString(date: eventStartDate)) \(eventStartDate.formattedTime(date: eventStartDate))"
+                let convertDateString = convertDate.stringToTimeAndDate(convertDate)
+                state.editEventDate = convertDateString ?? Date()
+                state.destination = .editEventModal(
+                    EditEventModal.State(
+                        editMakeEventReason: eventName,
+                        editEventID: eventID,
+                        editEventStartTime:  eventStartDate
+                    ))
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)

@@ -113,7 +113,6 @@ public struct CoreMember {
                         try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self, shouldSave: false)
                     }
                     
-                    
                     switch fetchedDataResult {
                         
                     case let .success(fetchedData):
@@ -245,7 +244,6 @@ public struct CoreMember {
                 }
                 return .none
                 
-                
             case .fetchCurrentUser:
                 return .run { @MainActor send in
                     let fetchUserResult = await Result {
@@ -263,7 +261,6 @@ public struct CoreMember {
                     }
                 }
                 
-                
             case let .fetchUserDataResponse(fetchUser):
                 switch fetchUser {
                 case let .success(fetchUser):
@@ -274,7 +271,6 @@ public struct CoreMember {
                     state.user = nil
                 }
                 return .none
-                
                 
             case .presntEventModal:
                 state.destination = .makeEvent(MakeEvent.State())
@@ -287,7 +283,6 @@ public struct CoreMember {
             case .presntEventEditViewToModal:
                 state.destination = .makeEvent(MakeEvent.State())
                 return .none
-                
                 
 //            case .alert(.dismiss):
 //                state.alert = nil

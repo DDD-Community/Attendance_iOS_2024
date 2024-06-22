@@ -27,7 +27,6 @@ public struct NavigationBackButton: View {
                     buttonAction()
                 }
             
-            
             Spacer()
             
         }
