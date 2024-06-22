@@ -19,7 +19,7 @@ struct CoreMemberMainView: View {
     
     var body: some View {
         ZStack {
-            Color.black
+            Color.basicBlack
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
@@ -194,7 +194,7 @@ extension CoreMemberMainView {
             case .all:
                 ScrollView(.vertical ,showsIndicators: false) {
                     ForEach(store.attendaceModel, id: \.self) { item in
-                        attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc)
+                        attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc, attendanceType: item.attendanceType)
                         
                         Spacer()
                     }
@@ -202,7 +202,7 @@ extension CoreMemberMainView {
                 
             default:
                 ForEach(store.attendaceModel.filter { $0.roleType == roleType}, id: \.self) { item in
-                    attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc)
+                    attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc, attendanceType: item.attendanceType)
                     
                     Spacer()
                 }
@@ -211,7 +211,7 @@ extension CoreMemberMainView {
     }
     
     @ViewBuilder
-    fileprivate func attendanceList(name: String,  roleType: String) -> some View {
+    fileprivate func attendanceList(name: String,  roleType: String, attendanceType: AttendanceType) -> some View {
         VStack {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.basicWhite, style: .init(lineWidth: 1))
@@ -239,6 +239,7 @@ extension CoreMemberMainView {
                         
                         Spacer()
                         
+                    
                         Image(systemName: "checkmark")
                             .resizable()
                             .scaledToFit()
@@ -264,15 +265,12 @@ extension CoreMemberMainView {
             
             HStack {
                 
-                DatePicker(selection: $store.selectDate.sending(\.selectDate), in: ...Date(), displayedComponents: [.date]) {
-                    
-                }
+                DatePicker(selection: $store.selectDate.sending(\.selectDate), 
+                           in: ...Date(), displayedComponents: [.date]) { }
                 .frame(width: UIScreen.screenWidth * 0.35)
                 .environment(\.locale, Locale(identifier: "ko_KR"))
                 .labelsHidden()
                
-                
-                
                 Spacer()
                 
             }
@@ -334,8 +332,6 @@ extension CoreMemberMainView {
                     .onTapGesture {
                         store.send(.tapLogOut)
                     }
-                
-                
             }
             
             Spacer()

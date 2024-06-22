@@ -40,8 +40,8 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
         try await repository.createEvent(event: event, from: collection)
     }
     
-    public func editEventStream(event: DDDEvent, in collection: String) async throws -> AsyncStream<Result<DDDEvent, CustomError>> {
-        try await repository.editEventStream(event: event, in: collection)
+    public func editEvent(event: DDDEvent, in collection: String) async throws -> DDDEvent? {
+        try await repository.editEvent(event: event, in: collection)
     }
     
     public func deleteEvent(from collection: String) async throws {

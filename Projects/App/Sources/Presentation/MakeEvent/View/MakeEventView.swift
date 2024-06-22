@@ -157,6 +157,7 @@ extension MakeEventView {
                 Spacer()
                     .frame(width: 12)
                 
+                
                 DatePicker(selection: $store.selectMakeEventDate.sending(\.selectMakeEventDate), in: ...Date() ,displayedComponents: .hourAndMinute, label: {})
                     .frame(width: UIScreen.screenWidth * 0.2)
                     .offset(x: -UIScreen.screenWidth * 0.01)
