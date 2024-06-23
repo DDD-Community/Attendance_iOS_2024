@@ -15,4 +15,8 @@ public extension Date {
     var endOfDay: Date {
         return Calendar.current.date(byAdding: .day, value: 1, to: self.startOfDay)!.addingTimeInterval(-1)
     }
+    
+    var isToday: Bool {
+        return Calendar.current.isDateInToday(self)
+    }
 }

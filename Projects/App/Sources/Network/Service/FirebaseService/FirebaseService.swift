@@ -172,7 +172,7 @@ final class FirebaseService {
                         eventId: eventId,
                         createdAt: createdAt,
                         updatedAt: updatedAt,
-                        attendanceType: .absent,
+                        attendanceType: status,
                         generation: generation
                     )
                 }
@@ -225,7 +225,7 @@ final class FirebaseService {
     func saveEvent(_ event: DDDEvent) -> Single<Bool> {
         return Single.create { [weak self] single in
             let db = Firestore.firestore()
-            guard let eventId: String = event.id else {
+            guard event.id != nil else {
                 single(.failure(EventRepositoryError.saveEvent))
                 return Disposables.create()
             }

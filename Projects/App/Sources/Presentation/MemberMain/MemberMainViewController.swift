@@ -24,11 +24,20 @@ final class MemberMainViewController: UIViewController {
         reactor = Reactor()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.reactor?.action.onNext(.fetchData)
+    }
+    
     // MARK: - Public helpers
     
     // MARK: - Private helpers
     private func presentQRLoginView() {
-        let vc: QRCheckInViewController = .init()
+        guard let profile: Member = reactor?.currentState.userProfile else {
+            return
+        }
+        let vc: QRCheckInViewController = .init(profile: profile)
+        vc.delegate = self
         self.present(vc, animated: true)
     }
     
@@ -79,5 +88,21 @@ extension MemberMainViewController: View {
                 guard isLoggedOut else { return }
                 self?.switchToLoginView()
             }.disposed(by: disposeBag)
+        
+        reactor.state.map { ($0.todayEvent, $0.isAttendanceNeeded) }
+            .observe(on: MainScheduler.asyncInstance)
+            .bind { [weak self] event, isAttendanceNeeded in
+                guard let event,
+                      let isAttendanceNeeded else {
+                    return
+                }
+                self?.mainView.bindEvent(event, isAttendanceNeeded)
+            }.disposed(by: disposeBag)
+    }
+}
+
+extension MemberMainViewController: QRCheckInViewControllerDelegate {
+    func qrCheckInViewDismissed() {
+        self.reactor?.action.onNext(.fetchData)
     }
 }

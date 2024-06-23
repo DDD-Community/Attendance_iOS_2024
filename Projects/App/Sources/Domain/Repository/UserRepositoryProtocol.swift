@@ -13,6 +13,7 @@ protocol UserRepositoryProtocol {
     
     /// Firebase Auth의 uid를 이용하여 Member를 가져온다.
     func fetchMember() -> Single<Member>
+    func fetchMember(_ uid: String) -> Single<Member>
     func saveMember(_ member: Member) -> Single<Bool>
     func editMember(_ member: Member) -> Single<Bool>
     func logout() -> Single<Bool>
@@ -35,6 +36,7 @@ enum UserRepositoryError: Error {
     case editMember
     case fetchAttendanceList
     case checkMemberAttendance
+    case todayAttendanceDoesNotExist
     case editMemberAttendance
     case inviteCodeNotExist
     case invalidInviteCode

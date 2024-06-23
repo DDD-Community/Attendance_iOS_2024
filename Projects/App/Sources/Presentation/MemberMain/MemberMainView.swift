@@ -135,6 +135,17 @@ final class MemberMainView: BaseView {
         checkInStatusLabel.text = "출석 \(attendances.attendance)회 | 지각 \(attendances.late)회 | 결석 \(attendances.absent)회"
     }
     
+    func bindEvent(_ event: DDDEvent, _ isAttendanceNeeded: Bool) {
+        qrCheckInButton.isEnabled = isAttendanceNeeded
+        if isAttendanceNeeded {
+            qrCheckInButton.setTitle("QR 출석 👉", for: .normal)
+            qrCheckInButton.backgroundColor = .black
+        } else {
+            qrCheckInButton.setTitle("출석 불필요", for: .normal)
+            qrCheckInButton.backgroundColor = .gray
+        }
+    }
+    
     // MARK: - Private helpers
     private func layout() {
         rootView.pin.top(pin.safeArea.top)
