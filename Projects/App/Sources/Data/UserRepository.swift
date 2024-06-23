@@ -22,6 +22,10 @@ final class UserRepository: UserRepositoryProtocol {
             }
     }
     
+    func fetchMember(_ uid: String) -> Single<Member> {
+        return self.firebaseService.fetchMember(uid)
+    }
+    
     /// Firestore에 Member를 저장한다.
     func saveMember(_ member: Member) -> Single<Bool> {
         return firebaseService.saveMember(member)

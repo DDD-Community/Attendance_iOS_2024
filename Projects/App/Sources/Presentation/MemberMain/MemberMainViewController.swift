@@ -28,7 +28,10 @@ final class MemberMainViewController: UIViewController {
     
     // MARK: - Private helpers
     private func presentQRLoginView() {
-        let vc: QRCheckInViewController = .init()
+        guard let profile: Member = reactor?.currentState.userProfile else {
+            return
+        }
+        let vc: QRCheckInViewController = .init(profile: profile)
         self.present(vc, animated: true)
     }
     
