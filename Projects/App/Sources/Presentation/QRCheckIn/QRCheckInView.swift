@@ -94,9 +94,3 @@ final class QRCheckInView: BaseView {
         rootView.flex.layout()
     }
 }
-
-
-
-//ddsdas
-//ddsdasansadkjlnsadjksn 오 너ㅓㅁㄴ유ㅏㅓ납쥼ㄴㅇ
-

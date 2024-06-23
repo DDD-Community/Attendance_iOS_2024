@@ -12,6 +12,7 @@ import Foundation
 final class MemberMainReactor: Reactor {
     struct State {
         var todayEvent: DDDEvent?
+        var isAttendanceNeeded: Bool?
         var userProfile: Member?
         var userAttendanceHistory: [Attendance] = []
         var checkInSuccess: Bool?
@@ -19,17 +20,14 @@ final class MemberMainReactor: Reactor {
     }
     
     enum Action {
-        case fetchTodayEvent
-        case fetchProfile
-        case fetchUserAttendanceHistory
-        case didTapCheckIn
+        case fetchData
         case didTapLogout
     }
     
     enum Mutation {
         case setTodayEvent(DDDEvent)
         case setProfile(Member)
-        case setUserAttendanceHistory([Attendance])
+        case setAttendanceStatus([Attendance], Bool)
         case setCheckInSuccess(Bool)
         case setLogoutSuccess(Bool)
     }
@@ -42,23 +40,18 @@ final class MemberMainReactor: Reactor {
         self.initialState = .init()
         self.userRepository = UserRepository()
         self.eventRepository = EventRepository()
-        self.action.onNext(.fetchProfile)
-        self.action.onNext(.fetchTodayEvent)
-        self.action.onNext(.fetchUserAttendanceHistory)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .fetchTodayEvent:
-            return self.fetchTodayEvent()
-        case .fetchProfile:
-            return self.fetchProfile()
-        case .fetchUserAttendanceHistory:
-            return self.fetchUserAttendanceHistory()
-        case .didTapCheckIn:
-            return saveCheckIn()
+        case .fetchData:
+            return .merge(
+                self.fetchTodayEvent(),
+                self.fetchProfile(),
+                self.fetchUserAttendanceHistory()
+            )
         case .didTapLogout:
-            return logout()
+            return self.logout()
         }
     }
     
@@ -69,8 +62,9 @@ final class MemberMainReactor: Reactor {
             newState.todayEvent = event
         case .setProfile(let profile):
             newState.userProfile = profile
-        case .setUserAttendanceHistory(let history):
+        case let .setAttendanceStatus(history, isTodayAttendanceExist):
             newState.userAttendanceHistory = history
+            newState.isAttendanceNeeded = !isTodayAttendanceExist
         case .setCheckInSuccess(let success):
             newState.checkInSuccess = success
         case .setLogoutSuccess(let success):
@@ -103,7 +97,12 @@ extension MemberMainReactor {
     
     private func fetchUserAttendanceHistory() -> Observable<Mutation> {
         return self.userRepository.fetchAttendanceList()
-            .map { Mutation.setUserAttendanceHistory($0) }
+            .map { attendances in
+                let todayAttendanceExist: Bool = attendances
+                    .sorted(by: { $0.createdAt > $1.createdAt })
+                    .first?.createdAt.isToday ?? false
+                return .setAttendanceStatus(attendances, todayAttendanceExist)
+            }
             .asObservable()
     }
     

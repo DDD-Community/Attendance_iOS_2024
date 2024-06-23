@@ -63,7 +63,6 @@ final class QRCheckInReactor: Reactor {
         case .setLoading(let isLoading):
             newState.isLoading = isLoading
         }
-        print(mutation)
         return newState
     }
 }

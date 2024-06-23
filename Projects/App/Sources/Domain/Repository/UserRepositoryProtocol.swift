@@ -36,6 +36,7 @@ enum UserRepositoryError: Error {
     case editMember
     case fetchAttendanceList
     case checkMemberAttendance
+    case todayAttendanceDoesNotExist
     case editMemberAttendance
     case inviteCodeNotExist
     case invalidInviteCode

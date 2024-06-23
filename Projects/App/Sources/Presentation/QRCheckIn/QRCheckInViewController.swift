@@ -10,6 +10,10 @@ import ReactorKit
 import AVFoundation
 import UIKit
 
+protocol QRCheckInViewControllerDelegate: AnyObject {
+    func qrCheckInViewDismissed()
+}
+
 final class QRCheckInViewController: UIViewController {
     typealias Reactor = QRCheckInReactor
     
@@ -17,9 +21,10 @@ final class QRCheckInViewController: UIViewController {
     private var mainView: QRCheckInView { view as! QRCheckInView }
     
     // MARK: - Properties
-    var lastDetectionTime: Date?
+    weak var delegate: QRCheckInViewControllerDelegate?
+    private var lastDetectionTime: Date?
+    private var profile: Member
     var disposeBag: DisposeBag = .init()
-    var profile: Member
     
     // MARK: - Lifecycles
     init(profile: Member) {
@@ -44,6 +49,7 @@ final class QRCheckInViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         mainView.stopCaptureSession()
+        delegate?.qrCheckInViewDismissed()
     }
     
     // MARK: - Public helpers
