@@ -29,7 +29,9 @@ public struct EditEvent {
         var editEventDate: Date = Date.now
         
         @Presents var destination: Destination.State?
-        public init() {}
+        public init(eventModel: [DDDEvent] = []) {
+            self.eventModel = eventModel
+        }
     }
     
     public enum Action: BindableAction {
@@ -127,7 +129,7 @@ public struct EditEvent {
                 return .none
                 
             case let .updateEventModel(newValue):
-                state.eventModel = []
+                state.eventModel = [ ]
                 state.eventModel = newValue
                 return .none
                 

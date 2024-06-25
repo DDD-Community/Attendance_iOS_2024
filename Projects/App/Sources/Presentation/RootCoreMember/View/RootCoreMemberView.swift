@@ -20,6 +20,7 @@ struct RootCoreMemberView: View {
             }
             .onAppear {
                 store.send(.appearPath)
+                store.send(.fetchEvent)
             }
             
         } destination: { swithStore in

@@ -93,6 +93,11 @@ public struct InfoPlistValues {
     public static func setUISupportedInterfaceOrientations(_ value: [String]) -> [String: Plist.Value] {
         return ["UISupportedInterfaceOrientations": .array(value.map { .string($0) })]
     }
+    
+    public static func setNSCameraUsageDescription(_ value: String) -> [String: Plist.Value] {
+        return ["NSCameraUsageDescription": .string(value)]
+    }
+
 
     public static func generateInfoPlist() -> [String: Plist.Value] {
         var infoPlist: [String: Plist.Value] = [:]
@@ -130,6 +135,7 @@ public struct InfoPlistValues {
         infoPlist.merge(setUILaunchStoryboardName("LaunchScreen.storyboard")) { (_, new) in new }
         infoPlist.merge(setUIRequiredDeviceCapabilities(["armv7"])) { (_, new) in new }
         infoPlist.merge(setUISupportedInterfaceOrientations(["UIInterfaceOrientationPortrait"])) { (_, new) in new }
+        infoPlist.merge(setNSCameraUsageDescription("QR 코드 인식을 위해 카메라 접근 권한이 필요합니다")) { (_, new) in new }
 
         return infoPlist
     }

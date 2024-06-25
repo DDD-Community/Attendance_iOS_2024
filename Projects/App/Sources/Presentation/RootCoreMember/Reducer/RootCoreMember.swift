@@ -21,6 +21,9 @@ public struct RootCoreMember {
         public init() {}
         
         var path: StackState<Path.State> = .init()
+        var eventModel: [DDDEvent] = []
+        
+        
     }
     
     public enum Action : BindableAction {
@@ -29,6 +32,8 @@ public struct RootCoreMember {
         case removePath
         case appearPath
         case removeAllPath
+        case fetchEvent
+        case fetchEventResponse(Result<[DDDEvent], CustomError>)
     }
     
     @Reducer(state: .equatable)
@@ -38,6 +43,8 @@ public struct RootCoreMember {
         case editEvent(EditEvent)
         case snsLogin(SNSLoginViewReducer)
     }
+    
+    @Dependency(FireStoreUseCase.self) var fireStoreUseCase
     
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -57,7 +64,7 @@ public struct RootCoreMember {
                     state.path.append(.qrCode(.init(userID: userID ?? "")))
                     
                 case .element(id: _, action: .coreMember(.presentEditEvent)):
-                    state.path.append(.editEvent(.init()))
+                    state.path.append(.editEvent(.init(eventModel: state.eventModel)))
                     
                 case .element(id: _, action: .editEvent(.creatEvents)):
                     state.path.append(.coreMember(.init()))
@@ -80,6 +87,31 @@ public struct RootCoreMember {
                 return .none
                 
             case  .binding(_):
+                return .none
+                
+            case .fetchEvent:
+                return .run { @MainActor send in
+                    let fetchedDataResult = await Result {
+                        try await fireStoreUseCase.fetchFireStoreData(from: "events", as: DDDEvent.self, shouldSave: true)
+                    }
+                    
+                    switch fetchedDataResult {
+                    case let .success(fetchedData):
+                        send(.fetchEventResponse(.success(fetchedData)))
+                        await Task.sleep(seconds: 1)
+                        send(.fetchEvent)
+                    case let .failure(error):
+                        send(.fetchEventResponse(.failure(CustomError.map(error))))
+                    }
+                }
+                
+            case let .fetchEventResponse(fetchedData):
+                switch fetchedData {
+                case let .success(fetchedData):
+                    state.eventModel = fetchedData
+                case let .failure(error):
+                    Log.error("Error fetching data", error)
+                }
                 return .none
             }
         }
