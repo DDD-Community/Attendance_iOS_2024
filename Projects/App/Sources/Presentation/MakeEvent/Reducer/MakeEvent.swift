@@ -77,7 +77,7 @@ public struct MakeEvent {
                     endTime: convertStringToDate.addingTimeInterval(1800))
                 state.eventModel = [event]
                 return .run  { @MainActor  send in
-                    let events = try await fireStoreUseCase.createEvent(event: event, from: "events")
+                    let events = try await fireStoreUseCase.createEvent(event: event, from: .event)
                     Log.debug("event 생성", events)
                 }
                 
@@ -95,7 +95,10 @@ public struct MakeEvent {
                 
             case .observeEvent:
                 return .run { @MainActor send in 
-                    for await result in try await fireStoreUseCase.observeFireBaseChanges(from: "events", as: DDDEvent.self) {
+                    for await result in try await fireStoreUseCase.observeFireBaseChanges(
+                        from: .event,
+                        as: DDDEvent.self
+                    ) {
                          send(.fetchEventResponse(result))
                     }
                 }

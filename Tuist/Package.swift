@@ -1,8 +1,8 @@
 // swift-tools-version: 5.9
-import PackageDescription
+@preconcurrency import PackageDescription
 
 #if TUIST
-    import ProjectDescription
+@preconcurrency import ProjectDescription
 
     let packageSettings = PackageSettings(
         productTypes: [
@@ -27,7 +27,7 @@ let package = Package(
         .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "7.1.0"),
         .package(url: "https://github.com/EFPrefix/EFQRCode.git", from: "6.2.2"),
         .package(url: "https://github.com/devxoul/Then", from: "3.0.0"),
-        .package(url: "http://github.com/pointfreeco/swift-composable-architecture", from: "1.11.0"),
+        .package(url: "http://github.com/pointfreeco/swift-composable-architecture", from: "1.11.2"),
         .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI.git", from: "2.0.0"),
         .package(url: "https://github.com/kaishin/Gifu.git", from: "3.4.0"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", from: "4.2.2"),

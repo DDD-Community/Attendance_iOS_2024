@@ -75,7 +75,10 @@ public struct EditEventModal {
                 
                 return .run { send in
                     let fetchedEventResult = await Result {
-                        try await fireStoreUseCase.editEvent(event: event, in: "events")
+                        try await fireStoreUseCase.editEvent(
+                            event: event,
+                            in: .event
+                        )
                     }
                 }
 
@@ -95,7 +98,10 @@ public struct EditEventModal {
             case .fetchEvent:
                 return .run { @MainActor send in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "events", as: DDDEvent.self, shouldSave: true)
+                        try await fireStoreUseCase.fetchFireStoreData(
+                            from: .event,
+                            as: DDDEvent.self,
+                            shouldSave: true)
                     }
                     
                     switch fetchedDataResult {

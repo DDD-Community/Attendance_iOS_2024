@@ -110,7 +110,10 @@ public struct CoreMember {
                 
                 return .run { @MainActor send in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self, shouldSave: false)
+                        try await fireStoreUseCase.fetchFireStoreData(
+                            from: .member,
+                            as: Attendance.self,
+                            shouldSave: false)
                     }
                     
                     switch fetchedDataResult {
@@ -176,7 +179,10 @@ public struct CoreMember {
             case .fetchMember:
                 return .run { @MainActor send  in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self, shouldSave: false)
+                        try await fireStoreUseCase.fetchFireStoreData(
+                            from: .member,
+                            as: Attendance.self,
+                            shouldSave: false)
                     }
                     
                     switch fetchedDataResult {
@@ -211,7 +217,11 @@ public struct CoreMember {
             case let .upDateFetchMember(selectPart: selectPart):
                 return .run { @MainActor send in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "members", as: Attendance.self, shouldSave: false)
+                        try await fireStoreUseCase.fetchFireStoreData(
+                            from: .member,
+                            as: Attendance.self,
+                            shouldSave: false
+                        )
                     }
                     
                     switch fetchedDataResult {
@@ -228,7 +238,10 @@ public struct CoreMember {
                 
             case .observeAttendance:
                 return .run { send in
-                    for await result in try await fireStoreUseCase.observeFireBaseChanges(from: "members", as: Attendance.self) {
+                    for await result in try await fireStoreUseCase.observeFireBaseChanges(
+                        from:  .member,
+                        as: Attendance.self
+                    ) {
                         await send(.fetchDataResponse(result))
                     }
                 }

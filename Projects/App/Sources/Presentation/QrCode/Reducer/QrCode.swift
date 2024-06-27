@@ -110,7 +110,11 @@ public struct QrCode {
             case .fetchEvent:
                 return .run { @MainActor send in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "events", as: DDDEvent.self, shouldSave: false)
+                        try await fireStoreUseCase.fetchFireStoreData(
+                            from: .event,
+                            as: DDDEvent.self,
+                            shouldSave: false
+                        )
                     }
                     
                     switch fetchedDataResult {
@@ -134,6 +138,11 @@ public struct QrCode {
                         state.startTime = todayEvent.startTime
                         state.eventID = todayEvent.id
                         Log.debug("Today's event found: \(todayEvent.id)")
+                        if todayEvent.id != "" {
+                            if state.loadingQRImage == true {
+                                state.qrCodeReaderText = "QRCode를 찍어주셔야 출석이 가능 합니다!"
+                            }
+                        }
                     } else {
                         Log.debug("No event for today.")
                     }
@@ -144,7 +153,10 @@ public struct QrCode {
                 
             case .observeEvent:
                 return .run {  send in
-                    for await result in try await fireStoreUseCase.observeFireBaseChanges(from: "events", as: DDDEvent.self) {
+                    for await result in try await fireStoreUseCase.observeFireBaseChanges(
+                        from: .event,
+                        as: DDDEvent.self
+                    ) {
                         await send(.fetchEventResponse(result))
                     }
                 }

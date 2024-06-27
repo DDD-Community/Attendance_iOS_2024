@@ -92,7 +92,11 @@ public struct RootCoreMember {
             case .fetchEvent:
                 return .run { @MainActor send in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "events", as: DDDEvent.self, shouldSave: true)
+                        try await fireStoreUseCase.fetchFireStoreData(
+                            from: .event,
+                            as: DDDEvent.self, 
+                            shouldSave: true
+                        )
                     }
                     
                     switch fetchedDataResult {

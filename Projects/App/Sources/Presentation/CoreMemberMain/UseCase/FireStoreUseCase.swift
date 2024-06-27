@@ -21,7 +21,10 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
         self.repository = repository
     }
     
-    public func fetchFireStoreData<T>(from collection: String, as type: T.Type, shouldSave: Bool) async throws -> [T] where T : Decodable {
+    public func fetchFireStoreData<T>(
+        from collection: FireBaseCollection,
+        as type: T.Type, shouldSave: Bool
+    ) async throws -> [T] where T : Decodable {
         try await repository.fetchFireStoreData(from: collection, as: T.self, shouldSave: shouldSave)
     }
     
@@ -30,21 +33,29 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
     }
     
     public func observeFireBaseChanges<T>(
-        from collection: String,
+        from collection: FireBaseCollection,
         as type: T.Type
     ) async throws -> AsyncStream<Result<[T], CustomError>> where T : Decodable {
         try await repository.observeFireBaseChanges(from: collection, as: T.self)
     }
    
-    public func createEvent(event: DDDEvent, from collection: String) async throws -> DDDEvent? {
+    public func createEvent(
+        event: DDDEvent,
+        from collection: FireBaseCollection
+    ) async throws -> DDDEvent? {
         try await repository.createEvent(event: event, from: collection)
     }
     
-    public func editEvent(event: DDDEvent, in collection: String) async throws -> DDDEvent? {
+    public func editEvent(
+        event: DDDEvent,
+        in collection: FireBaseCollection
+    ) async throws -> DDDEvent? {
         try await repository.editEvent(event: event, in: collection)
     }
     
-    public func deleteEvent(from collection: String) async throws {
+    public func deleteEvent(
+        from collection: FireBaseCollection
+    ) async throws {
         try await repository.deleteEvent(from: collection)
     }
     

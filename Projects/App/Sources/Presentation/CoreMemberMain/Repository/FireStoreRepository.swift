@@ -25,11 +25,11 @@ import Service
     
     //MARK: - firebase 데이터 베이스에서 members 값 가지고 오기
     public func fetchFireStoreData<T: Decodable>(
-        from collection: String,
+        from collection: FireBaseCollection,
         as type: T.Type,
         shouldSave: Bool
     ) async throws -> [T] {
-        let querySnapshot = try await fireStoreDB.collection(collection).getDocuments()
+        let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
         Log.debug("firebase 데이터 가져오기 성공", collection, querySnapshot.documents.map { $0.data() })
         
         return querySnapshot.documents.compactMap { document in
@@ -67,11 +67,11 @@ import Service
     
     //MARK: - firebase 실시간 정보 가져오기
     public func observeFireBaseChanges<T>(
-        from collection: String,
+        from collection: FireBaseCollection,
         as type: T.Type
     ) async throws -> AsyncStream<Result<[T], CustomError>> where T: Decodable {
         AsyncStream { continuation in
-            let collectionRef = fireStoreDB.collection(collection)
+            let collectionRef = fireStoreDB.collection(collection.desc)
             
             listener = collectionRef.addSnapshotListener { querySnapshot, error in
                 let result: Result<[T], CustomError> = {
@@ -108,10 +108,10 @@ import Service
     //MARK: - firebase 로 이벤트 만들기
     public func createEvent(
         event: DDDEvent,
-        from collection: String
+        from collection: FireBaseCollection
     ) async throws -> DDDEvent? {
         var newEvent = event
-        if let documentReference = try? await fireStoreDB.collection(collection).addDocument(data: event.toDictionary()) {
+        if let documentReference = try? await fireStoreDB.collection(collection.desc).addDocument(data: event.toDictionary()) {
             newEvent.id = documentReference.documentID
             Log.debug("Document added with ID: ", "\(#function)", "\(documentReference.documentID)")
             try Keychain().saveDocumentIDToKeychain(documentID: documentReference.documentID)
@@ -125,7 +125,7 @@ import Service
     //MARK: - event 수정하기
     public func editEvent(
             event: DDDEvent,
-            in collection: String
+            in collection: FireBaseCollection
     ) async throws -> DDDEvent? {
         var updateEvent = event
         guard let storedData = try Keychain().getData("deleteEventIDs"),
@@ -133,7 +133,7 @@ import Service
             throw CustomError.unknownError("No stored document IDs found in Keychain.")
         }
         Log.debug("Document IDs from Firestore: \(storedDocumentIDs)")
-        let querySnapshot = try await fireStoreDB.collection(collection).getDocuments()
+        let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
         
         Log.debug("Document IDs from Firestore: \(querySnapshot.documents.map { $0.documentID })")
         Log.debug("update document IDs: \(storedDocumentIDs)")
@@ -141,7 +141,7 @@ import Service
         for document in querySnapshot.documents {
             do {
                 Log.debug("Deleting document with ID: \(document.documentID)")
-                try await fireStoreDB.collection(collection).document(document.documentID).updateData(updateEvent.toDictionary())
+                try await fireStoreDB.collection(collection.desc).document(document.documentID).updateData(updateEvent.toDictionary())
                 Log.debug("Document successfully removed!")
                 return updateEvent
             } catch {
@@ -154,13 +154,13 @@ import Service
     }
     
     //MARK: - evnet삭제 하기
-    public func deleteEvent(from collection: String) async throws {
+    public func deleteEvent(from collection: FireBaseCollection) async throws {
         guard let storedData = try Keychain().getData("deleteEventIDs"),
               let storedDocumentIDs = try? JSONDecoder().decode([String].self, from: storedData) else {
             throw CustomError.unknownError("No stored document IDs found in Keychain.")
         }
         
-        let querySnapshot = try await fireStoreDB.collection(collection).getDocuments()
+        let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
         
         Log.debug("Document IDs from Firestore: \(querySnapshot.documents.map { $0.documentID })")
         Log.debug("Stored document IDs: \(storedDocumentIDs)")
@@ -170,7 +170,7 @@ import Service
             if storedDocumentIDs.contains(document.documentID) {
                 do {
                     Log.debug("Deleting document with ID: \(document.documentID)")
-                    try await fireStoreDB.collection(collection).document(document.documentID).delete()
+                    try await fireStoreDB.collection(collection.desc).document(document.documentID).delete()
                     Log.debug("Document successfully removed!")
                     try? Keychain().remove("startTime")
                     

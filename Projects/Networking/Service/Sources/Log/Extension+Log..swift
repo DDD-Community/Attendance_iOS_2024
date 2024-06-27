@@ -13,6 +13,10 @@ public extension Log {
         log(message, arguments, level: .debug)
     }
 
+    
+    static func test(_ message: Any, _ arguments: Any...) {
+        log(message, arguments, level: .debug)
+    }
     //MARK: - 문제 해결시 활용할 수 있는, 도움이 되지만 필수적이지 않은 정보  로거
     /**
      # info

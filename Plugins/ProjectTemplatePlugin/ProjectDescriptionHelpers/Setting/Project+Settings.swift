@@ -25,6 +25,7 @@ extension Settings {
             .setVersioningSystem()
             .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
             .setDevelopmentTeam(Project.Environment.organizationTeamId)
+            .setSkipInstall(true)
             .setDebugInformationFormat(),
         
         configurations: [

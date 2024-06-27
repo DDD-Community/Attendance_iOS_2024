@@ -51,10 +51,6 @@ struct QrCodeView: View {
                   await Task.sleep(seconds: 1.7)
                       store.send(.generateQRCode)
                   
-                  await Task.sleep(seconds: 0.2)
-                  if store.eventID?.isEmpty != nil {
-                      store.qrCodeReaderText = "QRCode를 찍어주셔야 출석이 가능 합니다!"
-                  }
               }
           }
       }

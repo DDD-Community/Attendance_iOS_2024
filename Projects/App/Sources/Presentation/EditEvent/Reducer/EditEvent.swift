@@ -72,7 +72,7 @@ public struct EditEvent {
             case .fetchEvent:
                 return .run { @MainActor send in
                     let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(from: "events", as: DDDEvent.self, shouldSave: true)
+                        try await fireStoreUseCase.fetchFireStoreData(from: .event , as: DDDEvent.self, shouldSave: true)
                     }
                     
                     switch fetchedDataResult {
@@ -87,7 +87,7 @@ public struct EditEvent {
            
             case .observeEvent:
                 return .run { send in
-                    for await result in try await fireStoreUseCase.observeFireBaseChanges(from: "events", as: DDDEvent.self) {
+                    for await result in try await fireStoreUseCase.observeFireBaseChanges(from: .event, as: DDDEvent.self) {
                          await send(.fetchEventResponse(result))
                     }
                 }
@@ -105,7 +105,7 @@ public struct EditEvent {
             case .deleteEvent:
                 return .run {  send in
                     let fetchedEvent = await Result {
-                        try await fireStoreUseCase.deleteEvent(from: "events")
+                        try await fireStoreUseCase.deleteEvent(from: .event)
                     }
                     
                     switch fetchedEvent {
@@ -173,5 +173,43 @@ public struct EditEvent {
             }
         }
     }
+}
+
+func isKingInCheck(queenX:Int, queenY: Int, kingX: Int, kingY: Int) -> Bool {
+  return queenX == kingX || queenY == kingY || abs(queenX - kingX) == abs(queenY - kingX)
+}
+
+func isPositionValid(x: Int, y: Int) -> Bool {
+  return x >= 1 && x <= 8 && y >= 1 && y <= 8
+}
+ 
+
+func MatrixChallenge(_ strArr: [String]) -> String {
+
+  let queenPostion = strArr[0].trimmingCharacters(in: CharacterSet(charactersIn: "(),")).split(separator: ",").compactMap { Int($0) }
+  let kingPostion = strArr[1].trimmingCharacters(in: CharacterSet(charactersIn: "(),")).split(separator: ",").compactMap { Int($0) }
+  
+  let queenX = queenPostion[0]
+  let queenY = queenPostion[1]
+  let kingX = kingPostion[0]
+  let kingY = kingPostion[0]
+  
+  if !isKingInCheck(queenX:queenX , queenY: queenY, kingX: kingX, kingY: kingY) {
+    return "-1"
+  }
+
+  let directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (1, -1), (1, 0), (1, 1)]
+  var validMoves = 0
+
+  for directions in directions {
+    let newX = kingX + directions.0
+    let newY = kingY + directions.0
+    if isPositionValid(x:newX , y: newY) && !isKingInCheck(queenX: queenX, queenY: queenY, kingX: newX , kingY: newY ) {
+        validMoves += 1
+    }
+  }
+ 
+  return "\(validMoves)"
+
 }
 
