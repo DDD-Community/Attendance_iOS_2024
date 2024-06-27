@@ -132,7 +132,6 @@ public struct InfoPlistValues {
                 ]
             ]
         ])) { (_, new) in new }
-        infoPlist.merge(setUILaunchStoryboardName("LaunchScreen.storyboard")) { (_, new) in new }
         infoPlist.merge(setUIRequiredDeviceCapabilities(["armv7"])) { (_, new) in new }
         infoPlist.merge(setUISupportedInterfaceOrientations(["UIInterfaceOrientationPortrait"])) { (_, new) in new }
         infoPlist.merge(setNSCameraUsageDescription("QR 코드 인식을 위해 카메라 접근 권한이 필요합니다")) { (_, new) in new }
