@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum CustomError: Error {
+public enum CustomError: Error, Equatable {
     case wrongQueryType
     case networkDisconnected
     case unAuthorized

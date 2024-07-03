@@ -44,7 +44,7 @@ struct CoreMemberMainView: View {
         }
         .sheet(item: $store.scope(state: \.destination?.makeEvent, action: \.destination.makeEvent)) { makeEvent in
             MakeEventView(store: makeEvent, completion:  {
-                store.send(.closePresntEventModal)
+                store.send(.view(.closePresntEventModal))
             })
                 .frame(width: UIScreen.screenWidth)
                 .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
@@ -54,25 +54,25 @@ struct CoreMemberMainView: View {
         }
         
         .task {
-            store.send(.fetchMember)
-            store.send(.appearSelectPart(selectPart: .all))
-            store.send(.fetchCurrentUser)
-            store.send(.observeAttendance)
+            store.send(.async(.fetchMember))
+            store.send(.view(.appearSelectPart(selectPart: .all)))
+            store.send(.async(.fetchCurrentUser))
+            store.send(.async(.observeAttendance))
         }
         .onChange(of: store.attendaceModel) { oldValue , newValue in
-            store.send(.updateAttendanceModel(newValue))
+            store.send(.async(.updateAttendanceModel(newValue)))
         }
         
         .gesture(
             DragGesture()
                 .onEnded { value in
                     if value.translation.width < -UIScreen.screenWidth * 0.02 {
-                        store.send(.swipeNext)
-                        store.send(.upDateFetchMember(selectPart: store.selectPart ?? .all))
+                        store.send(.view(.swipeNext))
+                        store.send(.async(.upDateFetchMember(selectPart: store.selectPart ?? .all)))
                         
                     } else if value.translation.width > UIScreen.screenWidth * 0.02 {
-                        store.send(.swipePrevious)
-                        store.send(.upDateFetchMember(selectPart: store.selectPart ?? .all))
+                        store.send(.view(.swipePrevious))
+                        store.send(.async(.upDateFetchMember(selectPart: store.selectPart ?? .all)))
                     }
                 }
         )
@@ -119,8 +119,8 @@ extension CoreMemberMainView {
                                             .pretendardFont(family: .Bold, size: 16)
                                     )
                                     .onTapGesture {
-                                        store.send(.selectPartButton(selectPart: item))
-                                        store.send(.upDateFetchMember(selectPart: item))
+                                        store.send(.view(.selectPartButton(selectPart: item)))
+                                        store.send(.async(.upDateFetchMember(selectPart: item)))
                                     }
                                     .id(item)
                             }
@@ -318,7 +318,7 @@ extension CoreMemberMainView {
                     .frame(width: 20, height: 20)
                     .foregroundColor(.basicWhite)
                     .onTapGesture {
-                        store.send(.presntEventModal)
+                        store.send(.view(.presntEventModal))
                     }
                 
                 Spacer()

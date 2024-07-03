@@ -50,6 +50,7 @@ import Service
     
     //MARK: - firebase 유저 정보가져오기
     public func getCurrentUser() async throws -> User? {
+        Log.debug("유저가져오기", Auth.auth().currentUser)
         return Auth.auth().currentUser
     }
     

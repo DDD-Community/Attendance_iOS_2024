@@ -1,3 +1,4 @@
 git_url("https://github.com/bengHak/DDDAttendance_iOS_2024_Fastlane_match.git")
 storage_mode("git")
 app_identifier(["io.DDD.DDDAttendance"])
+

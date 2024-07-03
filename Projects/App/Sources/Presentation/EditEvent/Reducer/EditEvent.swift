@@ -29,6 +29,7 @@ public struct EditEvent {
         var editEventDate: Date = Date.now
         
         @Presents var destination: Destination.State?
+        
         public init(eventModel: [DDDEvent] = []) {
             self.eventModel = eventModel
         }
@@ -173,43 +174,5 @@ public struct EditEvent {
             }
         }
     }
-}
-
-func isKingInCheck(queenX:Int, queenY: Int, kingX: Int, kingY: Int) -> Bool {
-  return queenX == kingX || queenY == kingY || abs(queenX - kingX) == abs(queenY - kingX)
-}
-
-func isPositionValid(x: Int, y: Int) -> Bool {
-  return x >= 1 && x <= 8 && y >= 1 && y <= 8
-}
- 
-
-func MatrixChallenge(_ strArr: [String]) -> String {
-
-  let queenPostion = strArr[0].trimmingCharacters(in: CharacterSet(charactersIn: "(),")).split(separator: ",").compactMap { Int($0) }
-  let kingPostion = strArr[1].trimmingCharacters(in: CharacterSet(charactersIn: "(),")).split(separator: ",").compactMap { Int($0) }
-  
-  let queenX = queenPostion[0]
-  let queenY = queenPostion[1]
-  let kingX = kingPostion[0]
-  let kingY = kingPostion[0]
-  
-  if !isKingInCheck(queenX:queenX , queenY: queenY, kingX: kingX, kingY: kingY) {
-    return "-1"
-  }
-
-  let directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (1, -1), (1, 0), (1, 1)]
-  var validMoves = 0
-
-  for directions in directions {
-    let newX = kingX + directions.0
-    let newY = kingY + directions.0
-    if isPositionValid(x:newX , y: newY) && !isKingInCheck(queenX: queenX, queenY: queenY, kingX: newX , kingY: newY ) {
-        validMoves += 1
-    }
-  }
- 
-  return "\(validMoves)"
-
 }
 

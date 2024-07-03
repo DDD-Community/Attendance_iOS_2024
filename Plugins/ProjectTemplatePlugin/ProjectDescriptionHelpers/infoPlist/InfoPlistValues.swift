@@ -97,7 +97,19 @@ public struct InfoPlistValues {
     public static func setNSCameraUsageDescription(_ value: String) -> [String: Plist.Value] {
         return ["NSCameraUsageDescription": .string(value)]
     }
-
+    
+    public static func setUILaunchScreens() -> [String: Plist.Value] {
+        return [
+            "UILaunchScreens": .dictionary([
+                "UILaunchScreen": .dictionary([
+                    "New item": .dictionary([
+                        "UIImageName": .string(""),
+                        "UILaunchScreenIdentifier": .string("")
+                    ])
+                ])
+            ])
+        ]
+    }
 
     public static func generateInfoPlist() -> [String: Plist.Value] {
         var infoPlist: [String: Plist.Value] = [:]
@@ -135,6 +147,7 @@ public struct InfoPlistValues {
         infoPlist.merge(setUIRequiredDeviceCapabilities(["armv7"])) { (_, new) in new }
         infoPlist.merge(setUISupportedInterfaceOrientations(["UIInterfaceOrientationPortrait"])) { (_, new) in new }
         infoPlist.merge(setNSCameraUsageDescription("QR 코드 인식을 위해 카메라 접근 권한이 필요합니다")) { (_, new) in new }
+        infoPlist.merge(setUILaunchScreens()) { (_, new) in new }
 
         return infoPlist
     }

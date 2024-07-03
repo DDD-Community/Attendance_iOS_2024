@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "FA7ECDF1-70F3-4674-A0D2-C692829705BE",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "areLocalizationScreenshotsEnabled" : true,
+    "repeatInNewRunnerProcess" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:DDDAttendance.xcodeproj",
+      "identifier" : "5F8847F7997E8376AE4A96A0",
+      "name" : "DDDAttendance"
+    },
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:DDDAttendance.xcodeproj",
+        "identifier" : "40DADAB0CB941E14D773495D",
+        "name" : "DDDAttendanceTests"
+      }
+    }
+  ],
+  "version" : 1
+}
