@@ -35,7 +35,7 @@ public struct EditEvent {
         }
     }
     
-    public enum Action: BindableAction , FeatureAction {
+    public enum Action: BindableAction, ViewAction ,FeatureAction {
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
         case view(View)
@@ -97,6 +97,7 @@ public struct EditEvent {
                 case .view(let View):
                 switch View {
                     
+
                 case .presntEventModal:
                     state.destination = .makeEvent(MakeEvent.State())
                     return .none
@@ -130,9 +131,9 @@ public struct EditEvent {
                     }
                
                 case .observeEvent:
-                    return .run { send in
+                    return .run { @MainActor  send in
                         for await result in try await fireStoreUseCase.observeFireBaseChanges(from: .event, as: DDDEvent.self) {
-                            await send(.async(.fetchEventResponse(result)))
+                            send(.async(.fetchEventResponse(result)))
                         }
                     }
                     
@@ -148,24 +149,45 @@ public struct EditEvent {
                 case let .updateEventModel(newValue):
                     state.eventModel = [ ]
                     state.eventModel = newValue
-                    return .none
+                    return .run { @MainActor send in 
+                        send(.async(.fetchEvent))
+                        
+                    }
                     
                 case .deleteEvent:
-                    return .run {  send in
+                    return .run {  @MainActor send in
                         let fetchedEvent = await Result {
                             try await fireStoreUseCase.deleteEvent(from: .event)
                         }
                         
                         switch fetchedEvent {
                         case .success:
-                            await send(.async(.eventDeletedSuccessfully(eventID: "")))
+//                           send(.async(.eventDeletedSuccessfully(eventID:  "")))
+                            send(.async(.fetchEvent))
                         case .failure(let error):
-                            await send(.async(.eventDeletionFailed(CustomError.map(error))))
+                            send(.async(.eventDeletionFailed(CustomError.map(error))))
+                        }
+                        
+                    }
+
+                case .deleteEvent:
+                    return .run {  @MainActor send in
+                        let fetchedEvent = await Result {
+                            try await fireStoreUseCase.deleteEvent(from: .event)
+                        }
+                        
+                        switch fetchedEvent {
+                        case .success:
+//                           send(.async(.eventDeletedSuccessfully(eventID:  "")))
+                            send(.async(.fetchEvent))
+                        case .failure(let error):
+                            send(.async(.eventDeletionFailed(CustomError.map(error))))
                         }
                         
                     }
                     
-                case .eventDeletedSuccessfully(_):
+                case .eventDeletedSuccessfully(let eventID):
+                    state.editEventid = eventID
                     return .none
                     
                 case let .eventDeletionFailed(error):

@@ -185,7 +185,7 @@ extension MakeEventView {
             .disabled(store.selectMakeEventReason != "이번주 세션 이벤트를 선택 해주세요!")
             .onTapGesture {
                 if store.selectMakeEventReason != "이번주 세션 이벤트를 선택 해주세요!" {
-                    store.send(.async(.makeEventToFireBase(eventName: store.selectMakeEventReason)))
+                    store.send(.view(.makeEventToFireBase(eventName: store.selectMakeEventReason)))
                     completion()
                 }
             }

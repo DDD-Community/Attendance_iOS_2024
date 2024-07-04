@@ -30,7 +30,7 @@ public struct MakeEvent {
         var selectMakeEventDatePicker: Bool = false
     }
     
-    public enum Action: BindableAction , FeatureAction {
+    public enum Action: BindableAction, ViewAction, FeatureAction {
         case binding(BindingAction<State>)
         case selectMakeEventDate(date: Date)
         case selectMakeEventDatePicker(isBool: Bool)
@@ -44,6 +44,7 @@ public struct MakeEvent {
     public enum View {
         case tapCloseDropDown
         case selectMakeEventDatePicker(isBool: Bool)
+        case makeEventToFireBase(eventName: String)
     }
     
     //MARK: - 비동기 처리 액션
@@ -86,7 +87,7 @@ public struct MakeEvent {
                 state.selectMakeEventDate = date
                 return .none
                 
-            case .selectMakeEventDatePicker(var isBool):
+            case .selectMakeEventDatePicker(let isBool):
                 state.selectMakeEventDatePicker = isBool
                 return .none
                 
@@ -102,6 +103,22 @@ public struct MakeEvent {
                     isBool.toggle()
                     state.selectMakeEventDatePicker.toggle()
                     return .none
+                    
+                case let .makeEventToFireBase(eventName: eventName):
+                    let convertStartDate = state.selectMakeEventDate.formattedDate(date: state.selectMakeEventDate)
+                    let convertTime = state.selectMakeEventDate.formattedTime(date: state.selectMakeEventDate)
+                    let convertDate = convertStartDate + convertTime
+                    let convertStringToDate = state.selectMakeEventDate.formattedFireBaseStringToDate(dateString: convertDate)
+                    let event = DDDEvent(
+                        id: UUID().uuidString,
+                        name: eventName,
+                        startTime: convertStringToDate,
+                        endTime: convertStringToDate.addingTimeInterval(1800))
+                    state.eventModel = [event]
+                    return .run  { @MainActor  send in
+                        let events = try await fireStoreUseCase.createEvent(event: event, from: .event)
+                        Log.debug("event 생성", events)
+                    }
                 }
                 
                 //MARK: - AsyncAction

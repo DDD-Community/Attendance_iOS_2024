@@ -41,7 +41,7 @@ public struct CoreMember {
         
     }
     
-    public enum Action : BindableAction, FeatureAction {
+    public enum Action : BindableAction, ViewAction,FeatureAction {
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
         case selectDate(date: Date)
