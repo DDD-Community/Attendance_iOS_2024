@@ -44,16 +44,15 @@ public struct CoreMember {
     public enum Action : BindableAction, FeatureAction {
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
-        case presentQrcode
-        case presentEditEvent
-        case tapLogOut
-        
         case selectDate(date: Date)
         case view(View)
         case async(AsyncAction)
+        case inner(InnerAction)
+        case navigation(NavigationAction)
 
     }
     
+    //MARK: - View action
     public enum View {
        case swipeNext
        case swipePrevious
@@ -65,6 +64,7 @@ public struct CoreMember {
         
    }
     
+    //MARK: - 비동기 처리 액션
     public enum AsyncAction: Equatable {
         case fetchMember
         case fetchCurrentUser
@@ -74,6 +74,18 @@ public struct CoreMember {
         case fetchDataResponse(Result<[Attendance], CustomError>)
         case upDateFetchMember(selectPart: SelectPart)
         
+    }
+    
+    //MARK: - 앱내에서 사용하는 액선
+    public enum InnerAction: Equatable {
+        
+    }
+    
+    //MARK: - 네비게이션 연결 액션
+    public enum NavigationAction: Equatable {
+        case presentQrcode
+        case presentEditEvent
+        case tapLogOut
     }
     
     @Reducer(state: .equatable)
@@ -130,32 +142,6 @@ public struct CoreMember {
 //            case .alert(.presented(.presentAlert)):
 //                return .none
                 
-                
-            case .tapLogOut:
-                return .run { @MainActor send  in
-                    let fetchUserResult = await Result {
-                        try await fireStoreUseCase.getUserLogOut()
-                    }
-                    
-                    switch fetchUserResult {
-                        
-                    case let .success(fetchUserResult):
-                        guard let fetchUserResult = fetchUserResult else {return}
-                        send(.async(.fetchUserDataResponse(.success(fetchUserResult))))
-                        
-                    case let .failure(error):
-                        send(.async(.fetchUserDataResponse(.failure(CustomError.map(error)))))
-                    }
-                }
-                
-            case .presentQrcode:
-                state.destination = .qrcode(.init(userID: state.user?.uid ?? ""))
-                try? Keychain().set(state.user?.uid ?? "" , key: "userID")
-                return .none
-                
-                
-            case .presentEditEvent:
-                return .none
                 
             //MARK: - ViewAction
             case .view(let View):
@@ -329,6 +315,40 @@ public struct CoreMember {
                     return .none
                 }
                 
+                //MARK: - InnerAction
+            case .inner(let InnerAction):
+                switch InnerAction {
+               
+                }
+                
+                //MARK: - NavigationAction
+            case .navigation(let NavigationAction):
+                switch NavigationAction {
+                case .presentQrcode:
+                    state.destination = .qrcode(.init(userID: state.user?.uid ?? ""))
+                    try? Keychain().set(state.user?.uid ?? "" , key: "userID")
+                    return .none
+                    
+                case .presentEditEvent:
+                    return .none
+                    
+                case .tapLogOut:
+                    return .run { @MainActor send  in
+                        let fetchUserResult = await Result {
+                            try await fireStoreUseCase.getUserLogOut()
+                        }
+                        
+                        switch fetchUserResult {
+                            
+                        case let .success(fetchUserResult):
+                            guard let fetchUserResult = fetchUserResult else {return}
+                            send(.async(.fetchUserDataResponse(.success(fetchUserResult))))
+                            
+                        case let .failure(error):
+                            send(.async(.fetchUserDataResponse(.failure(CustomError.map(error)))))
+                        }
+                    }
+                }
 //            case .alert(.dismiss):
 //                state.alert = nil
 //                return .none

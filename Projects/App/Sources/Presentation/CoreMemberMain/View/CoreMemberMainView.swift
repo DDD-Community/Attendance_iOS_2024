@@ -294,7 +294,7 @@ extension CoreMemberMainView {
                     .frame(width: 20, height: 20)
                     .foregroundColor(.basicWhite)
                     .onTapGesture {
-                        store.send(.presentEditEvent)
+                        store.send(.navigation(.presentEditEvent))
                     }
                 
                 
@@ -306,7 +306,7 @@ extension CoreMemberMainView {
                     .frame(width: 20, height: 20)
                     .foregroundColor(.basicWhite)
                     .onTapGesture {
-                        store.send(.presentQrcode)
+                        store.send(.navigation(.presentQrcode))
                     }
                 
                 Spacer()
@@ -330,7 +330,7 @@ extension CoreMemberMainView {
                     .frame(width: 20, height: 20)
                     .foregroundColor(.basicWhite)
                     .onTapGesture {
-                        store.send(.tapLogOut)
+                        store.send(.navigation(.tapLogOut))
                     }
             }
             
