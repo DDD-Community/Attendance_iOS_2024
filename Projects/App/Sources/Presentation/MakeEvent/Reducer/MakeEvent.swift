@@ -30,16 +30,37 @@ public struct MakeEvent {
         var selectMakeEventDatePicker: Bool = false
     }
     
-    public enum Action: BindableAction {
+    public enum Action: BindableAction , FeatureAction {
         case binding(BindingAction<State>)
-        case tapCloseDropDown
-        case selectAttendaceMemberButton(selectPart: SelectPart)
-        case makeEventToFireBaseModel(eventName: String, eventDate: Date)
-        case makeEventToFireBase(eventName: String)
-        case observeEvent
-        case fetchEventResponse(Result<[DDDEvent], CustomError>)
         case selectMakeEventDate(date: Date)
         case selectMakeEventDatePicker(isBool: Bool)
+        case view(View)
+        case async(AsyncAction)
+        case inner(InnerAction)
+        case navigation(NavigationAction)
+    }
+    
+    //MARK: - 뷰 처리 액션
+    public enum View {
+        case tapCloseDropDown
+        case selectMakeEventDatePicker(isBool: Bool)
+    }
+    
+    //MARK: - 비동기 처리 액션
+    public enum AsyncAction: Equatable {
+        case observeEvent
+        case fetchEventResponse(Result<[DDDEvent], CustomError>)
+        case makeEventToFireBase(eventName: String)
+    }
+    
+    //MARK: - 앱내에서 사용하는 액선
+    public enum InnerAction: Equatable {
+        
+    }
+    
+    //MARK: - 네비게이션 연결 액션
+    public enum NavigationAction: Equatable {
+        
     }
     
     @Dependency(FireStoreUseCase.self) var fireStoreUseCase
@@ -53,76 +74,86 @@ public struct MakeEvent {
             case .binding(_):
                 return .none
                 
-            case .tapCloseDropDown:
-                state.isSelectDropDownMenu = false
-                return .none
-                
-            case let .selectAttendaceMemberButton(selectPart: selectPart):
-                if state.selectPart == selectPart {
-                    state.selectPart = nil
-                } else {
-                    state.selectPart = selectPart
-                }
-                return .none
-                
-            case let .makeEventToFireBase(eventName: eventName):
-                let convertStartDate = state.selectMakeEventDate.formattedDate(date: state.selectMakeEventDate)
-                let convertTime = state.selectMakeEventDate.formattedTime(date: state.selectMakeEventDate)
-                let convertDate = convertStartDate + convertTime
-                let convertStringToDate = state.selectMakeEventDate.formattedFireBaseStringToDate(dateString: convertDate)
-                let event = DDDEvent(
-                    id: UUID().uuidString,
-                    name: eventName,
-                    startTime: convertStringToDate,
-                    endTime: convertStringToDate.addingTimeInterval(1800))
-                state.eventModel = [event]
-                return .run  { @MainActor  send in
-                    let events = try await fireStoreUseCase.createEvent(event: event, from: .event)
-                    Log.debug("event 생성", events)
-                }
-                
-            case let .makeEventToFireBaseModel(eventName: eventName, eventDate: eventDate):
-                let event = DDDEvent(
-                    id: uuid.callAsFunction().uuidString,
-                    name: eventName,
-                    description: eventName,
-                    startTime: eventDate,
-                    endTime: eventDate.addingTimeInterval(3600))
-                state.eventModel = [event]
-                   
-                
-                return .none
-                
-            case .observeEvent:
-                return .run { @MainActor send in 
-                    for await result in try await fireStoreUseCase.observeFireBaseChanges(
-                        from: .event,
-                        as: DDDEvent.self
-                    ) {
-                         send(.fetchEventResponse(result))
-                    }
-                }
-                
-            case let .fetchEventResponse(fetchedData):
-                switch fetchedData {
-                case let .success(fetchedData):
-                    state.eventModel = fetchedData
-                case let .failure(error):
-                    Log.error("Error fetching data", error)
-                }
-                return .none
-                
             case .binding(\.selectMakeEventDate):
                 state.selectMakeEventDate = state.selectMakeEventDate
+                return .none
+                
+            case .binding(\.selectMakeEventDatePicker):
+                state.selectMakeEventDatePicker.toggle()
                 return .none
                 
             case .selectMakeEventDate(let date):
                 state.selectMakeEventDate = date
                 return .none
                 
-            case .selectMakeEventDatePicker(let isBool):
+            case .selectMakeEventDatePicker(var isBool):
                 state.selectMakeEventDatePicker = isBool
                 return .none
+                
+                //MARK: - ViewAction
+                case .view(let View):
+                switch View {
+                case .tapCloseDropDown:
+                    state.isSelectDropDownMenu = false
+                    return .none
+                    
+                    
+                case .selectMakeEventDatePicker(var isBool):
+                    isBool.toggle()
+                    state.selectMakeEventDatePicker.toggle()
+                    return .none
+                }
+                
+                //MARK: - AsyncAction
+                case .async(let AsyncAction):
+                switch AsyncAction {
+                case .observeEvent:
+                    return .run { @MainActor send in
+                        for await result in try await fireStoreUseCase.observeFireBaseChanges(
+                            from: .event,
+                            as: DDDEvent.self
+                        ) {
+                            send(.async(.fetchEventResponse(result)))
+                        }
+                    }
+                    
+                case let .fetchEventResponse(fetchedData):
+                    switch fetchedData {
+                    case let .success(fetchedData):
+                        state.eventModel = fetchedData
+                    case let .failure(error):
+                        Log.error("Error fetching data", error)
+                    }
+                    return .none
+                    
+                case let .makeEventToFireBase(eventName: eventName):
+                    let convertStartDate = state.selectMakeEventDate.formattedDate(date: state.selectMakeEventDate)
+                    let convertTime = state.selectMakeEventDate.formattedTime(date: state.selectMakeEventDate)
+                    let convertDate = convertStartDate + convertTime
+                    let convertStringToDate = state.selectMakeEventDate.formattedFireBaseStringToDate(dateString: convertDate)
+                    let event = DDDEvent(
+                        id: UUID().uuidString,
+                        name: eventName,
+                        startTime: convertStringToDate,
+                        endTime: convertStringToDate.addingTimeInterval(1800))
+                    state.eventModel = [event]
+                    return .run  { @MainActor  send in
+                        let events = try await fireStoreUseCase.createEvent(event: event, from: .event)
+                        Log.debug("event 생성", events)
+                    }
+                }
+                
+                //MARK: - InnerAction
+            case .inner(let InnerAction):
+                switch InnerAction {
+                    
+                }
+                
+                //MARK: - NavigationAction
+            case .navigation(let NavigationAction):
+                switch NavigationAction {
+                    
+                }
             }
         }
         .onChange(of: \.eventModel) { oldValue, newValue in
