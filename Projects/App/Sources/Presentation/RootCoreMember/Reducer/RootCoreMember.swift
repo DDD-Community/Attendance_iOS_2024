@@ -80,9 +80,6 @@ public struct RootCoreMember {
                 case .element(id: _, action: .coreMember(.navigation(.presentEditEvent))):
                     state.path.append(.editEvent(.init(eventModel: state.eventModel)))
                     
-                case .element(id: _, action: .editEvent(.creatEvents)):
-                    state.path.append(.coreMember(.init()))
-                    
                 case .element(id: _, action: .coreMember(.navigation(.tapLogOut))):
                     state.path.append(.snsLogin(.init()))
                     

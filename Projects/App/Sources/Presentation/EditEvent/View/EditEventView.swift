@@ -32,7 +32,7 @@ public struct EditEventView: View {
                     .frame(height: 20)
                 
                 CustomNavigationBar(backAction: backAction) {
-                    store.send(.presntEventModal)
+                    store.send(.view(.presntEventModal))
                 }
                 
                 editEventNavigationTitle()
@@ -51,17 +51,17 @@ public struct EditEventView: View {
             }
         }
         .task {
-            store.send(.fetchEvent)
+            store.send(.async(.fetchEvent))
             await Task.sleep(seconds: 1)
-            store.send(.observeEvent)
+            store.send(.async(.observeEvent))
         }
         .onChange(of: store.eventModel) { oldValue , newValue in
-            store.send(.updateEventModel(newValue))
+            store.send(.async(.updateEventModel(newValue)))
             
         }
         .sheet(item: $store.scope(state: \.destination?.makeEvent, action: \.destination.makeEvent)) { makeStore in
             MakeEventView(store: makeStore) {
-                store.send(.closePresntEventModal)
+                store.send(.view(.closePresntEventModal))
             }
             .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
             .presentationCornerRadius(20)
@@ -71,7 +71,7 @@ public struct EditEventView: View {
         
         .sheet(item: $store.scope(state: \.destination?.editEventModal, action: \.destination.editEventModal)) { editEventModalStore in
             EditEventModalView(store: editEventModalStore, completion: {
-                store.send(.closeEditEventModal)
+                store.send(.view(.closeEditEventModal))
             })
             .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
             .presentationCornerRadius(20)
@@ -135,7 +135,7 @@ extension EditEventView {
                             }
                     )
                     .onTapGesture {
-                        store.send(.tapEditEvent(eventName:  item.name, eventID:  item.id ?? "", eventStartDate: item.startTime))
+                        store.send(.inner(.tapEditEvent(eventName:  item.name, eventID:  item.id ?? "", eventStartDate: item.startTime)))
                     }
                     
                     if store.isEditing && item == store.selectedEvent {
@@ -154,7 +154,7 @@ extension EditEventView {
                                             .scaledToFit()
                                             .frame(width: 40, height: 40)
                                             .onTapGesture {
-                                                store.send(.deleteEvent)
+                                                store.send(.async(.deleteEvent))
                                                 store.isEditing = false
                                             }
                                             .offset(x: -10)
@@ -249,7 +249,7 @@ extension EditEventView {
                         .foregroundColor(.basicWhite)
                 }
                 .onTapGesture {
-                    store.send(.presntEventModal)
+                    store.send(.view(.presntEventModal))
                 }
             
             Spacer()

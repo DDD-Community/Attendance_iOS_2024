@@ -32,20 +32,34 @@ import Service
         let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
         Log.debug("firebase 데이터 가져오기 성공", collection, querySnapshot.documents.map { $0.data() })
         
-        return querySnapshot.documents.compactMap { document in
+        var decodedData: [T] = []
+        var uniqueKeys: Set<String> = Set()
+        var documentIDs: [String] = []
+        
+        for document in querySnapshot.documents {
             do {
                 let data = try document.data(as: T.self)
-                
                 if shouldSave {
                     try Keychain().saveDocumentIDToKeychain(documentID: document.documentID)
                 }
-                
-                return data
+                let uniqueKey = document.documentID  // Use documentID or another unique attribute
+                if !uniqueKeys.contains(uniqueKey) {
+                    decodedData.append(data)
+                    uniqueKeys.insert(uniqueKey)
+                    documentIDs.append(document.documentID)
+                } else {
+                    // If shouldSave is true, remove duplicate document from Firestore
+                    if shouldSave {
+                        try await fireStoreDB.collection(collection.desc).document(document.documentID).delete()
+                        Log.debug("Duplicate document removed with ID: ", "\(#function)", "\(document.documentID)")
+                    }
+                }
             } catch {
                 Log.error("Failed to decode document to \(T.self): \(error)")
-                return nil
             }
         }
+        
+        return decodedData
     }
     
     //MARK: - firebase 유저 정보가져오기
@@ -111,6 +125,27 @@ import Service
         event: DDDEvent,
         from collection: FireBaseCollection
     ) async throws -> DDDEvent? {
+        // Fetch existing documents
+        let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
+        var duplicateDocumentIDs: [String] = []
+        
+        // Check for duplicates
+        for document in querySnapshot.documents {
+            let existingEvent = try document.data(as: DDDEvent.self)
+            if existingEvent == event { // Assuming DDDEvent conforms to Equatable
+                duplicateDocumentIDs.append(document.documentID)
+            }
+        }
+        
+        // Remove duplicates except one
+        if duplicateDocumentIDs.count > 1 {
+            for documentID in duplicateDocumentIDs.dropFirst() {
+                try await fireStoreDB.collection(collection.desc).document(documentID).delete()
+                Log.debug("Duplicate document removed with ID: ", "\(#function)", "\(documentID)")
+            }
+        }
+        
+        // Add the new event
         var newEvent = event
         if let documentReference = try? await fireStoreDB.collection(collection.desc).addDocument(data: event.toDictionary()) {
             newEvent.id = documentReference.documentID
@@ -128,7 +163,7 @@ import Service
             event: DDDEvent,
             in collection: FireBaseCollection
     ) async throws -> DDDEvent? {
-        var updateEvent = event
+        let updateEvent = event
         guard let storedData = try Keychain().getData("deleteEventIDs"),
               let storedDocumentIDs = try? JSONDecoder().decode([String].self, from: storedData) else {
             throw CustomError.unknownError("No stored document IDs found in Keychain.")
