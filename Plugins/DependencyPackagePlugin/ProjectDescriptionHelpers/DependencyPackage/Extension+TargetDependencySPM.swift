@@ -11,6 +11,7 @@ public extension TargetDependency.SPM {
     static let moya = TargetDependency.external(name: "Moya", condition: .none)
     static let combineMoya = TargetDependency.external(name: "CombineMoya", condition: .none)
     static let composableArchitecture = TargetDependency.external(name: "ComposableArchitecture", condition: .none)
+    static let concurrencyExtras = TargetDependency.external(name: "ConcurrencyExtras", condition: .none)
     static let sdwebImage = TargetDependency.external(name: "SDWebImageSwiftUI", condition: .none)
     static let gifu = TargetDependency.external(name: "Gifu", condition: .none)
     static let then = TargetDependency.external(name: "Then", condition: .none)

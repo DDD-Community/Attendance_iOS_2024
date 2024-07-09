@@ -41,15 +41,34 @@ public struct EditEventModal {
         
     }
     
-    public enum Action: BindableAction {
+    public enum Action: BindableAction, ViewAction, FeatureAction {
         case binding(BindingAction<State>)
-        case fetchEvent
-        case tapCloseDropDown
-        case fetchEventResponse(Result<[DDDEvent], CustomError>)
-        case editEventResponse(Result<DDDEvent, CustomError>)
         case selectMakeEventDate(date: Date)
-        case saveEvent
         case selectEditEventDatePicker(isBool: Bool)
+        case view(View)
+        case async(AsyncAction)
+        case inner(InnerAction)
+        case navigation(NavigationAction)
+    }
+    
+    //MARK: - 뷰 처리 액션
+    public enum View {
+        case tapCloseDropDown
+        case selectEditEventDatePOPUP(isBool: Bool)
+    }
+    
+    //MARK: - 비동기 처리 액션
+    public enum AsyncAction: Equatable {
+        case saveEvent
+    }
+    
+    //MARK: - 앱내에서 사용하는 액선
+    public enum InnerAction: Equatable {
+        
+    }
+    
+    //MARK: - 네비게이션 연결 액션
+    public enum NavigationAction: Equatable {
         
     }
     
@@ -61,71 +80,6 @@ public struct EditEventModal {
             switch action {
             case .binding(_):
                 return .none
-                    
-            case .saveEvent:
-                let convertStartDate = state.editEventStartTime.formattedDate(date: state.editEventStartTime)
-                let convertTime = state.editEventStartTime.formattedTime(date: state.editEventStartTime)
-                let convertDate = state.editEventStartTime.formattedFireBaseDate(date: state.editEventStartTime)
-                let convertStringToDate = state.editEventStartTime.formattedFireBaseStringToDate(dateString: convertDate)
-                let event = DDDEvent(
-                    name: state.editMakeEventReason,
-                    startTime: convertStringToDate,
-                    endTime: convertStringToDate.addingTimeInterval(1800)
-                )
-                
-                return .run { send in
-                    let fetchedEventResult = await Result {
-                        try await fireStoreUseCase.editEvent(
-                            event: event,
-                            in: .event
-                        )
-                    }
-                }
-
-            case let .editEventResponse(result):
-                switch result {
-                case .success(let updatedEvent):
-                    state.selectedEvent = updatedEvent
-                    state.editMakeEventReason = updatedEvent.name
-                    state.editEventStartTime = updatedEvent.startTime
-                    state.editEventStartTime = updatedEvent.endTime.addingTimeInterval(1800)
-                    Log.debug("Event successfully updated in state")
-                case .failure(let error):
-                    Log.error("Failed to update event: \(error)")
-                }
-                return .none
-                
-            case .fetchEvent:
-                return .run { @MainActor send in
-                    let fetchedDataResult = await Result {
-                        try await fireStoreUseCase.fetchFireStoreData(
-                            from: .event,
-                            as: DDDEvent.self,
-                            shouldSave: true)
-                    }
-                    
-                    switch fetchedDataResult {
-                    case let .success(fetchedData):
-                        send(.fetchEventResponse(.success(fetchedData)))
-                        await Task.sleep(seconds: 1)
-                        send(.fetchEvent)
-                    case let .failure(error):
-                        send(.fetchEventResponse(.failure(CustomError.map(error))))
-                    }
-                }
-                
-            case let .fetchEventResponse(fetchedData):
-                switch fetchedData {
-                case let .success(fetchedData):
-                    state.eventModel = fetchedData
-                case let .failure(error):
-                    Log.error("Error fetching data", error)
-                }
-                return .none
-                
-            case .tapCloseDropDown:
-                state.isSelectEditDropDownMenu = false
-                return .none
                 
             case .selectMakeEventDate(let date):
                 state.editEventStartTime = date
@@ -135,7 +89,52 @@ public struct EditEventModal {
                 state.selectEditEventDatePicker = isBool
                 return .none
                 
+            //MARK: - ViewAction
+            case .view(let View):
+                switch View {
+                case .tapCloseDropDown:
+                    state.isSelectEditDropDownMenu = false
+                    return .none
+                    
+                case .selectEditEventDatePOPUP(var isBool):
+                    isBool.toggle()
+                    state.selectEditEventDatePicker.toggle()
+                    return .none
+                }
                 
+            //MARK: - AsyncAction
+            case .async(let AsyncAction):
+                switch AsyncAction {
+                case .saveEvent:
+                    let convertDate = state.editEventStartTime.formattedFireBaseDate(date: state.editEventStartTime)
+                    let convertStringToDate = state.editEventStartTime.formattedFireBaseStringToDate(dateString: convertDate)
+                    let event = DDDEvent(
+                        name: state.editMakeEventReason,
+                        startTime: convertStringToDate,
+                        endTime: convertStringToDate.addingTimeInterval(1800)
+                    )
+                    return .run { send in
+                        let fetchedEventResult = await Result {
+                            try await fireStoreUseCase.editEvent(
+                                event: event,
+                                in: .event
+                            )
+                        }
+                    }
+
+                }
+                
+            //MARK: - InnerAction
+            case .inner(let InnerAction):
+                switch InnerAction {
+                    
+                }
+                
+            //MARK: - NavigationAction
+            case .navigation(let NavigationAction):
+                switch NavigationAction {
+                    
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ let project = Project.makeAppModule(
     settings:  .settings(),
     dependencies: [
         .SPM.composableArchitecture,
+        .SPM.concurrencyExtras,
         .SPM.sdwebImage,
         .SPM.gifu,
         .SPM.then,

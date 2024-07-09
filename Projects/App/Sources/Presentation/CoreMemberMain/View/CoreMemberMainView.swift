@@ -55,9 +55,11 @@ struct CoreMemberMainView: View {
         
         .task {
             store.send(.async(.fetchMember))
+            store.send(.async(.fetchAttenDance))
             store.send(.view(.appearSelectPart(selectPart: .all)))
             store.send(.async(.fetchCurrentUser))
             store.send(.async(.observeAttendance))
+            store.send(.async(.observeAttendanceCheck))
         }
         .onChange(of: store.attendaceModel) { oldValue , newValue in
             store.send(.async(.updateAttendanceModel(newValue)))
@@ -144,7 +146,7 @@ extension CoreMemberMainView {
         LazyVStack {
             switch store.selectPart {
             case .all:
-                if store.attendaceModel.isEmpty {
+                if store.combinedAttendances.isEmpty {
                    
                     VStack {
                         Spacer()
@@ -163,7 +165,7 @@ extension CoreMemberMainView {
                 }
                 
             default:
-                if store.attendaceModel.isEmpty {
+                if store.combinedAttendances.isEmpty {
                    
                     VStack {
                         Spacer()
@@ -193,17 +195,22 @@ extension CoreMemberMainView {
             switch roleType {
             case .all:
                 ScrollView(.vertical ,showsIndicators: false) {
-                    ForEach(store.attendaceModel, id: \.self) { item in
-                        attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc, attendanceType: item.attendanceType)
+                    ForEach(store.combinedAttendances, id: \.self) { item in
+                        attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc, attendanceType: item.status)
+                            .onAppear {
+                                store.send(.view(.fetchAttanceTypeImage(attenace: item.status)))
+                            }
                         
                         Spacer()
                     }
                 }
                 
             default:
-                ForEach(store.attendaceModel.filter { $0.roleType == roleType}, id: \.self) { item in
-                    attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc, attendanceType: item.attendanceType)
-                    
+                ForEach(store.combinedAttendances.filter { $0.roleType == roleType}, id: \.self) { item in
+                    attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc, attendanceType: item.status)
+                        .onAppear {
+                            store.send(.view(.fetchAttanceTypeImage(attenace: item.status)))
+                        }
                     Spacer()
                 }
             }
@@ -240,11 +247,11 @@ extension CoreMemberMainView {
                         Spacer()
                         
                     
-                        Image(systemName: "checkmark")
+                        Image(systemName: store.attenaceTypeImageName)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 20, height: 20)
-                            .foregroundColor(Color.primaryOrange)
+                            .foregroundColor(store.attenaceTypeColor)
                         
                     }
                     .padding(.horizontal, 20)
@@ -339,6 +346,7 @@ extension CoreMemberMainView {
         }
         .padding(.horizontal, 20)
     }
+    
 }
 
 

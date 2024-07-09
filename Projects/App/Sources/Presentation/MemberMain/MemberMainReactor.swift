@@ -130,7 +130,7 @@ extension MemberMainReactor {
             eventId: eventId,
             createdAt: date,
             updatedAt: date,
-            attendanceType: attendanceType,
+            status: attendanceType,
             generation: 11
         )
     }

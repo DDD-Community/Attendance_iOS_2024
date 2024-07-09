@@ -13,6 +13,7 @@ import FirebaseAuth
 import FirebaseDatabase
 import KeychainAccess
 import Service
+import ConcurrencyExtras
 
 @Observable public class FireStoreRepository: FireStoreRepositoryProtocol {
     
@@ -60,6 +61,54 @@ import Service
         }
         
         return decodedData
+    }
+    
+    //MARK: -  firebase 데이터 베이스에서 실기간으로 값 가지고 오기
+    public func fetchFireStoreRealTimeData<T: Decodable>(
+        from collection: FireBaseCollection,
+        as type: T.Type,
+        shouldSave: Bool
+    ) async throws -> AsyncStream<Result<[T], CustomError>> {
+        AsyncStream { continuation in
+            Task {
+                do {
+                    let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
+                    Log.debug("firebase 데이터 실시간 가져오기 성공", collection, querySnapshot.documents.map { $0.data() })
+                    
+                    var decodedData: [T] = []
+                    var uniqueKeys: Set<String> = Set()
+                    
+                    for document in querySnapshot.documents {
+                        do {
+                            let data = try document.data(as: T.self)
+                            if shouldSave {
+                                try Keychain().saveDocumentIDToKeychain(documentID: document.documentID)
+                            }
+                            let uniqueKey = document.documentID  // Use documentID or another unique attribute
+                            if !uniqueKeys.contains(uniqueKey) {
+                                decodedData.append(data)
+                                uniqueKeys.insert(uniqueKey)
+                                continuation.yield(.success(decodedData))
+                            } else {
+                                // If shouldSave is true, remove duplicate document from Firestore
+                                if shouldSave {
+                                    try await fireStoreDB.collection(collection.desc).document(document.documentID).delete()
+                                    Log.debug("Duplicate document removed with ID: ", "\(#function)", "\(document.documentID)")
+                                }
+                            }
+                        } catch {
+                            Log.error("Failed to decode document to \(T.self): \(error)")
+                            continuation.yield(.failure(CustomError.firestoreError(error.localizedDescription)))
+                        }
+                    }
+                    
+                    continuation.finish()
+                } catch {
+                    continuation.yield(.failure(CustomError.firestoreError(error.localizedDescription)))
+                    continuation.finish()
+                }
+            }
+        }
     }
     
     //MARK: - firebase 유저 정보가져오기
@@ -113,11 +162,13 @@ import Service
                     continuation.yield(.failure(error))
                 }
             }
-            
             continuation.onTermination = { @Sendable _ in
                 self.listener?.remove()
             }
+
         }
+        .eraseToStream()
+
     }
     
     //MARK: - firebase 로 이벤트 만들기
@@ -129,8 +180,16 @@ import Service
         let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
         var duplicateDocumentIDs: [String] = []
         
+        let documentStream = AsyncThrowingStream { continuation in
+            for document in querySnapshot.documents {
+                continuation.yield(document)
+            }
+            continuation.finish()
+        }
+            .eraseToThrowingStream()
+        
         // Check for duplicates
-        for document in querySnapshot.documents {
+        for try await document in documentStream {
             let existingEvent = try document.data(as: DDDEvent.self)
             if existingEvent == event { // Assuming DDDEvent conforms to Equatable
                 duplicateDocumentIDs.append(document.documentID)
@@ -174,7 +233,15 @@ import Service
         Log.debug("Document IDs from Firestore: \(querySnapshot.documents.map { $0.documentID })")
         Log.debug("update document IDs: \(storedDocumentIDs)")
         
-        for document in querySnapshot.documents {
+        let documentStream = AsyncThrowingStream { continuation in
+            for document in querySnapshot.documents {
+                continuation.yield(document)
+            }
+            continuation.finish()
+        }
+            .eraseToThrowingStream()
+        
+        for try await document in documentStream {
             do {
                 Log.debug("Deleting document with ID: \(document.documentID)")
                 try await fireStoreDB.collection(collection.desc).document(document.documentID).updateData(updateEvent.toDictionary())
@@ -199,11 +266,20 @@ import Service
         let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
         
         Log.debug("Document IDs from Firestore: \(querySnapshot.documents.map { $0.documentID })")
-        Log.debug("Stored document IDs: \(storedDocumentIDs)")
+        let uniqueStoredDocumentIDs = Set(storedDocumentIDs)
+        Log.debug("Stored document IDs: \(uniqueStoredDocumentIDs)")
         
-        for document in querySnapshot.documents {
+        let documentStream = AsyncThrowingStream { continuation in
+                for document in querySnapshot.documents {
+                    continuation.yield(document)
+                }
+                continuation.finish()
+            }
+            .eraseToThrowingStream()
+        
+        for try await document in documentStream {
             
-            if storedDocumentIDs.contains(document.documentID) {
+            if uniqueStoredDocumentIDs.contains(document.documentID) {
                 do {
                     Log.debug("Deleting document with ID: \(document.documentID)")
                     try await fireStoreDB.collection(collection.desc).document(document.documentID).delete()
@@ -217,6 +293,58 @@ import Service
                     Log.error("Error removing document: \(error)")
                     throw CustomError.unknownError("Error removing document: \(error.localizedDescription)")
                 }
+            }
+        }
+    }
+    
+    //MARK: - 출석 현황 체크
+    public func fetchAttendanceHistory(
+        _ uid: String, 
+        from collection: FireBaseCollection
+    ) async throws -> AsyncStream<Result<[Attendance], CustomError>> {
+        AsyncStream { continuation in
+            let db = Firestore.firestore()
+            let attendanceRef = db.collection(collection.desc).whereField("memberId", isEqualTo: uid)
+            
+            let listener = attendanceRef.addSnapshotListener { querySnapshot, error in
+                if let error = error {
+                    continuation.yield(.failure(CustomError.firestoreError(error.localizedDescription)))
+                    return
+                }
+                
+                guard let documents = querySnapshot?.documents else {
+                    continuation.yield(.failure(CustomError.firestoreError(error?.localizedDescription ?? "")))
+                    return
+                }
+                
+                let attendances: [Attendance] = documents.compactMap { document in
+                    let data = document.data()
+                    let id: String = data["id"] as? String ?? ""
+                    let memberId: String = data["memberId"] as? String ?? ""
+                    let eventId: String = data["eventId"] as? String ?? ""
+                    let createdAt: Date = (data["date"] as? Timestamp)?.dateValue() ?? Date()
+                    let updatedAt: Date = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
+                    let status: AttendanceType = AttendanceType(rawValue: data["status"] as? String ?? "") ?? .absent
+                    let generation: Int = data["generation"] as? Int ?? 0
+                    return Attendance(
+                        id: id,
+                        memberId: memberId,
+                        name: data["name"] as? String ?? "",
+                        roleType: .init(rawValue: data["roleType"] as? String ?? "") ?? .all,
+                        eventId: eventId,
+                        createdAt: createdAt,
+                        updatedAt: updatedAt,
+                        status: status,
+                        generation: generation
+                    )
+                }
+                
+                continuation.yield(.success(attendances))
+                Log.debug("출석현황", attendances)
+            }
+            
+            continuation.onTermination = { @Sendable _ in
+                listener.remove()
             }
         }
     }

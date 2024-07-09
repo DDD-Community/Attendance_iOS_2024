@@ -62,6 +62,21 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
     public func getUserLogOut() async throws -> User? {
         try await repository.getUserLogOut()
     }
+    
+    public func fetchAttendanceHistory
+    (_ uid: String,
+     from collection: FireBaseCollection
+    ) async throws -> AsyncStream<Result<[Attendance], CustomError>> {
+        try await repository.fetchAttendanceHistory(uid, from: collection)
+    }
+    
+    public func fetchFireStoreRealTimeData<T>(
+        from collection: FireBaseCollection,
+        as type: T.Type,
+        shouldSave: Bool
+    ) async throws -> AsyncStream<Result<[T], CustomError>> where T : Decodable {
+        try await repository.fetchFireStoreRealTimeData(from: collection, as: T.self, shouldSave: shouldSave)
+    }
 }
 
 extension FireStoreUseCase: DependencyKey {

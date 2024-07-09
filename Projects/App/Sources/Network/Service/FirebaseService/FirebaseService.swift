@@ -130,7 +130,7 @@ final class FirebaseService {
                 "eventId": attendance.eventId,
                 "date": Timestamp(date: attendance.createdAt),
                 "updatedAt": Timestamp(date: attendance.updatedAt),
-                "status": attendance.attendanceType.rawValue,
+                "status": attendance.status.rawValue,
                 "generation": attendance.generation
             ]
             attendanceRef.setData(data) { error in
@@ -172,7 +172,7 @@ final class FirebaseService {
                         eventId: eventId,
                         createdAt: createdAt,
                         updatedAt: updatedAt,
-                        attendanceType: status,
+                        status: status,
                         generation: generation
                     )
                 }

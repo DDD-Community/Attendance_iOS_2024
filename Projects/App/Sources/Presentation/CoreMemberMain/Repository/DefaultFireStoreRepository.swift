@@ -17,6 +17,16 @@ public final class DefaultFireStoreRepository: FireStoreRepositoryProtocol {
         return[]
     }
     
+    public func fetchFireStoreRealTimeData<T>(
+        from collection: FireBaseCollection,
+        as type: T.Type,
+        shouldSave: Bool
+    ) async throws -> AsyncStream<Result<[T], CustomError>> where T : Decodable {
+        return AsyncStream { continuation in
+            continuation.finish()
+        }
+    }
+    
     public func getCurrentUser() async throws -> User? {
         return nil
     }
@@ -41,5 +51,14 @@ public final class DefaultFireStoreRepository: FireStoreRepositoryProtocol {
     
     public func getUserLogOut() async throws -> User? {
         return nil
+    }
+    
+    public func fetchAttendanceHistory(
+        _ uid: String,
+        from collection: FireBaseCollection
+    ) async throws -> AsyncStream<Result<[Attendance], CustomError>> {
+        return AsyncStream { continuation in
+            continuation.finish()
+        }
     }
 }

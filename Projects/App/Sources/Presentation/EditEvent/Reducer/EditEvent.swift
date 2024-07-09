@@ -170,21 +170,6 @@ public struct EditEvent {
                         
                     }
 
-                case .deleteEvent:
-                    return .run {  @MainActor send in
-                        let fetchedEvent = await Result {
-                            try await fireStoreUseCase.deleteEvent(from: .event)
-                        }
-                        
-                        switch fetchedEvent {
-                        case .success:
-//                           send(.async(.eventDeletedSuccessfully(eventID:  "")))
-                            send(.async(.fetchEvent))
-                        case .failure(let error):
-                            send(.async(.eventDeletionFailed(CustomError.map(error))))
-                        }
-                        
-                    }
                     
                 case .eventDeletedSuccessfully(let eventID):
                     state.editEventid = eventID

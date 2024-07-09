@@ -32,6 +32,7 @@ let package = Package(
         .package(url: "https://github.com/kaishin/Gifu.git", from: "3.4.0"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", from: "4.2.2"),
         .package(url: "https://github.com/exyte/PopupView.git", from: "2.10.4"),
+        .package(url: "https://github.com/pointfreeco/swift-concurrency-extras.git", from: "1.1.0")
         
     ]
 )

@@ -10,6 +10,7 @@ import Foundation
 public enum FireBaseCollection: String, CaseIterable {
     case member
     case event
+    case attendance
     
     var desc: String {
         switch self {
@@ -17,6 +18,8 @@ public enum FireBaseCollection: String, CaseIterable {
             return "members"
         case .event:
             return "events"
+        case .attendance:
+            return "attendance"
         }
          
     }
