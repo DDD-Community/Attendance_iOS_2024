@@ -194,14 +194,19 @@ extension CoreMemberMainView {
         VStack {
             switch roleType {
             case .all:
+//                let attendanceModelDict = Dictionary(uniqueKeysWithValues: store.attendaceModel.map { ($0.memberId, $0) })
                 ScrollView(.vertical ,showsIndicators: false) {
                     ForEach(store.combinedAttendances, id: \.self) { item in
-                        attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc, attendanceType: item.status)
+                            attendanceList(
+                                name: "\(item.name ?? item.name) \(item.generation) 기",
+                                roleType: item.roleType.desc,
+                                attendanceType: item.status
+                            )
                             .onAppear {
                                 store.send(.view(.fetchAttanceTypeImage(attenace: item.status)))
                             }
-                        
-                        Spacer()
+                            
+                            Spacer()
                     }
                 }
                 

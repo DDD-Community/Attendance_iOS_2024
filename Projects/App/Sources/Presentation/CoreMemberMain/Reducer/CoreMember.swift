@@ -74,6 +74,9 @@ public struct CoreMember {
     public enum AsyncAction: Equatable {
         case fetchMember
         case fetchAttenDance
+        case fetchAttendanceHistory(String)
+        case updateAttendanceTypeModel([Attendance])
+        case fetchAttendanceHistoryResponse(Result<[Attendance], CustomError>)
         case fetchCurrentUser
         case observeAttendance
         case observeAttendanceCheck
@@ -263,8 +266,10 @@ public struct CoreMember {
                         
                     }
                     
+                
                 case .fetchAttenDance:
-                    var attendaceModel = state.attendaceModel
+                    // Swift 6 부터 nonisolated(unsafe)  해당 키원드 붙여야 dataRace 오류 안생김
+                     // nonisolated(unsafe)  var attendaceModel = state.attendaceModel
                     return .run { @MainActor send  in
                         let fetchedDataResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
@@ -281,30 +286,7 @@ public struct CoreMember {
                             let uids = Set(fetchedData.map { $0.memberId })
                             
                             for uid in uids {
-                                for await result in try await fireStoreUseCase.fetchAttendanceHistory(uid, from: .attendance) {
-                                    switch result {
-                                    case let .success(attendances):
-                                        // Extract status values
-                                        let statuses = attendances.map { $0.status }
-                                        Log.debug(statuses)
-                                        await MainActor.run {
-                                            // Insert fetched attendance into attendaceModel
-                                            for attendance in attendances {
-                                                if !attendaceModel.contains(where: { $0.id == attendance.id }) {
-                                                    attendaceModel.append(attendance)
-                                                }
-                                            }
-                                            
-                                            // Update attendanceStatuses
-                                            //                                            state.attendanceStatuses.append(contentsOf: statuses)
-                                        }
-                                        // send(.async(.processStatuses(statuses)))
-                                    case let .failure(error):
-                                        Log.debug(error)
-                                        // Handle error if needed
-                                        send(.async(.fetchAttendanceDataResponse(.failure(error))))
-                                    }
-                                }
+                                send(.async(.fetchAttendanceHistory(uid)))
                             }
                             
                         case let .failure(error):
@@ -312,6 +294,32 @@ public struct CoreMember {
                         }
                         
                     }
+                    
+                case let .fetchAttendanceHistory(uid):
+                       return .run { @MainActor send in
+                           for await result in try await fireStoreUseCase.fetchAttendanceHistory(uid, from: .attendance) {
+                               send(.async(.fetchAttendanceHistoryResponse(result)))
+                           }
+                       }
+                    
+                case let .fetchAttendanceHistoryResponse(result):
+                    switch result {
+                    case let .success(attendances):
+                        return .send(.async(.updateAttendanceTypeModel(attendances)))
+                        
+                    case let .failure(error):
+                        return .send(.async(.fetchAttendanceDataResponse(.failure(error))))
+                    }
+                    
+                case let .updateAttendanceTypeModel(attendances):
+                    var updatedAttendaceModel = state.attendaceModel
+                    for attendance in attendances {
+                        if !updatedAttendaceModel.contains(where: { $0.id == attendance.id }) {
+                            updatedAttendaceModel.append(attendance)
+                        }
+                    }
+                    state.attendaceModel = updatedAttendaceModel
+                    return .none
                     
                 case .fetchCurrentUser:
                     return .run { @MainActor send in
@@ -337,8 +345,6 @@ public struct CoreMember {
                             as: Attendance.self
                         ) {
                             send(.async(.fetchDataResponse(result)))
-                            //                            send(.async(.fetchAttendanceDataResponse(result)))
-                            //                            send(.async(.fetchAttenDance))
                             
                         }
                     }
@@ -349,8 +355,6 @@ public struct CoreMember {
                             from: .attendance,
                             as: Attendance.self
                         ) {
-                            Log.debug(result)
-                            // Filter the result
                             send(.async(.fetchMember))
                             send(.async(.fetchAttendanceDataResponse(result)))
                         }
@@ -394,60 +398,65 @@ public struct CoreMember {
                     case let .success(fetchedData):
                         state.isLoading = false
                         
-                        // Clear existing combinedAttendances and attendaceModels before updating
+                        // Filter out entries with empty names from attendaceModel
+                        let filteredAttendaceModel = state.attendaceModel.filter { !$0.name.isEmpty }
+                        
+                        // Clear the state to avoid duplicate entries and flickering issues
                         state.combinedAttendances.removeAll()
                         state.attendaceModels.removeAll()
                         
-                        let filteredAttendaceModel = state.attendaceModel.filter { !$0.name.isEmpty }
-                                
-                                // Create a dictionary to quickly find memberType and name from attendaceModel
-                                let attendaceModelDict = Dictionary(
-                                    uniqueKeysWithValues: filteredAttendaceModel.map { ($0.memberId, $0) }
-                                )
-                                
-                                // Temporary collections to track changes
-                                var updatedCombinedAttendances = state.combinedAttendances
-                                var updateAttend = state.attendaceModel
-                                // Update or append each attendance in fetchedData
-                                for newAttendance in fetchedData {
-                                    if let index = updatedCombinedAttendances.firstIndex(where: {
-                                        $0.memberId == newAttendance.memberId &&
-                                        $0.roleType == newAttendance.roleType &&
-                                        $0.eventId == newAttendance.eventId 
-                                    }) {
-                                        // Merge existing entry in combinedAttendances with newAttendance
-                                        updatedCombinedAttendances[index].merge(with: newAttendance)
-                                        updateAttend[index].merge(with: newAttendance)
-                                        
-                                        // Update with memberType and name from attendaceModelDict if available
-                                        if let matchingModel = attendaceModelDict[newAttendance.memberId] {
-                                            updatedCombinedAttendances[index].memberType = matchingModel.memberType
-                                            updatedCombinedAttendances[index].name = updateAttend[index].name
-                                        }
-                                    } else {
-                                        // Create a new entry and merge it with any existing data
-                                        var updatedAttendance = newAttendance
-                                        if let matchingModel = attendaceModelDict[newAttendance.memberId] {
-                                            updatedAttendance.merge(with: matchingModel)
-                                            
-                                        }
-                                        updateAttend.append(updatedAttendance)
-                                        updatedCombinedAttendances.append(updatedAttendance)
-                                    }
+                        // Create a dictionary to quickly find memberType and name from attendaceModel
+                        let attendaceModelDict = Dictionary(
+                            uniqueKeysWithValues: filteredAttendaceModel.map { ($0.memberId, $0) }
+                        )
+                        
+                        // Temporary collections to track changes
+                        var updatedCombinedAttendances: [Attendance] = []
+                        var updatedAttendaceModel: [Attendance] = []
+                        
+                        // Update or append each attendance in fetchedData
+                        for newAttendance in fetchedData {
+                            if let index = state.combinedAttendances.firstIndex(where: {
+                                $0.memberId == newAttendance.memberId &&
+                                $0.roleType == newAttendance.roleType &&
+                                $0.eventId == newAttendance.eventId
+                            }) {
+                                // Merge existing entry in combinedAttendances with newAttendance
+                                state.combinedAttendances[index].merge(with: newAttendance)
+                                if let attendIndex = state.attendaceModel.firstIndex(where: { $0.id == state.combinedAttendances[index].id }) {
+                                    state.attendaceModel[attendIndex].merge(with: newAttendance)
                                 }
                                 
-                                // Update state in a single batch
-                                state.combinedAttendances = updatedCombinedAttendances
-                                state.attendaceModels = fetchedData
-                                state.attendanceStatuses = state.attendaceModel.map { $0.status }
-                                
-                                Log.debug("combinedAttendances2", state.combinedAttendances)
+                                // Update with memberType and name from attendaceModelDict if available
+                                if let matchingModel = attendaceModelDict[newAttendance.memberId] {
+                                    state.combinedAttendances[index].memberType = matchingModel.memberType
+                                    state.combinedAttendances[index].name = matchingModel.name
+                                }
+                            } else {
+                                // Create a new entry and merge it with any existing data
+                                var updatedAttendance = newAttendance
+                                if let matchingModel = attendaceModelDict[newAttendance.memberId] {
+                                    updatedAttendance.merge(with: matchingModel)
+                                }
+                                updatedAttendaceModel.append(updatedAttendance)
+                                updatedCombinedAttendances.append(updatedAttendance)
+                            }
+                        }
+                        
+                        // Update state in a single batch
+                        state.combinedAttendances = updatedCombinedAttendances
+                        state.attendaceModel = updatedAttendaceModel
+                        state.attendaceModels = fetchedData
+                        state.attendanceStatuses = updatedAttendaceModel.map { $0.status }
+                        
+                        Log.debug("combinedAttendances2", state.combinedAttendances)
                         
                     case let .failure(error):
                         Log.error("Error fetching data", error)
                         state.isLoading = true
                     }
                     return .none
+
                     
                     
                 case let .updateAttendanceModel(newValue):
