@@ -44,7 +44,7 @@ struct CoreMemberMainView: View {
         }
         .sheet(item: $store.scope(state: \.destination?.makeEvent, action: \.destination.makeEvent)) { makeEvent in
             MakeEventView(store: makeEvent, completion:  {
-                store.send(.closePresntEventModal)
+                store.send(.view(.closePresntEventModal))
             })
                 .frame(width: UIScreen.screenWidth)
                 .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
@@ -54,25 +54,27 @@ struct CoreMemberMainView: View {
         }
         
         .task {
-            store.send(.fetchMember)
-            store.send(.appearSelectPart(selectPart: .all))
-            store.send(.fetchCurrentUser)
-            store.send(.observeAttendance)
+            store.send(.async(.fetchMember))
+            store.send(.async(.fetchAttenDance))
+            store.send(.view(.appearSelectPart(selectPart: .all)))
+            store.send(.async(.fetchCurrentUser))
+            store.send(.async(.observeAttendance))
+            store.send(.async(.observeAttendanceCheck))
         }
         .onChange(of: store.attendaceModel) { oldValue , newValue in
-            store.send(.updateAttendanceModel(newValue))
+            store.send(.async(.updateAttendanceModel(newValue)))
         }
         
         .gesture(
             DragGesture()
                 .onEnded { value in
                     if value.translation.width < -UIScreen.screenWidth * 0.02 {
-                        store.send(.swipeNext)
-                        store.send(.upDateFetchMember(selectPart: store.selectPart ?? .all))
+                        store.send(.view(.swipeNext))
+                        store.send(.async(.upDateFetchMember(selectPart: store.selectPart ?? .all)))
                         
                     } else if value.translation.width > UIScreen.screenWidth * 0.02 {
-                        store.send(.swipePrevious)
-                        store.send(.upDateFetchMember(selectPart: store.selectPart ?? .all))
+                        store.send(.view(.swipePrevious))
+                        store.send(.async(.upDateFetchMember(selectPart: store.selectPart ?? .all)))
                     }
                 }
         )
@@ -119,8 +121,8 @@ extension CoreMemberMainView {
                                             .pretendardFont(family: .Bold, size: 16)
                                     )
                                     .onTapGesture {
-                                        store.send(.selectPartButton(selectPart: item))
-                                        store.send(.upDateFetchMember(selectPart: item))
+                                        store.send(.view(.selectPartButton(selectPart: item)))
+                                        store.send(.async(.upDateFetchMember(selectPart: item)))
                                     }
                                     .id(item)
                             }
@@ -144,7 +146,7 @@ extension CoreMemberMainView {
         LazyVStack {
             switch store.selectPart {
             case .all:
-                if store.attendaceModel.isEmpty {
+                if store.combinedAttendances.isEmpty {
                    
                     VStack {
                         Spacer()
@@ -163,7 +165,7 @@ extension CoreMemberMainView {
                 }
                 
             default:
-                if store.attendaceModel.isEmpty {
+                if store.combinedAttendances.isEmpty {
                    
                     VStack {
                         Spacer()
@@ -192,18 +194,28 @@ extension CoreMemberMainView {
         VStack {
             switch roleType {
             case .all:
+//                let attendanceModelDict = Dictionary(uniqueKeysWithValues: store.attendaceModel.map { ($0.memberId, $0) })
                 ScrollView(.vertical ,showsIndicators: false) {
-                    ForEach(store.attendaceModel, id: \.self) { item in
-                        attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc, attendanceType: item.attendanceType)
-                        
-                        Spacer()
+                    ForEach(store.combinedAttendances, id: \.self) { item in
+                            attendanceList(
+                                name: "\(item.name ?? item.name) \(item.generation) 기",
+                                roleType: item.roleType.desc,
+                                attendanceType: item.status
+                            )
+                            .onAppear {
+                                store.send(.view(.fetchAttanceTypeImage(attenace: item.status)))
+                            }
+                            
+                            Spacer()
                     }
                 }
                 
             default:
-                ForEach(store.attendaceModel.filter { $0.roleType == roleType}, id: \.self) { item in
-                    attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc, attendanceType: item.attendanceType)
-                    
+                ForEach(store.combinedAttendances.filter { $0.roleType == roleType}, id: \.self) { item in
+                    attendanceList(name: "\(item.name) \(item.generation) 기", roleType: item.roleType.desc, attendanceType: item.status)
+                        .onAppear {
+                            store.send(.view(.fetchAttanceTypeImage(attenace: item.status)))
+                        }
                     Spacer()
                 }
             }
@@ -240,11 +252,11 @@ extension CoreMemberMainView {
                         Spacer()
                         
                     
-                        Image(systemName: "checkmark")
+                        Image(systemName: store.attenaceTypeImageName)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 20, height: 20)
-                            .foregroundColor(Color.primaryOrange)
+                            .foregroundColor(store.attenaceTypeColor)
                         
                     }
                     .padding(.horizontal, 20)
@@ -294,7 +306,7 @@ extension CoreMemberMainView {
                     .frame(width: 20, height: 20)
                     .foregroundColor(.basicWhite)
                     .onTapGesture {
-                        store.send(.presentEditEvent)
+                        store.send(.navigation(.presentEditEvent))
                     }
                 
                 
@@ -306,7 +318,7 @@ extension CoreMemberMainView {
                     .frame(width: 20, height: 20)
                     .foregroundColor(.basicWhite)
                     .onTapGesture {
-                        store.send(.presentQrcode)
+                        store.send(.navigation(.presentQrcode))
                     }
                 
                 Spacer()
@@ -318,7 +330,7 @@ extension CoreMemberMainView {
                     .frame(width: 20, height: 20)
                     .foregroundColor(.basicWhite)
                     .onTapGesture {
-                        store.send(.presntEventModal)
+                        store.send(.view(.presntEventModal))
                     }
                 
                 Spacer()
@@ -330,7 +342,7 @@ extension CoreMemberMainView {
                     .frame(width: 20, height: 20)
                     .foregroundColor(.basicWhite)
                     .onTapGesture {
-                        store.send(.tapLogOut)
+                        store.send(.navigation(.tapLogOut))
                     }
             }
             
@@ -339,6 +351,7 @@ extension CoreMemberMainView {
         }
         .padding(.horizontal, 20)
     }
+    
 }
 
 

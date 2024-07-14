@@ -43,28 +43,24 @@ struct QrCodeView: View {
           }
           .navigationBarBackButtonHidden()
           .task {
-              store.send(.appearLoading)
-              store.send(.fetchEvent)
-              store.send(.observeEvent)
+              store.send(.view(.appearLoading))
+              store.send(.async(.fetchEvent))
+              store.send(.async(.observeEvent))
               
               Task {
                   await Task.sleep(seconds: 1.7)
-                      store.send(.generateQRCode)
+                  store.send(.async(.generateQRCode))
                   
-                  await Task.sleep(seconds: 0.2)
-                  if store.eventID?.isEmpty != nil {
-                      store.qrCodeReaderText = "QRCode를 찍어주셔야 출석이 가능 합니다!"
-                  }
               }
           }
       }
       .onChange(of: store.eventModel) { oldValue , newValue in
-          store.send(.updateEventModel(newValue))    
+          store.send(.async(.updateEventModel(newValue)))
       }
       
       .sheet(item: $store.scope(state: \.destination?.makeEvent, action: \.destination.makeEvent)) { makeEventStore in
           MakeEventView(store: makeEventStore, completion: {
-              store.send(.closeMakeEventModal)
+              store.send(.view(.closeMakeEventModal))
           })
           .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
           .presentationCornerRadius(20)
@@ -135,7 +131,7 @@ extension QrCodeView {
                         .foregroundColor(.basicWhite)
                 }
                 .onTapGesture {
-                    store.send(.presntEventModal)
+                    store.send(.view(.presntEventModal))
                 }
             
             Spacer()

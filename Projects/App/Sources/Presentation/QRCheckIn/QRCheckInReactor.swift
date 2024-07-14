@@ -111,7 +111,7 @@ extension QRCheckInReactor {
             eventId: eventId,
             createdAt: .init(),
             updatedAt: .init(),
-            attendanceType: attendanceType,
+            status: attendanceType,
             generation: 11
         )
         return self.userRepository.checkMemberAttendance(attendance)

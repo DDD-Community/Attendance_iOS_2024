@@ -122,7 +122,7 @@ final class MemberMainView: BaseView {
     // MARK: - Public helpers
     func bindAttendances(_ attendances: [Attendance]) {
         let attendances = attendances.reduce(into: (attendance: 0, late: 0, absent: 0)) { result, attendance in
-            switch attendance.attendanceType {
+            switch attendance.status {
             case .present:
                 result.attendance += 1
             case .late:

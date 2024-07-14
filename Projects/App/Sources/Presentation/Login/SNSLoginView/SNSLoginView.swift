@@ -55,7 +55,7 @@ final class SNSLoginView: BaseView {
     }
     
     override func configureViews() {
-        backgroundColor = .black
+        backgroundColor = .basicBlack
         addSubview(rootView)
         
         rootView.flex.justifyContent(.spaceBetween).define { flex in

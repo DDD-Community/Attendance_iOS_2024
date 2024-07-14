@@ -20,6 +20,8 @@ public struct Log {
         case network
         /// 오류 로그
         case error
+        case test
+        /// test 돌릴때
         case custom(category: String)
         
         fileprivate var category: String {
@@ -34,6 +36,8 @@ public struct Log {
                 return "🔴 ERROR"
             case .custom(let category):
                 return "🟢 \(category)"
+            case .test:
+                return "🟡 Test"
             }
         }
         
@@ -49,6 +53,8 @@ public struct Log {
                 return OSLog.error
             case .custom:
                 return OSLog.debug
+            case .test:
+                return OSLog.test
             }
         }
         
@@ -63,6 +69,8 @@ public struct Log {
             case .error:
                 return .error
             case .custom:
+                return .debug
+            case .test:
                 return .debug
             }
         }
@@ -79,7 +87,7 @@ public struct Log {
             let logMessage = "\(message) \(extraMessage)"
             switch level {
             case .debug,
-                    .custom:
+                    .custom, .test:
                 logger.debug("\(logMessage, privacy: .public)")
             case .info:
                 logger.info("\(logMessage, privacy: .public)")

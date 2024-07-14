@@ -64,7 +64,7 @@ public struct EditEventModalView: View {
         }
         
         .onTapGesture {
-            store.send(.tapCloseDropDown)
+            store.send(.view(.tapCloseDropDown))
         }
     }
 }
@@ -139,7 +139,7 @@ extension EditEventModalView {
                                 .pretendardFont(family: .Regular, size: 14)
                                 .foregroundColor(Color.basicWhite)
                                 .onTapGesture {
-                                    store.selectEditEventDatePicker.toggle()
+                                    store.send(.view(.selectEditEventDatePOPUP(isBool: store.selectEditEventDatePicker)))
                                 }
                             
                             Spacer()
@@ -180,7 +180,7 @@ extension EditEventModalView {
                 .disabled(store.editMakeEventReason != "이번주 세션 이벤트를 선택 해주세요!")
                 .onTapGesture {
                     if store.editMakeEventReason != "이번주 세션 이벤트를 선택 해주세요!" {
-                        store.send(.saveEvent)
+                        store.send(.async(.saveEvent))
                         completion()
                     }
                 }

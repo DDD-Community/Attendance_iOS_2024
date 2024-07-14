@@ -13,7 +13,6 @@ public extension SettingsDictionary {
         return self.merging(["PRODUCT_BUNDLE_IDENTIFIER": SettingValue(stringLiteral: value)]) { (_, new) in new }
     }
     
-    // Add more similar helper functions as needed
     func setProductName(_ value: String) -> SettingsDictionary {
         return self.merging(["PRODUCT_NAME": SettingValue(stringLiteral: value)]) { (_, new) in new }
     }
@@ -76,6 +75,10 @@ public extension SettingsDictionary {
     
     func setDevelopmentTeam(_ value: String) -> SettingsDictionary {
         return self.merging(["DEVELOPMENT_TEAM": SettingValue(stringLiteral: value)]) { (_, new) in new }
+    }
+    
+    func setSkipInstall(_ value: Bool = false) -> SettingsDictionary {
+        return self.merging(["SKIP_INSTALL": SettingValue(stringLiteral: value ? "YES" : "NO")])
     }
 }
 

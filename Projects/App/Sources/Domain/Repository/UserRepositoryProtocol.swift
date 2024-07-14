@@ -28,7 +28,7 @@ protocol UserRepositoryProtocol {
     func removeInviteCode(_ code: String) -> Single<Bool>
 }
 
-enum UserRepositoryError: Error {
+public enum UserRepositoryError: Error {
     case logout
     case fetchMember
     case memberNotExist

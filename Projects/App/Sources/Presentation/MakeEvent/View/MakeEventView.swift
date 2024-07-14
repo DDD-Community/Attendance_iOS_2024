@@ -66,11 +66,11 @@ public struct MakeEventView: View {
         }
         
         .onTapGesture {
-            store.send(.tapCloseDropDown)
+            store.send(.view(.tapCloseDropDown))
         }
         
         .task {
-            store.send(.observeEvent)
+            store.send(.async(.observeEvent))
         }
     }
 }
@@ -144,7 +144,7 @@ extension MakeEventView {
                                     .pretendardFont(family: .Regular, size: 14)
                                     .foregroundColor(Color.basicWhite)
                                     .onTapGesture {
-                                        store.selectMakeEventDatePicker.toggle()
+                                        store.send(.view(.selectMakeEventDatePicker(isBool: store.selectMakeEventDatePicker)))
                                     }
                                 
                                 Spacer()
@@ -185,7 +185,7 @@ extension MakeEventView {
             .disabled(store.selectMakeEventReason != "이번주 세션 이벤트를 선택 해주세요!")
             .onTapGesture {
                 if store.selectMakeEventReason != "이번주 세션 이벤트를 선택 해주세요!" {
-                    store.send(.makeEventToFireBase(eventName: store.selectMakeEventReason))
+                    store.send(.view(.makeEventToFireBase(eventName: store.selectMakeEventReason)))
                     completion()
                 }
             }

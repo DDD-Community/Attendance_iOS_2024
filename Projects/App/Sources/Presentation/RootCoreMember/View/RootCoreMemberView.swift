@@ -19,7 +19,8 @@ struct RootCoreMemberView: View {
                 }))
             }
             .onAppear {
-                store.send(.appearPath)
+                store.send(.inner(.appearPath))
+                store.send(.async(.fetchEvent))
             }
             
         } destination: { swithStore in
@@ -30,13 +31,13 @@ struct RootCoreMemberView: View {
                 
             case let .qrCode(qrCodeStore):
                 QrCodeView(store: qrCodeStore) {
-                    store.send(.removePath)
+                    store.send(.inner(.removePath))
                 }
                 .navigationBarBackButtonHidden()
                 
             case let .editEvent(editEventStore):
                 EditEventView(store: editEventStore) {
-                    store.send(.removePath)
+                    store.send(.inner(.removePath))
                 } 
                 .navigationBarBackButtonHidden()
                 
