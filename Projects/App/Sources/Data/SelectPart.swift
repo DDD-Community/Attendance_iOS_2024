@@ -9,12 +9,14 @@ import Foundation
 
 public enum SelectPart: String, CaseIterable, Codable {
     case all
-    case web
-    case design
     case productManger
-    case server
-    case iOS
+    case design
     case Android
+    case iOS
+    case web
+    case server
+    
+    
     
     public var desc: String {
         switch self {
@@ -32,6 +34,25 @@ public enum SelectPart: String, CaseIterable, Codable {
             return "iOS"
         case .Android:
             return "안드로이드"
+        }
+    }
+    
+    public var attendanceListDesc: String {
+        switch self {
+        case .all:
+            return "전체"
+        case .productManger:
+            return "PM"
+        case .design:
+            return "Designer"
+        case .Android:
+            return "Android"
+        case .iOS:
+            return "iOS"
+        case .web:
+            return "FE"
+        case .server:
+            return "BE"
         }
     }
 }

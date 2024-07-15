@@ -70,7 +70,7 @@ public extension ModulePath {
     enum Shareds: String, CaseIterable {
         case Shareds
         case DesignSystem
-        case Constants
+        case Utill
         case ThirdParty
         
         public static let name: String = "Shared"

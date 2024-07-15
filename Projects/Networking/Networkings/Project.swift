@@ -9,7 +9,8 @@ let project = Project.makeAppModule(
     product: .staticFramework,
     settings:  .settings(),
     dependencies: [
-        .Networking(implements: .DiContainer)
+        .Networking(implements: .DiContainer),
+        .Networking(implements: .Model)
     ],
     sources: ["Sources/**"]
 )

@@ -10,6 +10,7 @@ import PinLayout
 import Then
 
 import UIKit
+import DesignSystem
 
 final class SNSLoginView: BaseView {
     // MARK: - UI properties
@@ -55,7 +56,7 @@ final class SNSLoginView: BaseView {
     }
     
     override func configureViews() {
-        backgroundColor = .basicBlack
+        backgroundColor = UIColor.basicBlack
         addSubview(rootView)
         
         rootView.flex.justifyContent(.spaceBetween).define { flex in

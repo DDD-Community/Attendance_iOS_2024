@@ -8,6 +8,7 @@
 import ReactorKit
 
 import Foundation
+import Model
 
 final class MemberMainReactor: Reactor {
     struct State {

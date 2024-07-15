@@ -15,6 +15,8 @@ import KeychainAccess
 import Service
 import ConcurrencyExtras
 
+import Model
+
 @Observable public class FireStoreRepository: FireStoreRepositoryProtocol {
     
     private let fireStoreDB = Firestore.firestore()

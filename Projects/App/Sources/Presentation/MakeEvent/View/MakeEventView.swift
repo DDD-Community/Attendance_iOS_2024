@@ -10,6 +10,8 @@ import SwiftUI
 import ComposableArchitecture
 import PopupView
 
+import DesignSystem
+
 public struct MakeEventView: View {
     @Bindable var store: StoreOf<MakeEvent>
     var completion: () -> Void
@@ -133,7 +135,7 @@ extension MakeEventView {
             
             HStack {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.basicBlue200.opacity(0.4))
+                    .fill(Color.basicBlue.opacity(0.4))
                     .frame(width: UIScreen.screenWidth * 0.45 , height: 35)
                     .overlay {
                             HStack {
@@ -174,7 +176,7 @@ extension MakeEventView {
     @ViewBuilder
     private func makeEvenetButton() -> some View {
         RoundedRectangle(cornerRadius: 12)
-            .fill(Color.basicGray1BG.opacity(0.3))
+            .fill(Color.gray600.opacity(0.3))
             .frame(height: 48)
             .padding(.horizontal, 20)
             .overlay {

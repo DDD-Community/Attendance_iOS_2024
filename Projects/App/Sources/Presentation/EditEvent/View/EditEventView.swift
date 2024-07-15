@@ -8,6 +8,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import ComposableArchitecture
+import DesignSystem
 
 public struct EditEventView: View {
     @Bindable var store: StoreOf<EditEvent>
@@ -141,7 +142,7 @@ extension EditEventView {
                     if store.isEditing && item == store.selectedEvent {
                         VStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.statusWarning)
+                                .fill(Color.error)
                                 .frame(width: 80, height: 80)
                                 .offset(x: -10)
                                 .overlay {
@@ -240,7 +241,7 @@ extension EditEventView {
                 .frame(height: UIScreen.screenHeight * 0.3)
             
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.basicBlue200.opacity(0.4))
+                .fill(Color.basicBlue.opacity(0.4))
                 .frame(height: 48)
                 .padding(.horizontal, 20)
                 .overlay {

@@ -44,6 +44,14 @@ extension Date {
         return dateFormatter.string(from: date)
     }
     
+    func formatteDateTimeText(date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+        dateFormatter.dateFormat = "yyyy.MM.dd"
+        dateFormatter.dateStyle = .short
+        return dateFormatter.string(from: date)
+    }
+    
     func formattedFireBaseDate(date: Date) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ko_KR")

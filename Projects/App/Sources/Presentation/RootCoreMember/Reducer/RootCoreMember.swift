@@ -12,6 +12,8 @@ import Service
 import ComposableArchitecture
 import KeychainAccess
 
+import Utill
+
 @Reducer
 public struct RootCoreMember {
     public init() {}
@@ -77,7 +79,7 @@ public struct RootCoreMember {
                     Log.debug("키체인", userID, eventID)
                     state.path.append(.qrCode(.init(userID: userID ?? "")))
                     
-                case .element(id: _, action: .coreMember(.navigation(.presentEditEvent))):
+                case .element(id: _, action: .coreMember(.navigation(.presentSchedule))):
                     state.path.append(.editEvent(.init(eventModel: state.eventModel)))
                     
                 case .element(id: _, action: .coreMember(.navigation(.tapLogOut))):

@@ -9,7 +9,9 @@ let project = Project.makeAppModule(
     product: .staticFramework,
     settings:  .settings(),
     dependencies: [
-        .Shared(implements: .ThirdParty)
+        .Shared(implements: .ThirdParty),
+        .Shared(implements: .Utill),
+        .Shared(implements: .DesignSystem)
     ],
     sources: ["Sources/**"]
 )

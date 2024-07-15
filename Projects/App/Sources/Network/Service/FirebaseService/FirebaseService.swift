@@ -10,6 +10,7 @@ import FirebaseFirestore
 import RxSwift
 
 import Shareds
+import Model
 
 import Foundation
 

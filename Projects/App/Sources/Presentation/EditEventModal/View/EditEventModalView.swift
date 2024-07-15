@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import PopupView
+import DesignSystem
 
 public struct EditEventModalView: View {
     @Bindable var store: StoreOf<EditEventModal>
@@ -53,7 +54,7 @@ public struct EditEventModalView: View {
                 CustomPopUPDatePickerView(selectDate: $store.editEventStartTime)
             } customize: {
                 $0
-                    .backgroundColor(Color.basicBlack.opacity(0.4))
+                    .backgroundColor(Color.basicBlack.opacity(0.8))
                     .type(.floater(verticalPadding: UIScreen.screenHeight * 0.2))
                     .position(.bottom)
                     .animation(.smooth)
@@ -128,7 +129,7 @@ extension EditEventModalView {
             
             HStack {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.basicBlue200.opacity(0.4))
+                    .fill(Color.basicBlue.opacity(0.4))
                     .frame(width: UIScreen.screenWidth * 0.45 , height: 35)
                     .overlay {
                         HStack {
@@ -169,7 +170,7 @@ extension EditEventModalView {
     private func editEvenetButton() -> some View {
         VStack {
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.basicGray1BG.opacity(0.3))
+                .fill(Color.gray600.opacity(0.3))
                 .frame(height: 48)
                 .padding(.horizontal, 20)
                 .overlay {

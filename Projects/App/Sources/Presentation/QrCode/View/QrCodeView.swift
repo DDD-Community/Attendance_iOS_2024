@@ -10,6 +10,8 @@ import ComposableArchitecture
 import SDWebImageSwiftUI
 import CoreImage.CIFilterBuiltins
 
+import DesignSystem
+
 struct QrCodeView: View {
     @Bindable var store: StoreOf<QrCode>
     var backAction: () -> Void
@@ -34,6 +36,8 @@ struct QrCodeView: View {
               NavigationBackButton(buttonAction: backAction)
               
               generateQrImage()
+              
+              TooltipShape()
               
               if store.eventID?.isEmpty != nil {
                   qrCodeReaderText()
@@ -84,7 +88,8 @@ extension QrCodeView {
                         .interpolation(.none)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: UIScreen.screenHeight * 0.3, height: UIScreen.screenHeight * 0.3)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .frame(width: 200, height: 200)
                 } else {
                     AnimatedImage(name: "DDDLoding.gif", isAnimating: .constant(true))
                         .resizable()
@@ -122,7 +127,7 @@ extension QrCodeView {
                 .frame(height: UIScreen.screenHeight * 0.3)
             
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.basicBlue200.opacity(0.4))
+                .fill(Color.basicBlue.opacity(0.4))
                 .frame(height: 48)
                 .padding(.horizontal, 20)
                 .overlay {

@@ -13,6 +13,9 @@ import KeychainAccess
 import FirebaseAuth
 import SwiftUI
 
+import Utill
+import Model
+import DesignSystem
 
 @Reducer
 public struct CoreMember {
@@ -30,14 +33,19 @@ public struct CoreMember {
         var disableSelectButton: Bool = false
         var isActiveBoldText: Bool = false
         var isLoading: Bool = false
-        var qrcodeImage: String = "qrcode"
-        var eventImage: String = "flag.square"
-        var editEventImage: String = "pencil"
-        var logOutImage: String = "rectangle.portrait.and.arrow.right"
+        var qrcodeImage: ImageAsset = .qrCode
+        var eventImage: ImageAsset = .eventGenerate
+        var mangerProfilemage: ImageAsset = .mangeMentProfile
+
         var user: User? =  nil
         var errorMessage: String?
         var attenaceTypeImageName: String = "checkmark"
         var attenaceTypeColor: Color? = nil
+        var attenaceNameColor: Color? = nil
+        var attenaceGenerationColor: Color?  = nil
+        var attenaceRoleTypeColor: Color? = nil
+        var attenaceBackGroudColor: Color? = nil
+        var attendanceCount: Int = 0
         
         @Presents var destination: Destination.State?
         var selectDate: Date = Date.now
@@ -46,7 +54,7 @@ public struct CoreMember {
         
     }
     
-    public enum Action : BindableAction, ViewAction,FeatureAction {
+    public enum Action : BindableAction, ViewAction, FeatureAction {
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
         case selectDate(date: Date)
@@ -67,6 +75,7 @@ public struct CoreMember {
         case closePresntEventModal
         case selectDate(date: Date)
         case fetchAttanceTypeImage(attenace: AttendanceType)
+        case updateAttendanceCount(attenace: AttendanceType, count: Int)
         
     }
     
@@ -97,7 +106,7 @@ public struct CoreMember {
     //MARK: - 네비게이션 연결 액션
     public enum NavigationAction: Equatable {
         case presentQrcode
-        case presentEditEvent
+        case presentSchedule
         case tapLogOut
     }
     
@@ -231,15 +240,52 @@ public struct CoreMember {
                     case .present:
                         state.attenaceTypeImageName = "checkmark"
                         state.attenaceTypeColor = Color.green.opacity(0.4)
+                        state.attenaceNameColor = Color.basicBlack
+                        state.attenaceGenerationColor = Color.gray600
+                        state.attenaceRoleTypeColor = Color.basicBlack
+                        state.attenaceBackGroudColor = Color.basicWhite
+                        
                     case .absent:
                         state.attenaceTypeImageName = "checkmark"
                         state.attenaceTypeColor = Color.accentColor
+                        state.attenaceNameColor = Color.basicBlack
+                        state.attenaceGenerationColor = Color.gray600
+                        state.attenaceRoleTypeColor = Color.basicBlack
+                        state.attenaceBackGroudColor = Color.basicWhite
                     case .late:
                         state.attenaceTypeImageName = "checkmark"
                         state.attenaceTypeColor = Color.red.opacity(0.4)
+                        state.attenaceNameColor = Color.gray600
+                        state.attenaceGenerationColor = Color.gray600
+                        state.attenaceRoleTypeColor = Color.gray600
+                        state.attenaceBackGroudColor = Color.gray800
+                        
+                    case .none:
+                        state.attenaceBackGroudColor = Color.gray800
+                    
                     default :
-                        break
+                        if attenace == nil  {
+                            state.attenaceNameColor = Color.gray600
+                            state.attenaceGenerationColor = Color.gray600
+                            state.attenaceRoleTypeColor = Color.gray600
+                            state.attenaceBackGroudColor = Color.gray800
+                        } else {
+                            state.attenaceNameColor = Color.gray600
+                            state.attenaceGenerationColor = Color.gray600
+                            state.attenaceRoleTypeColor = Color.gray600
+                            state.attenaceBackGroudColor = Color.gray800
+                        }
                     }
+                    return .none
+                    
+                case .updateAttendanceCount(attenace: let attenace, count: let count):
+                    state.attendanceCount = count
+                    if attenace == .present {
+                        state.attendanceCount += 1
+                    } else if attenace == .late {
+                        state.attendanceCount -= 1
+                    }
+                    
                     return .none
                 }
                 
@@ -286,6 +332,7 @@ public struct CoreMember {
                             let uids = Set(fetchedData.map { $0.memberId })
                             
                             for uid in uids {
+                                send(.async(.fetchMember))
                                 send(.async(.fetchAttendanceHistory(uid)))
                             }
                             
@@ -312,15 +359,33 @@ public struct CoreMember {
                     }
                     
                 case let .updateAttendanceTypeModel(attendances):
-                    var updatedAttendaceModel = state.attendaceModel
-                    for attendance in attendances {
-                        if !updatedAttendaceModel.contains(where: { $0.id == attendance.id }) {
-                            updatedAttendaceModel.append(attendance)
-                        }
-                    }
-                    state.attendaceModel = updatedAttendaceModel
-                    return .none
+                    state.combinedAttendances = attendances
                     
+                    // Create a dictionary to quickly find status by memberId
+                    let statusDict = Dictionary(uniqueKeysWithValues: attendances.map { ($0.memberId, $0.status) })
+                    
+                    var updateAttendancesModel: [Attendance] = []
+                    
+                    for data in state.attendaceModel {
+                        let updatedStatus = statusDict[data.memberId]
+                        let updatedAttendance = Attendance(
+                            id: data.id,
+                            memberId: data.memberId,
+                            memberType: data.memberType,
+                            name: data.name,
+                            roleType: data.roleType,
+                            eventId: data.eventId,
+                            createdAt: data.createdAt,
+                            updatedAt: data.updatedAt,
+                            status: updatedStatus ?? data.status, // Use the new status if available, otherwise keep the current status
+                            generation: data.generation
+                        )
+                        updateAttendancesModel.append(updatedAttendance)
+                    }
+                    
+                    state.attendaceModel = updateAttendancesModel
+                    return .none
+
                 case .fetchCurrentUser:
                     return .run { @MainActor send in
                         let fetchUserResult = await Result {
@@ -357,6 +422,8 @@ public struct CoreMember {
                         ) {
                             send(.async(.fetchMember))
                             send(.async(.fetchAttendanceDataResponse(result)))
+                            send(.async(.fetchMember))
+                            send(.async(.fetchMember))
                         }
                     }
                     
@@ -398,66 +465,47 @@ public struct CoreMember {
                     case let .success(fetchedData):
                         state.isLoading = false
                         
-                        // Filter out entries with empty names from attendaceModel
-                        let filteredAttendaceModel = state.attendaceModel.filter { !$0.name.isEmpty }
+                        state.combinedAttendances = fetchedData
+                        let statusDict = Dictionary(uniqueKeysWithValues: fetchedData.map { ($0.memberId, $0.status) })
                         
-                        // Clear the state to avoid duplicate entries and flickering issues
-                        state.combinedAttendances.removeAll()
-                        state.attendaceModels.removeAll()
+                        let combinedAttendances = state.combinedAttendances
+                        var updateAttendancesModel: [Attendance] = []
                         
-                        // Create a dictionary to quickly find memberType and name from attendaceModel
-                        let attendaceModelDict = Dictionary(
-                            uniqueKeysWithValues: filteredAttendaceModel.map { ($0.memberId, $0) }
-                        )
-                        
-                        // Temporary collections to track changes
-                        var updatedCombinedAttendances: [Attendance] = []
-                        var updatedAttendaceModel: [Attendance] = []
-                        
-                        // Update or append each attendance in fetchedData
-                        for newAttendance in fetchedData {
-                            if let index = state.combinedAttendances.firstIndex(where: {
-                                $0.memberId == newAttendance.memberId &&
-                                $0.roleType == newAttendance.roleType &&
-                                $0.eventId == newAttendance.eventId
-                            }) {
-                                // Merge existing entry in combinedAttendances with newAttendance
-                                state.combinedAttendances[index].merge(with: newAttendance)
-                                if let attendIndex = state.attendaceModel.firstIndex(where: { $0.id == state.combinedAttendances[index].id }) {
-                                    state.attendaceModel[attendIndex].merge(with: newAttendance)
-                                }
-                                
-                                // Update with memberType and name from attendaceModelDict if available
-                                if let matchingModel = attendaceModelDict[newAttendance.memberId] {
-                                    state.combinedAttendances[index].memberType = matchingModel.memberType
-                                    state.combinedAttendances[index].name = matchingModel.name
-                                }
-                            } else {
-                                // Create a new entry and merge it with any existing data
-                                var updatedAttendance = newAttendance
-                                if let matchingModel = attendaceModelDict[newAttendance.memberId] {
-                                    updatedAttendance.merge(with: matchingModel)
-                                }
-                                updatedAttendaceModel.append(updatedAttendance)
-                                updatedCombinedAttendances.append(updatedAttendance)
-                            }
-                        }
-                        
-                        // Update state in a single batch
-                        state.combinedAttendances = updatedCombinedAttendances
-                        state.attendaceModel = updatedAttendaceModel
-                        state.attendaceModels = fetchedData
-                        state.attendanceStatuses = updatedAttendaceModel.map { $0.status }
-                        
+                        // Log only the first entry of combinedAttendances if it exists
                         Log.debug("combinedAttendances2", state.combinedAttendances)
                         
+                        for data in state.attendaceModel {
+                            let updatedStatus = statusDict[data.memberId] ?? .none
+                            let updatedID = statusDict[data.id]
+                            let updatedMemberID = statusDict[data.memberId]
+                            let updatedAttendance = Attendance(
+                                id: updatedID?.rawValue ?? data.id,
+                                memberId: data.memberId,
+                                memberType: data.memberType,
+                                name: data.name,
+                                roleType: data.roleType,
+                                eventId: data.eventId,
+                                createdAt: data.createdAt,
+                                updatedAt: data.updatedAt,
+                                status: updatedStatus,
+                                generation: data.generation
+                            )
+                            updateAttendancesModel.append(updatedAttendance)
+                            Log.debug("combinedAttendances2", updatedAttendance)
+                        }
+                        
+//                        state.attendaceModel = updateAttendancesModel
+                        state.combinedAttendances = combinedAttendances
+                        Log.debug("combinedAttendances3",  state.combinedAttendances)
+                        state.attendaceModel = combinedAttendances
+ 
                     case let .failure(error):
                         Log.error("Error fetching data", error)
                         state.isLoading = true
                     }
                     return .none
 
-                    
+
                     
                 case let .updateAttendanceModel(newValue):
                     state.attendaceModel = [ ]
@@ -472,7 +520,7 @@ public struct CoreMember {
                         
                         state.attendaceModel = filteredData
                         
-                        state.combinedAttendances = state.attendaceModel
+//                        state.combinedAttendances = state.attendaceModel
                     case let .failure(error):
                         Log.error("Error fetching data", error)
                         state.isLoading = true
@@ -494,7 +542,7 @@ public struct CoreMember {
                     try? Keychain().set(state.user?.uid ?? "" , key: "userID")
                     return .none
                     
-                case .presentEditEvent:
+                case .presentSchedule:
                     return .none
                     
                 case .tapLogOut:
@@ -525,6 +573,12 @@ public struct CoreMember {
         .onChange(of: \.attendaceModel) { oldValue, newValue in
             Reduce { state, action in
                 state.attendaceModel = newValue
+                return .none
+            }
+        }
+        .onChange(of: \.combinedAttendances) { oldValue, newValue in
+            Reduce { state, action in
+                state.combinedAttendances = newValue
                 return .none
             }
         }

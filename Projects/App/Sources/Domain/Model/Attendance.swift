@@ -7,6 +7,8 @@
 
 import FirebaseFirestore
 
+import Model
+
 public struct Attendance: Codable, Hashable {
     var id: String
     var memberId: String

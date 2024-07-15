@@ -7,6 +7,7 @@
 
 import ReactorKit
 
+import Model
 import Foundation
 
 final class QRCheckInReactor: Reactor {
