@@ -131,7 +131,7 @@ final class FirebaseService {
                 "eventId": attendance.eventId,
                 "date": Timestamp(date: attendance.createdAt),
                 "updatedAt": Timestamp(date: attendance.updatedAt),
-                "status": attendance.status.rawValue,
+                "status": attendance.status?.rawValue ?? .none,
                 "generation": attendance.generation
             ]
             attendanceRef.setData(data) { error in

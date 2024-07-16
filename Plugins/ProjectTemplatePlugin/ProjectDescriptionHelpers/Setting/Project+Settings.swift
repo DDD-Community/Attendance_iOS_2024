@@ -27,6 +27,7 @@ extension Settings {
             .setDevelopmentTeam(Project.Environment.organizationTeamId)
             .setSkipInstall(true)
             .setDebugInformationFormat(),
+      
         
         configurations: [
             .debug(name: .debug, settings: SettingsDictionary()
@@ -35,6 +36,7 @@ extension Settings {
                 .setOtherLdFlags("-ObjC -all_load")
                 .setDebugInformationFormat("non-global")
                 .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
+
             ),
             .debug(name: "QA", settings: SettingsDictionary()
                 .setProductName(Project.Environment.appDevName)

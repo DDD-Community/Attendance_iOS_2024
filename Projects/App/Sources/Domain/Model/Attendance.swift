@@ -8,17 +8,19 @@
 import FirebaseFirestore
 
 import Model
+import DesignSystem
+import SwiftUI
 
 public struct Attendance: Codable, Hashable {
     var id: String
-    var memberId: String
+    var memberId: String?
     var memberType: MemberType?
     var name: String
     var roleType: SelectPart
     var eventId: String
     var createdAt: Date
     var updatedAt: Date
-    var status: AttendanceType
+    var status: AttendanceType?
     var generation: Int
     
     init(
@@ -30,7 +32,7 @@ public struct Attendance: Codable, Hashable {
         eventId: String,
         createdAt: Date,
         updatedAt: Date,
-        status: AttendanceType,
+        status: AttendanceType? = nil,
         generation: Int
     ) {
         self.id = id
@@ -94,30 +96,94 @@ public struct Attendance: Codable, Hashable {
     }
     
     mutating func merge(with other: Attendance) {
-            self.id = self.id.isEmpty ? other.id : self.id
-            self.memberId = self.memberId.isEmpty ? other.memberId : self.memberId
-            self.memberType = self.memberType ?? other.memberType
-            self.name = self.name.isEmpty ? other.name : self.name
-            self.roleType = self.roleType == .all ? other.roleType : self.roleType
-            self.eventId = self.eventId.isEmpty ? other.eventId : self.eventId
-            self.createdAt = (self.createdAt == Date()) ? other.createdAt : self.createdAt
-            self.updatedAt = (self.updatedAt == Date()) ? other.updatedAt : self.updatedAt
-            self.status = (self.status == .run) ? other.status : self.status
-            self.generation = (self.generation == 0) ? other.generation : self.generation
-        }
+        self.id = self.id.isEmpty ? other.id : self.id
+        self.memberId = ((self.memberId?.isEmpty) != nil) ? other.memberId : self.memberId
+        self.memberType = self.memberType ?? other.memberType
+        self.name = self.name.isEmpty ? other.name : self.name
+        self.roleType = self.roleType == .all ? other.roleType : self.roleType
+        self.eventId = self.eventId.isEmpty ? other.eventId : self.eventId
+        self.createdAt = (self.createdAt == Date()) ? other.createdAt : self.createdAt
+        self.updatedAt = (self.updatedAt == Date()) ? other.updatedAt : self.updatedAt
+        self.status = (self.status == .run) ? other.status : self.status
+        self.generation = (self.generation == 0) ? other.generation : self.generation
+    }
     
-//    mutating func mergeAttendance(primary: Attendance, secondary: Attendance) -> Attendance {
-//        return Attendance(
-//            id: primary.id.isEmpty ? secondary.id : primary.id,
-//            memberId: primary.memberId.isEmpty ? secondary.memberId : primary.memberId,
-//            memberType: primary.memberType == .coreMember ? secondary.memberType : primary.memberType,
-//            name: primary.name.isEmpty ? secondary.name : primary.name,
-//            roleType: primary.roleType == .all ? secondary.roleType : primary.roleType,
-//            eventId: primary.eventId.isEmpty ? secondary.eventId : primary.eventId,
-//            createdAt: primary.createdAt == Date() ? secondary.createdAt : primary.createdAt,
-//            updatedAt: primary.updatedAt == Date() ? secondary.updatedAt : primary.updatedAt,
-//            status: primary.status == .run ? secondary.status : primary.status,
-//            generation: primary.generation == 0 ? secondary.generation : primary.generation
-//        )
-//    }
+    func backgroundColor(
+        isBackground: Bool = false,
+        isNameColor: Bool = false,
+        isGenerationColor: Bool = false,
+        isRoletTypeColor: Bool = false
+    ) -> Color {
+        switch self.status {
+        case .present:
+            switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
+            case (true, _, _, _):
+                return .basicWhite
+            case (_, true, _, _):
+                return .basicBlack
+            case (_, _, true, _):
+                return .gray600
+            case (_, _, _, true):
+                return .basicBlack
+            default:
+                return .gray800 // Default color if none match
+            }
+        case .late:
+            switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
+            case (true, _, _, _):
+                return .gray800
+            case (_, true, _, _):
+                return .gray600
+            case (_, _, true, _):
+                return .gray600
+            case (_, _, _, true):
+                return .gray600
+            default:
+                return .gray800 // Default color if none match
+            }
+        case .run:
+            switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
+            case (true, _, _, _):
+                return .gray800
+            case (_, true, _, _):
+                return .gray600
+            case (_, _, true, _):
+                return .gray600
+            case (_, _, _, true):
+                return .gray600
+            default:
+                return .gray800 // Default color if none match
+            }
+            
+        case nil:
+            switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
+            case (true, _, _, _):
+                return .gray800
+            case (_, true, _, _):
+                return .gray600
+            case (_, _, true, _):
+                return .gray600
+            case (_, _, _, true):
+                return .gray600
+            default:
+                return .gray800 // Default color if none match
+            }
+            
+            // Add other cases as needed
+        default:
+            switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
+            case (true, _, _, _):
+                return .gray800
+            case (_, true, _, _):
+                return .gray600
+            case (_, _, true, _):
+                return .gray600
+            case (_, _, _, true):
+                return .gray600
+            default:
+                return .gray800 // Default color if none match
+            }
+        }
+    }
 }
+

@@ -7,25 +7,24 @@
 
 import SwiftUI
 
-public struct CustomRectangleShape: View {
-  private var text: String
-  
+struct TooltipBody: View {
+    private var text: String
+    
     public init(text: String) {
-    self.text = text
-  }
-  
-    public var body: some View {
-    VStack {
-      Spacer()
-      
-      Text(text)
-            .pretendardFont(family: .SemiBold, size: 16)
-        .foregroundColor(.white)
-        .background(
-          RoundedRectangle(cornerRadius:20)
-            .fill(Color.gray800)
-            .frame(width: 152, height: 30)
-        )
+        self.text = text
     }
-  }
+    
+    var body: some View {
+            VStack {
+                Text(text)
+                    .pretendardFont(family: .Regular, size: 14)
+                    .foregroundStyle(Color.basicWhite)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray800)
+                    )
+            }
+    }
 }

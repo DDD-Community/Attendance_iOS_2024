@@ -32,7 +32,7 @@ public final class DependencyContainer {
     }
 
     public func resolve<T>(_ type: T.Type) -> T? {
-        let key = String(describing: type)
+        let key = String(describing: T.self)
         if let factory = registry[key] as? () -> T {
             
             let result = factory()

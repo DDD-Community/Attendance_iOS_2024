@@ -8,34 +8,25 @@
 import Foundation
 import SwiftUI
 
-public struct CustomTriangleShape: Shape {
+public struct TriangleDownShape: Shape {
     private var width: CGFloat
     private var height: CGFloat
     private var radius: CGFloat
-
-    public init(
-        width: CGFloat = 24,
-        height: CGFloat = 24,
-        radius: CGFloat = 1
-    ) {
+    
+    public init(width: CGFloat = 22, height: CGFloat = 20, radius: CGFloat = 1) {
         self.width = width
         self.height = height
         self.radius = radius
     }
-
+    
     public func path(in rect: CGRect) -> Path {
         var path = Path()
-
-        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.minX + width, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.minX + width / 2 + radius, y: rect.minY + height))
-        path.addQuadCurve(
-            to: CGPoint(x: rect.minX + width / 2 - radius, y: rect.minY + height),
-            control: CGPoint(x: rect.minX + width / 2, y: rect.minY + height - radius)
-        )
-
+        
+        path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.midX + width / 2, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.midX - width / 2, y: rect.minY))
         path.closeSubpath()
-
+        
         return path
     }
 }

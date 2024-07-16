@@ -14,21 +14,14 @@ public struct TooltipShape: View {
     }
     
     public var body: some View {
-    ZStack {
         VStack {
-            //      CustomTriangleShape()
-            //        .fill(.green)
-            //        .padding(.leading, 178)
-                  
-                  CustomRectangleShape(text: "Tooltip 입니다!")
+            TriangleDownShape()
+                .fill(Color.gray800)
+                .padding(.leading, 30)
+                .padding(.top, 40)
             
+            TooltipBody(text: "사용할 수 있는 쿠폰이 있어요!")
         }
-        
-        CustomTriangleShape()
-            .fill(Color.gray800)
-            .padding(.leading, 50)
-            .padding(.vertical, 30)
+        .frame(width: 202, height: 50)
     }
-    .frame(width: 152, height: 30)
-  }
 }

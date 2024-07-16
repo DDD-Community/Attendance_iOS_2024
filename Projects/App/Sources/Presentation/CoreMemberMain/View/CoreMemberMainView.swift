@@ -52,7 +52,6 @@ struct CoreMemberMainView: View {
             store.send(.view(.appearSelectPart(selectPart: .all)))
             store.send(.async(.fetchCurrentUser))
             store.send(.async(.observeAttendance))
-            store.send(.async(.observeAttendanceCheck))
         }
         .onChange(of: store.attendaceModel) { oldValue , newValue in
             store.send(.async(.updateAttendanceModel(newValue)))
@@ -271,44 +270,46 @@ extension CoreMemberMainView {
             
             switch roleType {
             case .all:
-                ScrollView(.vertical ,showsIndicators: false) {
+                ScrollView(.vertical, showsIndicators: false) {
                     ForEach(store.attendaceModel, id: \.self) { item in
                         AttendanceStatusText(
                             name: item.name,
                             generataion: "\(item.generation)",
                             roleType: item.roleType.attendanceListDesc,
-                            nameColor: store.attenaceNameColor ?? .basicBlack,
-                            roleTypeColor: store.attenaceRoleTypeColor ?? .basicBlack,
-                            generationColor: store.attenaceGenerationColor ?? .basicBlack,
-                            backGroudColor: store.attenaceBackGroudColor ?? .basicBlack
+                            nameColor: getBackgroundColor(
+                                for: item.memberId ?? "",
+                                generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceNameColor) ?? Color.gray600,
+                                matchingAttendances: item,
+                                isNameColor: true
+                            ),
+                            roleTypeColor: getBackgroundColor(
+                                for: item.memberId ?? "",
+                                generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceRoleTypeColor) ?? Color.gray600 ,
+                                matchingAttendances: item,
+                                isRoletTypeColor: true
+                            ),
+                            generationColor: getBackgroundColor(
+                                for: item.memberId ?? "",
+                                generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceGenerationColor) ?? Color.gray800,
+                                matchingAttendances: item,
+                                isGenerationColor: true
+                            ),
+                            backGroudColor: getBackgroundColor(
+                                for: item.memberId ?? "",
+                                generationColor: (item.status == .run || item.status == nil ? Color.gray800 : store.attenaceBackGroudColor) ?? Color.gray800,
+                                matchingAttendances: item,
+                                isBackground: true
+                            )
                         )
-                        .onTapGesture {
-                            let filteredAttendances = store.combinedAttendances.filter { $0.memberId == item.memberId }
-                            for attendanceRecord in filteredAttendances {
-                                
-                            }
-                            print(item.memberId, filteredAttendances.first?.memberId, filteredAttendances.first?.status, item.status)
+                        .id(item.memberId)
+                        .task {
+                            await Task.sleep(seconds: 5)
+                            store.send(.view(.updateAttendanceCount(attenace: item.status ?? .run, count: store.attendanceCount)))
                         }
-                        .onAppear {
-                               let filteredAttendances = store.combinedAttendances.filter { $0.memberId == item.memberId }
-                               
-                               if filteredAttendances.isEmpty {
-                                   store.send(.view(.fetchAttanceTypeImage(attenace: .none)))
-                                   store.send(.view(.updateAttendanceCount(attenace: .none, count: store.attendanceCount)))
-                               } else {
-                                   for attendanceRecord in filteredAttendances {
-                                       store.send(.view(.fetchAttanceTypeImage(attenace: attendanceRecord.status)))
-                                       print(attendanceRecord.status)
-                                       
-                                       store.send(.view(.updateAttendanceCount(attenace: attendanceRecord.status, count: store.attendanceCount)))
-                                   }
-                               }
-                               
-                               print(item.memberId)
-                           }
-                           Spacer()
-                       }
+                        Spacer()
+                    }
                 }
+
                 
             default:
                 ForEach(store.attendaceModel.filter { $0.roleType == roleType}, id: \.self) { item in
@@ -316,26 +317,100 @@ extension CoreMemberMainView {
                         name: item.name,
                         generataion: "\(item.generation)",
                         roleType: item.roleType.attendanceListDesc,
-                        nameColor: store.attenaceNameColor ?? .basicBlack,
-                        roleTypeColor: store.attenaceRoleTypeColor ?? .basicBlack,
-                        generationColor: store.attenaceGenerationColor ?? .basicBlack,
-                        backGroudColor: store.attenaceBackGroudColor ?? .basicBlack
+                        nameColor: getBackgroundColor(
+                            for: item.memberId ?? "",
+                            generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceNameColor) ?? Color.gray600,
+                            matchingAttendances: item,
+                            isNameColor: true
+                        ),
+                        roleTypeColor: getBackgroundColor(
+                            for: item.memberId ?? "",
+                            generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceRoleTypeColor) ?? Color.gray600 ,
+                            matchingAttendances: item,
+                            isRoletTypeColor: true
+                        ),
+                        generationColor: getBackgroundColor(
+                            for: item.memberId ?? "",
+                            generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceGenerationColor) ?? Color.gray800,
+                            matchingAttendances: item,
+                            isGenerationColor: true
+                        ),
+                        backGroudColor: getBackgroundColor(
+                            for: item.memberId ?? "",
+                            generationColor: (item.status == .run || item.status == nil ? Color.gray800 : store.attenaceBackGroudColor) ?? Color.gray800,
+                            matchingAttendances: item,
+                            isBackground: true
+                        )
                     )
-                    .onAppear {
-                        let filteredAttendances = store.combinedAttendances.filter { $0.memberId == item.memberId }
-                        for attendanceRecord in filteredAttendances {
-                            store.send(.view(.fetchAttanceTypeImage(attenace: attendanceRecord.status)))
-                            print(attendanceRecord.status)
-                            
-                            store.send(.view(.updateAttendanceCount(attenace:  attendanceRecord.status, count: store.attendanceCount)))
-                        }
-                        print(item.status)
+                    .id(item.memberId)
+                    .onAppear{
+                        store.send(.view(.updateAttendanceCount(attenace: item.status ?? .run, count: store.attendanceCount)))
                     }
+
                     Spacer()
                 }
             }
         }
     }
+    
+    func getBackgroundColor(
+            for memberId: String,
+            generationColor: Color,
+            matchingAttendances: Attendance,
+            isBackground: Bool = false,
+            isNameColor: Bool = false,
+            isGenerationColor: Bool = false,
+            isRoletTypeColor: Bool = false
+        ) -> Color {
+            let matchingAttendancesList = store.combinedAttendances.filter { $0.memberId == memberId }
+            // Handle the case where all combinedAttendances count matches
+            if matchingAttendancesList.count == store.combinedAttendances.count {
+                if let backgroundColor = matchingAttendancesList.first?.backgroundColor(
+                    isBackground: isBackground,
+                    isNameColor: isNameColor,
+                    isGenerationColor: isGenerationColor,
+                    isRoletTypeColor: isRoletTypeColor
+                ) {
+                    if isNameColor {
+                        return generationColor == backgroundColor ? generationColor : backgroundColor
+                    } else if isGenerationColor {
+                        return generationColor == backgroundColor ? generationColor : backgroundColor
+                    } else if isRoletTypeColor {
+                        return generationColor == backgroundColor ? generationColor : backgroundColor
+                    } else if backgroundColor == generationColor {
+                        return generationColor
+                    } else {
+                        return backgroundColor
+                    }
+                } else {
+                    return .gray // Return gray if the background color does not match the generation color
+                }
+            } else  if matchingAttendancesList.count != store.combinedAttendances.count {
+                if let backgroundColor = matchingAttendancesList.first?.backgroundColor(
+                    isBackground: isBackground,
+                    isNameColor: isNameColor,
+                    isGenerationColor: isGenerationColor,
+                    isRoletTypeColor: isRoletTypeColor
+                ) {
+                    if isNameColor {
+                        return generationColor == backgroundColor ? generationColor : backgroundColor
+                    } else if isGenerationColor {
+                        return generationColor == backgroundColor ? generationColor : backgroundColor
+                    } else if isRoletTypeColor {
+                        return generationColor == backgroundColor ? generationColor : backgroundColor
+                    } else if isBackground {
+                        return generationColor == backgroundColor ? generationColor : backgroundColor
+                    } else {
+                        return backgroundColor
+                    }
+                } else {
+                    return generationColor
+                }
+            } else {
+                return .gray
+            }
+        }
+    
     
     @ViewBuilder
     private func attendanceMemberCount(count:  Int) -> some View {

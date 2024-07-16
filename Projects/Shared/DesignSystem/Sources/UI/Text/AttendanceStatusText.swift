@@ -59,7 +59,6 @@ public struct AttendanceStatusText: View {
         }
         .padding(.horizontal , 24)
         
-        
     }
 }
 
