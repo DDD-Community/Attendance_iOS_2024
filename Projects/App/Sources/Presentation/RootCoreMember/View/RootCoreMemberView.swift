@@ -32,14 +32,12 @@ struct RootCoreMemberView: View {
             case let .qrCode(qrCodeStore):
                 QrCodeView(store: qrCodeStore) {
                     store.send(.inner(.removePath))
-                    store.send(.inner(.appearPath))
                 }
                 .navigationBarBackButtonHidden()
                 
-            case let .editEvent(editEventStore):
-                EditEventView(store: editEventStore) {
+            case let .scheduleEvent(scheduleEventStore):
+                ScheduleEventView(store: scheduleEventStore) {
                     store.send(.inner(.removePath))
-                    store.send(.inner(.appearPath))
                     
                 }
                 .navigationBarBackButtonHidden()

@@ -13,13 +13,13 @@ import Service
 import Utill
 
 @Reducer
-public struct EditEvent {
+public struct ScheduleEvent {
     public init() {}
     
     @ObservableState
     public struct State: Equatable {
         var eventModel: [DDDEvent] = []
-        var naivgationTitle: String = "이벤트 수정"
+        var naivgationTitle: String = "기 일정"
         var isEditing: Bool = false
         var isEditEvent: Bool = false
         var offset: CGFloat = 0
@@ -28,11 +28,17 @@ public struct EditEvent {
         var editMakeEventResaon: String = ""
         var editEventid: String = ""
         var editEventDate: Date = Date.now
+        var generation: Int = .zero
         
         @Presents var destination: Destination.State?
         
-        public init(eventModel: [DDDEvent] = []) {
+        public init(
+            eventModel: [DDDEvent] = [],
+            generation: Int = .zero
+            
+        ) {
             self.eventModel = eventModel
+            self.generation = generation
         }
     }
     
@@ -163,7 +169,6 @@ public struct EditEvent {
                         
                         switch fetchedEvent {
                         case .success:
-//                           send(.async(.eventDeletedSuccessfully(eventID:  "")))
                             send(.async(.fetchEvent))
                         case .failure(let error):
                             send(.async(.eventDeletionFailed(CustomError.map(error))))

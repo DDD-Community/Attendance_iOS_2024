@@ -83,6 +83,7 @@ final class FirebaseService {
                 
                 let member: Member = .init(
                     uid: uid,
+                    memberid: uid,
                     name: name,
                     role: SelectPart(rawValue: roleType) ?? .iOS,
                     memberType: MemberType(rawValue: memberType) ?? .notYet,
@@ -103,6 +104,7 @@ final class FirebaseService {
             
             let data: [String: Any] = [
                 "name": member.name,
+                "memberId" : member.memberid,
                 "roleType": member.role.rawValue,
                 "memberType": member.memberType.rawValue,
                 "createdAt": member.createdAt,

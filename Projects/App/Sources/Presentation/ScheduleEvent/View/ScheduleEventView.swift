@@ -10,12 +10,12 @@ import SDWebImageSwiftUI
 import ComposableArchitecture
 import DesignSystem
 
-public struct EditEventView: View {
-    @Bindable var store: StoreOf<EditEvent>
+public struct ScheduleEventView: View {
+    @Bindable var store: StoreOf<ScheduleEvent>
     var backAction: () -> Void
     
     init(
-        store: StoreOf<EditEvent>,
+        store: StoreOf<ScheduleEvent>,
         backAction: @escaping () -> Void
     ) {
         self.store = store
@@ -30,13 +30,13 @@ public struct EditEventView: View {
             
             VStack {
                 Spacer()
-                    .frame(height: 20)
+                    .frame(height: 16)
                 
                 CustomNavigationBar(backAction: backAction) {
                     store.send(.view(.presntEventModal))
                 }
                 
-                editEventNavigationTitle()
+                scheduleEventNavigationTitle()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     if store.eventModel == [ ] {
@@ -83,27 +83,27 @@ public struct EditEventView: View {
     }
 }
 
-extension EditEventView {
+extension ScheduleEventView {
     
     @ViewBuilder
-    private func editEventNavigationTitle() -> some View {
+    private func scheduleEventNavigationTitle() -> some View {
         LazyVStack {
             Spacer()
-                .frame(height: 20)
+                .frame(height: 14)
             
             HStack {
-                Text(store.naivgationTitle)
-                    .pretendardFont(family: .Bold, size: 30)
-                    .foregroundColor(.basicWhite)
+                Text("\(store.generation)\(store.naivgationTitle)")
+                    .pretendardFont(family: .SemiBold, size: 24)
+                    .foregroundStyle(Color.basicWhite)
                 
                 Spacer()
             }
             
             Spacer()
-                .frame(height: UIScreen.screenHeight * 0.02)
+                .frame(height: 24)
             
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 24)
     }
     
     @ViewBuilder

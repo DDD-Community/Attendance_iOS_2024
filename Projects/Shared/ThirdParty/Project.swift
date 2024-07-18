@@ -30,7 +30,8 @@ let project = Project.makeAppModule(
         .SPM.firebaseRemoteConfig,
         .SPM.firebaseDatabase,
         .SPM.keychainAccess,
-        .SPM.popupView
+        .SPM.popupView,
+        .SPM.collections
             
     ],
     sources: ["Sources/**"]

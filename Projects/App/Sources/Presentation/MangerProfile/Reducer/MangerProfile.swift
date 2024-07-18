@@ -8,6 +8,7 @@
 import Foundation
 import ComposableArchitecture
 import FirebaseAuth
+import KeychainAccess
 
 import Utill
 import Model
@@ -22,6 +23,12 @@ public struct MangerProfile {
     public struct State: Equatable {
         var attendaceModel : [Attendance] = []
         var user: User? =  nil
+        var isLoading: Bool = false
+        var mangeProfileName: String = "의 프로필"
+        var mangerProfileRoleType: String = "직군"
+        var mangerProfileManging: String = "담당 업무"
+        var mangerProfileGeneration: String = "소속 기수"
+        var logoutText: String = "로그아웃"
         public init() {}
     }
     
@@ -36,15 +43,17 @@ public struct MangerProfile {
     
     //MARK: - View action
     public enum View {
-        
+      
     }
     
     //MARK: - 비동기 처리 액션
     public enum AsyncAction: Equatable {
         case fetchMangeProfile
         case fetchUser
+        case signOut
         case fetchDataResponse(Result<[Attendance], CustomError>)
         case fetchUserDataResponse(Result<User, CustomError>)
+        
     }
     
     //MARK: - 앱내에서 사용하는 액선
@@ -54,7 +63,7 @@ public struct MangerProfile {
     
     //MARK: - 네비게이션 연결 액션
     public enum NavigationAction: Equatable {
-        
+        case tapLogOut
     }
     
     @Dependency(FireStoreUseCase.self) var fireStoreUseCase
@@ -76,6 +85,59 @@ public struct MangerProfile {
             case .async(let AsyncAction):
                 switch AsyncAction {
                     
+                case .fetchUser:
+                    return .run { @MainActor send in
+                        let fetchUserResult = await Result {
+                            try await fireStoreUseCase.getCurrentUser()
+                        }
+                        
+                        switch fetchUserResult {
+                            
+                        case let .success(fetchUserResult):
+                            guard let fetchUserResult = fetchUserResult else {return}
+                            send(.async(.fetchUserDataResponse(.success(fetchUserResult))))
+                            
+                        case let .failure(error):
+                            send(.async(.fetchUserDataResponse(.failure(CustomError.map(error)))))
+                        }
+                    }
+                    
+                case .fetchMangeProfile:
+                    return .run { @MainActor send  in
+                        let fetchedDataResult = await Result {
+                            try await fireStoreUseCase.fetchFireStoreData(
+                                from: .member,
+                                as: Attendance.self,
+                                shouldSave: false)
+                        }
+                        
+                        switch fetchedDataResult {
+                        case let .success(fetchedData):
+                            send(.async(.fetchDataResponse(.success(fetchedData))))
+                        case let .failure(error):
+                            send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))
+                        }
+                        
+                    }
+                    
+                case .signOut:
+                    return .run { @MainActor send  in
+                        let fetchUserResult = await Result {
+                            try await fireStoreUseCase.getUserLogOut()
+                        }
+                        
+                        switch fetchUserResult {
+                            
+                        case let .success(fetchUserResult):
+                            guard let fetchUserResult = fetchUserResult else {return}
+                            send(.async(.fetchUserDataResponse(.success(fetchUserResult))))
+                            
+                        case let .failure(error):
+                            send(.async(.fetchUserDataResponse(.failure(CustomError.map(error)))))
+                        }
+                    }
+                    
+                    
                 case let .fetchUserDataResponse(fetchUser):
                     switch fetchUser {
                     case let .success(fetchUser):
@@ -87,11 +149,18 @@ public struct MangerProfile {
                     }
                     return .none
                     
-                case .fetchMangeProfile:
-                    return .none
-                case .fetchUser:
-                    return .none
-                case .fetchDataResponse(_):
+              
+                case let .fetchDataResponse(fetchedData):
+                    switch fetchedData {
+                    case let .success(fetchedData):
+                        state.isLoading = false
+                        let filteredData = fetchedData.filter { $0.memberType == .coreMember && !$0.name.isEmpty }
+                        
+                        state.attendaceModel = filteredData
+                    case let .failure(error):
+                        Log.error("Error fetching data", error)
+                        state.isLoading = true
+                    }
                     return .none
                 }
                 
@@ -104,7 +173,10 @@ public struct MangerProfile {
                 //MARK: - NavigationAction
             case .navigation(let NavigationAction):
                 switch NavigationAction {
-                    
+                case .tapLogOut:
+                    return .run { @MainActor send in
+                        send(.async(.signOut))
+                    }
                 }
             }
         }
