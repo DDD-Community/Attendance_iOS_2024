@@ -30,6 +30,7 @@ public extension TargetDependency.SPM {
     static let firebaseDatabase = TargetDependency.external(name: "FirebaseDatabase", condition: .none)
     static let keychainAccess = TargetDependency.external(name: "KeychainAccess", condition: .none)
     static let popupView = TargetDependency.external(name: "PopupView", condition: .none)
+    static let collections = TargetDependency.external(name: "Collections", condition: .none)
 }
   
 

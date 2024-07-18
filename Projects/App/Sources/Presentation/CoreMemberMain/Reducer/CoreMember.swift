@@ -77,8 +77,6 @@ public struct CoreMember {
         case swipePrevious
         case selectPartButton(selectPart: SelectPart)
         case appearSelectPart(selectPart: SelectPart)
-        case presntEventModal
-        case closePresntEventModal
         case selectDate(date: Date)
         case updateAttendanceCount(count: Int)
         
@@ -113,14 +111,13 @@ public struct CoreMember {
         case presentQrcode
         case presentSchedule
         case presentMangerProfile
-        case tapLogOut
         
     }
     
     @Reducer(state: .equatable)
     public enum Destination {
         case qrcode(QrCode)
-        case makeEvent(MakeEvent)
+        case scheduleEvent(ScheduleEvent)
         
     }
     
@@ -208,14 +205,6 @@ public struct CoreMember {
                     }
                     return .none
                     
-                case .presntEventModal:
-                    state.destination = .makeEvent(MakeEvent.State())
-                    return .none
-                    
-                case .closePresntEventModal:
-                    state.destination = nil
-                    return .none
-                    
                 case .selectDate(let date):
                     if  state.selectDate == date {
                         state.selectDatePicker.toggle()
@@ -256,6 +245,15 @@ public struct CoreMember {
                         } else if attendance.status == .late {
                             newAttendanceCount -= 1
                         }
+                    }
+                    
+                    if newAttendanceCount < 0 {
+                        newAttendanceCount = 0
+                    }
+                    
+                    // Ensure newAttendanceCount does not exceed the total number of items in attendaceModel
+                    if newAttendanceCount > state.attendaceModel.count {
+                        newAttendanceCount = state.attendaceModel.count
                     }
                     
                     state.attendanceCount = newAttendanceCount
@@ -304,7 +302,6 @@ public struct CoreMember {
                             let uids = Set(fetchedData.map { $0.memberId })
                             
                             for uid in uids {
-                                send(.async(.fetchMember))
                                 send(.async(.fetchAttendanceHistory(uid ?? "")))
                             }
                             
@@ -343,6 +340,8 @@ public struct CoreMember {
                         }
                     }
                     
+                    state.combinedAttendances = updatedCombinedAttendances
+                    Log.debug("combinedAttendances2", state.combinedAttendances)
                     
                     // attendaceModel을 업데이트하여 바뀐 값을 반영
                     let updatedAttendaceModel: [Attendance] = state.attendaceModel.map { data in
@@ -359,6 +358,8 @@ public struct CoreMember {
                             status: updatedStatus ?? data.status, // 새로운 상태가 있으면 사용, 없으면 기존 상태 유지
                             generation: data.generation
                         )
+                        
+                        Log.debug("updatedAttendanceModel", updatedStatus)
                     }
                     
                     state.attendaceModel = updatedAttendaceModel
@@ -551,27 +552,14 @@ public struct CoreMember {
                     return .none
                     
                 case .presentSchedule:
-                    return .none
+                    state.destination = .scheduleEvent(.init(generation: state.attendaceModel.first?.generation ?? .zero))
+                    return .run { @MainActor  send in
+                        send(.async(.fetchMember))
+                    }
                     
                 case .presentMangerProfile:
                     return .none
                     
-                case .tapLogOut:
-                    return .run { @MainActor send  in
-                        let fetchUserResult = await Result {
-                            try await fireStoreUseCase.getUserLogOut()
-                        }
-                        
-                        switch fetchUserResult {
-                            
-                        case let .success(fetchUserResult):
-                            guard let fetchUserResult = fetchUserResult else {return}
-                            send(.async(.fetchUserDataResponse(.success(fetchUserResult))))
-                            
-                        case let .failure(error):
-                            send(.async(.fetchUserDataResponse(.failure(CustomError.map(error)))))
-                        }
-                    }
                 }
                 //            case .alert(.dismiss):
                 //                state.alert = nil

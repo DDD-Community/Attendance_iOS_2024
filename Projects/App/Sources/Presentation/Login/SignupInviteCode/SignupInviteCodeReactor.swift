@@ -82,6 +82,7 @@ extension SignupInviteCodeReactor {
                 }
                 let member: Member = .init(
                     uid: self.currentState.uid,
+                    memberid: self.currentState.uid,
                     name: self.currentState.name,
                     role: self.currentState.part,
                     memberType: self.currentState.isManager ? .coreMember : .member,

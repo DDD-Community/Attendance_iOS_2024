@@ -10,6 +10,7 @@ import Foundation
 struct Member: Codable, Hashable {
     /// Firebase Auth의 uid
     var uid: String
+    var memberid: String
     var name: String
     var role: SelectPart
     var memberType: MemberType

@@ -21,11 +21,11 @@ public struct CustomNavigationBar: View {
     
     public var body: some View {
         HStack {
-            Image(systemName: "chevron.left")
+            Image(asset: .arrowBack)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 10, height: 18)
-                .foregroundColor(.white)
+                .frame(width: 12, height: 20)
+                .foregroundStyle(Color.gray400)
                 .onTapGesture {
                     backAction()
                 }
@@ -33,17 +33,17 @@ public struct CustomNavigationBar: View {
             Spacer()
             
             HStack {
-                Image(systemName: "plus")
+                Image(asset: .plus)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 10, height: 18)
-                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(Color.gray400)
                     .onTapGesture {
                         addAction()
                     }
             }
             
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 16)
     }
 }

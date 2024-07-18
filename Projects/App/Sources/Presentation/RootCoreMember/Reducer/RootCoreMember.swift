@@ -44,7 +44,7 @@ public struct RootCoreMember {
     public enum Path {
         case coreMember(CoreMember)
         case qrCode(QrCode)
-        case editEvent(EditEvent)
+        case scheduleEvent(ScheduleEvent)
         case snsLogin(SNSLoginViewReducer)
         case mangeProfile(MangerProfile)
     }
@@ -96,9 +96,9 @@ public struct RootCoreMember {
                     state.path.append(.qrCode(.init(userID: userID ?? "")))
                     
                 case .element(id: _, action: .coreMember(.navigation(.presentSchedule))):
-                    state.path.append(.editEvent(.init(eventModel: state.eventModel)))
+                    state.path.append(.scheduleEvent(.init(eventModel: state.eventModel, generation: state.attendaceModel.first?.generation ?? .zero)))
                     
-                case .element(id: _, action: .coreMember(.navigation(.tapLogOut))):
+                case .element(id: _, action: .mangeProfile(.navigation(.tapLogOut))):
                     state.path.append(.snsLogin(.init()))
                     
                 case .element(id: _, action: .coreMember(.navigation(.presentMangerProfile))):

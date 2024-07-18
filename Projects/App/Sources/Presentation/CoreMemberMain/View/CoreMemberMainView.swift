@@ -54,14 +54,14 @@ struct CoreMemberMainView: View {
             store.send(.async(.observeAttendance))
 
         }
-//        .onChange(of: store.attendaceModel) { oldValue , newValue in
-//            store.send(.async(.updateAttendanceModel(newValue)))
-//        }
+        .onChange(of: store.attendaceModel) { oldValue , newValue in
+            store.send(.async(.updateAttendanceModel(newValue)))
+        }
         
-//        .onChange(of: store.combinedAttendances, { oldValue, newValue in
-//            store.send(.async(.updateAttendanceTypeModel(newValue)))
-//            
-//        })
+        .onChange(of: store.combinedAttendances, { oldValue, newValue in
+            store.send(.async(.updateAttendanceTypeModel(newValue)))
+            
+        })
         
         
         .gesture(
@@ -69,12 +69,15 @@ struct CoreMemberMainView: View {
                 .onEnded { value in
                     if value.translation.width < -UIScreen.screenWidth * 0.02 {
                         store.send(.view(.swipeNext))
-//                        store.send(.async(.upDateFetchAttandanceMember(selectPart: store.selectPart ?? .all)))
+                        store.send(.async(.upDateFetchAttandanceMember(selectPart: store.selectPart ?? .all)))
+                        store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
 //                        getAttendanceCount()
                         
                     } else if value.translation.width > UIScreen.screenWidth * 0.02 {
                         store.send(.view(.swipePrevious))
-//                        store.send(.async(.upDateFetchAttandanceMember(selectPart: store.selectPart ?? .all)))
+                        store.send(.async(.upDateFetchAttandanceMember(selectPart: store.selectPart ?? .all)))
+                        store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
+                        
 //                        getAttendanceCount()
                         
                     }
@@ -304,10 +307,8 @@ extension CoreMemberMainView {
                             print("tap \(item.status)")
                         })
                         .onAppear {
-                            store.send(.async(.fetchMember))
                             if item.status == .present || item.status == .late {
-//                                getAttendanceCount()
-//                                store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
+                                store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
                             }
                         }
                         Spacer()
@@ -348,9 +349,8 @@ extension CoreMemberMainView {
                     )
                     .id(item.memberId)
                     .onAppear{
-                        store.send(.async(.fetchMember))
                         if item.roleType == roleType {
-//                            store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
+                            store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
                         } else if item.status == .present {
 //                            store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
                         } else {

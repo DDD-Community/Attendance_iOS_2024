@@ -57,7 +57,7 @@ struct CoreMemberTest {
             eventId: UUID().uuidString,
             createdAt: Date(),
             updatedAt: convertStringToDate,
-            attendanceType: .absent,
+            status: .absent,
             generation: 11
         )
         
