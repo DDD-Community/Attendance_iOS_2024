@@ -14,11 +14,11 @@ struct RootCoreMemberView: View {
     var body: some View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             VStack {
-                CoreMemberMainView(store: Store(initialState: CoreMember.State(), reducer: {
-                    CoreMember()
-                }))
+                CoreMemberMainView(store: store.scope(state: \.coreStore, action: \.coreStoreAction)) 
             }
             .onAppear {
+                store.send(.async(.fetchMember))
+                store.send(.async(.fetchAttenDance))
                 store.send(.inner(.appearPath))
                 store.send(.async(.fetchEvent))
             }
@@ -32,18 +32,27 @@ struct RootCoreMemberView: View {
             case let .qrCode(qrCodeStore):
                 QrCodeView(store: qrCodeStore) {
                     store.send(.inner(.removePath))
+                    store.send(.inner(.appearPath))
                 }
                 .navigationBarBackButtonHidden()
                 
             case let .editEvent(editEventStore):
                 EditEventView(store: editEventStore) {
                     store.send(.inner(.removePath))
-                } 
+                    store.send(.inner(.appearPath))
+                    
+                }
                 .navigationBarBackButtonHidden()
                 
             case let .snsLogin(snsLoginStore):
                 SNSLoginViewRepresentable(store: snsLoginStore)
                     .navigationBarBackButtonHidden()
+                
+            case let .mangeProfile(mangeProfileStore):
+                MangerProfileView(store: mangeProfileStore) {
+                    store.send(.inner(.removePath))
+                }
+                .navigationBarBackButtonHidden()
             }
         }
     }

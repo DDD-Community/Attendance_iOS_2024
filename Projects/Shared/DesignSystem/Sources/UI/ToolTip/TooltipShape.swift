@@ -8,20 +8,24 @@
 import SwiftUI
 
 public struct TooltipShape: View {
+    var tooltipText: String
     
-    public init() {
+    public init(tooltipText: String) {
+        self.tooltipText = tooltipText
         
     }
     
     public var body: some View {
         VStack {
-            TriangleDownShape()
-                .fill(Color.gray800)
-                .padding(.leading, 30)
-                .padding(.top, 40)
-            
-            TooltipBody(text: "사용할 수 있는 쿠폰이 있어요!")
+            ZStack {
+                TriangleDownShape()
+                    .fill(Color.gray800)
+                    .padding(.leading, 10)
+                    .padding(.top, 40)
+                
+                TooltipBody(text: tooltipText)
+            }
+            .frame(width: 202, height: 50)
         }
-        .frame(width: 202, height: 50)
     }
 }

@@ -23,20 +23,18 @@ public struct CoreMember {
     
     @ObservableState
     public struct State: Equatable {
-        public init() {}
+        
         var headerTitle: String = "출석 현황"
         var selectPart: SelectPart? = nil
         var attendaceModel : [Attendance] = []
-        var attendaceModels: [Attendance] = []
         var combinedAttendances: [Attendance] = []
-        var attendanceStatuses: [AttendanceType] = []
         var disableSelectButton: Bool = false
         var isActiveBoldText: Bool = false
         var isLoading: Bool = false
         var qrcodeImage: ImageAsset = .qrCode
         var eventImage: ImageAsset = .eventGenerate
-        var mangerProfilemage: ImageAsset = .mangeMentProfile
-
+        var mangerProfilemage: String = "person"
+        
         var user: User? =  nil
         var errorMessage: String?
         var attenaceTypeImageName: String = "checkmark"
@@ -51,6 +49,14 @@ public struct CoreMember {
         var selectDate: Date = Date.now
         var selectDatePicker: Bool = false
         //        @Presents var alert: AlertState<Action.Alert>?
+        
+        public init(
+            attendaceModel : [Attendance] = [],
+            combinedAttendances: [Attendance] = []
+        ) {
+            self.attendaceModel = attendaceModel
+            self.combinedAttendances = combinedAttendances
+        }
         
     }
     
@@ -74,7 +80,7 @@ public struct CoreMember {
         case presntEventModal
         case closePresntEventModal
         case selectDate(date: Date)
-        case updateAttendanceCount(attenace: AttendanceType, count: Int)
+        case updateAttendanceCount(count: Int)
         
     }
     
@@ -92,7 +98,8 @@ public struct CoreMember {
         case fetchDataResponse(Result<[Attendance], CustomError>)
         case fetchAttendanceDataResponse(Result<[Attendance], CustomError>)
         
-        case upDateFetchMember(selectPart: SelectPart)
+        case upDateFetchAttandanceMember(selectPart: SelectPart)
+        case updateAttenDance
         
     }
     
@@ -105,7 +112,9 @@ public struct CoreMember {
     public enum NavigationAction: Equatable {
         case presentQrcode
         case presentSchedule
+        case presentMangerProfile
         case tapLogOut
+        
     }
     
     @Reducer(state: .equatable)
@@ -170,7 +179,10 @@ public struct CoreMember {
                     guard let selectPart = state.selectPart else { return .none }
                     if let currentIndex = SelectPart.allCases.firstIndex(of: selectPart),
                        currentIndex < SelectPart.allCases.count - 1 {
-                        state.selectPart = SelectPart.allCases[currentIndex + 1]
+                        let nextPart = SelectPart.allCases[currentIndex + 1]
+                        if nextPart.isDescEqualToAttendanceListDesc {
+                            state.selectPart = nextPart
+                        }
                     }
                     return .none
                     
@@ -225,8 +237,8 @@ public struct CoreMember {
                         case let .success(fetchedData):
                             let filteredData = fetchedData.filter { $0.updatedAt.formattedDateToString() == date.formattedDateToString() }
                             Log.debug("날짜 홗인", fetchedData.map { $0.updatedAt.formattedDateToString() }, date.formattedDateToString(), filteredData)
-                            send(.async(.updateAttendanceModel(fetchedData)))
                             send(.async(.fetchDataResponse(.success(filteredData))))
+                            send(.async(.updateAttendanceModel(fetchedData)))
                             
                         case let .failure(error):
                             send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))
@@ -234,23 +246,22 @@ public struct CoreMember {
                     }
                     
                     
-                case .updateAttendanceCount(let attenace, let count):
-                    state.attendanceCount = count
-                    
-                    if attenace == .present {
-                        if state.attendanceCount < state.attendaceModel.count { // Ensures it does not exceed the maximum count
-                            state.attendanceCount += 1
-                        }
-                    } else if attenace == .late || attenace == .run {
-                        if state.attendanceCount > 0 { // Ensures it does not go below 0
-                            state.attendanceCount -= 1
+                case let .updateAttendanceCount(count: count):
+                    var newAttendanceCount = 0
+                    for index in state.attendaceModel.indices {
+                        let attendance = state.attendaceModel[index]
+                        
+                        if attendance.status == .present {
+                            newAttendanceCount += 1
+                        } else if attendance.status == .late {
+                            newAttendanceCount -= 1
                         }
                     }
+                    
+                    state.attendanceCount = newAttendanceCount
+                    newAttendanceCount = count
                 }
-                return .run { @MainActor send in
-                    send(.async(.fetchMember))
-                }
-                
+                return .none
                 //MARK: - AsyncAction
             case .async(let AsyncAction):
                 switch AsyncAction {
@@ -274,7 +285,7 @@ public struct CoreMember {
                         
                     }
                     
-                
+                //MARK: - 실시간으로 데이터 가져오기 출석현황
                 case .fetchAttenDance:
                     // Swift 6 and later requires the nonisolated keyword to avoid data race errors
                     // var attendanceModel = state.attendanceModel
@@ -301,14 +312,14 @@ public struct CoreMember {
                             send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
                         }
                     }
-
+                    
                 case let .fetchAttendanceHistory(uid):
                     return .run { @MainActor send in
                         for await result in try await fireStoreUseCase.fetchAttendanceHistory(uid, from: .attendance) {
                             send(.async(.fetchAttendanceHistoryResponse(result)))
                         }
                     }
-
+                    
                 case let .fetchAttendanceHistoryResponse(result):
                     switch result {
                     case let .success(attendances):
@@ -317,7 +328,7 @@ public struct CoreMember {
                     case let .failure(error):
                         return .send(.async(.fetchAttendanceDataResponse(.failure(error))))
                     }
-
+                    
                 case let .updateAttendanceTypeModel(attendances):
                     state.combinedAttendances = attendances
                     
@@ -334,28 +345,27 @@ public struct CoreMember {
                     
                     
                     // attendaceModel을 업데이트하여 바뀐 값을 반영
-                    var updatedAttendaceModel: [Attendance] = state.attendaceModel.map { data in
-                            let updatedStatus = statusDict[data.memberId]
-                            return Attendance(
-                                id: data.id,
-                                memberId: data.memberId ?? "",
-                                memberType: data.memberType,
-                                name: data.name,
-                                roleType: data.roleType,
-                                eventId: data.eventId,
-                                createdAt: data.createdAt,
-                                updatedAt: data.updatedAt, // updatedAt를 현재 시간으로 설정
-                                status: updatedStatus ?? data.status, // 새로운 상태가 있으면 사용, 없으면 기존 상태 유지
-                                generation: data.generation
-                            )
-                        Log.debug("updatedStatus", updatedStatus)
-                        }
+                    let updatedAttendaceModel: [Attendance] = state.attendaceModel.map { data in
+                        let updatedStatus = statusDict[data.memberId]
+                        return Attendance(
+                            id: data.id,
+                            memberId: data.memberId ?? "",
+                            memberType: data.memberType,
+                            name: data.name,
+                            roleType: data.roleType,
+                            eventId: data.eventId,
+                            createdAt: data.createdAt,
+                            updatedAt: data.updatedAt, // updatedAt를 현재 시간으로 설정
+                            status: updatedStatus ?? data.status, // 새로운 상태가 있으면 사용, 없으면 기존 상태 유지
+                            generation: data.generation
+                        )
+                    }
                     
                     state.attendaceModel = updatedAttendaceModel
                     Log.debug("updatedAttendanceModel", updatedAttendaceModel)
                     Log.debug("updatedAttendanceModel", state.attendaceModel)
                     return .none
-
+                    
                 case .fetchCurrentUser:
                     return .run { @MainActor send in
                         let fetchUserResult = await Result {
@@ -383,12 +393,21 @@ public struct CoreMember {
                             
                         }
                     }
-                    
-                case let .upDateFetchMember(selectPart: selectPart):
+                          
+                case let .upDateFetchAttandanceMember(selectPart: selectPart):
+                    let state = state.attendanceCount
                     return .run { @MainActor send in
+
                         let fetchedDataResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
                                 from: .member,
+                                as: Attendance.self,
+                                shouldSave: false
+                            )
+                        }
+                        let fetchedAttandanceResult = await Result {
+                            try await fireStoreUseCase.fetchFireStoreData(
+                                from: .attendance,
                                 as: Attendance.self,
                                 shouldSave: false
                             )
@@ -397,14 +416,51 @@ public struct CoreMember {
                         switch fetchedDataResult {
                             
                         case let .success(fetchedData):
-                            let filteredData = fetchedData.filter { $0.roleType != .all && (selectPart == .all || $0.roleType == selectPart) && $0.memberType == .member && $0.name != ""  }
-                            send(.async(.updateAttendanceModel(fetchedData)))
+                            let filteredData = fetchedData.filter { $0.roleType != .all && (selectPart == .all || $0.roleType.rawValue == selectPart.attendanceListDesc) && $0.memberType == .member && !$0.name.isEmpty }
+                            //                            send(.async(.updateAttendanceModel(filteredData)))
                             send(.async(.fetchDataResponse(.success(filteredData))))
                             
                         case let .failure(error):
                             send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))
                         }
+                        
+                        switch fetchedAttandanceResult {
+                            
+                        case let .success(fetchedData):
+                            send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
+                            
+                        case let .failure(error):
+                            send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
+                        }
+                        send(.view(.updateAttendanceCount(count: state)))
                     }
+                
+                    
+                case .updateAttenDance:
+                    return .run { @MainActor send in
+                        let fetchedAttandanceResult = await Result {
+                            try await fireStoreUseCase.fetchFireStoreData(
+                                from: .attendance,
+                                as: Attendance.self,
+                                shouldSave: false
+                            )
+                        }
+                        
+                        switch fetchedAttandanceResult {
+                            
+                        case let .success(fetchedData):
+                            send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
+                            
+                        case let .failure(error):
+                            send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
+                        }
+                    }
+                    
+                case let .updateAttendanceModel(newValue):
+                    state.attendaceModel = newValue.filter { $0.memberType == .member && !$0.name.isEmpty }
+                    return .none
+                    
+                
                     
                 case let .fetchUserDataResponse(fetchUser):
                     switch fetchUser {
@@ -421,11 +477,9 @@ public struct CoreMember {
                     switch fetchedAttendanceData {
                     case let .success(fetchedData):
                         state.isLoading = false
-
-                        // Create a dictionary to quickly find the status by memberId from fetched data
+                        
                         let statusDict = Dictionary(uniqueKeysWithValues: fetchedData.map { ($0.memberId, $0.status) })
                         
-                        // Update the status in combinedAttendances based on memberId
                         var updatedCombinedAttendances = state.combinedAttendances
                         
                         for index in updatedCombinedAttendances.indices {
@@ -437,7 +491,6 @@ public struct CoreMember {
                         state.combinedAttendances = updatedCombinedAttendances
                         Log.debug("combinedAttendances2", state.combinedAttendances)
                         
-                        // If needed, also update state.attendaceModel similarly
                         var updatedAttendaceModel: [Attendance] = []
                         for data in state.attendaceModel {
                             let updatedStatus = statusDict[data.memberId] ?? .none
@@ -454,11 +507,9 @@ public struct CoreMember {
                                 generation: data.generation
                             )
                             updatedAttendaceModel.append(updatedAttendance)
-                            Log.debug("combinedAttendances2", updatedAttendance)
-                            state.attendaceModel = [updatedAttendance]
                         }
                         
-//                        state.attendaceModel = updatedAttendaceModel
+                        state.attendaceModel = updatedAttendaceModel
                         Log.debug("combinedAttendances3", state.attendaceModel)
                         
                     case let .failure(error):
@@ -466,23 +517,18 @@ public struct CoreMember {
                         state.isLoading = true
                     }
                     return .none
-
-
                     
-                case let .updateAttendanceModel(newValue):
-                    state.attendaceModel = [ ]
-                    state.attendaceModel = newValue.filter { $0.memberType == .member && !$0.name.isEmpty }
-                    return .none
+                    
                     
                 case let .fetchDataResponse(fetchedData):
                     switch fetchedData {
                     case let .success(fetchedData):
                         state.isLoading = false
-                        let filteredData = fetchedData.filter { $0.memberType == .member && !$0.name.isEmpty && $0.name != ""}
+                        let filteredData = fetchedData.filter { $0.memberType == .member && !$0.name.isEmpty }
                         
                         state.attendaceModel = filteredData
                         
-//                        state.combinedAttendances = state.attendaceModel
+                        //                        state.combinedAttendances = state.attendaceModel
                     case let .failure(error):
                         Log.error("Error fetching data", error)
                         state.isLoading = true
@@ -505,6 +551,9 @@ public struct CoreMember {
                     return .none
                     
                 case .presentSchedule:
+                    return .none
+                    
+                case .presentMangerProfile:
                     return .none
                     
                 case .tapLogOut:
@@ -541,6 +590,12 @@ public struct CoreMember {
         .onChange(of: \.combinedAttendances) { oldValue, newValue in
             Reduce { state, action in
                 state.combinedAttendances = newValue
+                return .none
+            }
+        }
+        .onChange(of: \.attendanceCount) { oldValue, newValue in
+            Reduce { state, action in
+                state.attendanceCount = newValue
                 return .none
             }
         }

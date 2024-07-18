@@ -9,9 +9,9 @@ import Foundation
 
 public enum SelectPart: String, CaseIterable, Codable {
     case all
-    case productManger
+    case pm
     case design
-    case Android
+    case android
     case iOS
     case web
     case server
@@ -22,30 +22,11 @@ public enum SelectPart: String, CaseIterable, Codable {
         switch self {
         case .all:
             return "전체"
-        case .web:
-            return "웹"
-        case .design:
-            return "디자이너"
-        case .productManger:
-            return "PM"
-        case .server:
-            return "서버"
-        case .iOS:
-            return "iOS"
-        case .Android:
-            return "안드로이드"
-        }
-    }
-    
-    public var attendanceListDesc: String {
-        switch self {
-        case .all:
-            return "전체"
-        case .productManger:
+        case .pm:
             return "PM"
         case .design:
             return "Designer"
-        case .Android:
+        case .android:
             return "Android"
         case .iOS:
             return "iOS"
@@ -54,5 +35,28 @@ public enum SelectPart: String, CaseIterable, Codable {
         case .server:
             return "BE"
         }
+    }
+    
+    public var attendanceListDesc: String {
+        switch self {
+        case .all:
+            return "전체"
+        case .pm:
+            return "PM"
+        case .design:
+            return "Designer"
+        case .android:
+            return "Android"
+        case .iOS:
+            return "iOS"
+        case .web:
+            return "FE"
+        case .server:
+            return "BE"
+        }
+    }
+    
+    public var isDescEqualToAttendanceListDesc: Bool {
+        return desc == attendanceListDesc
     }
 }

@@ -44,7 +44,22 @@ public struct InfoPlistValues {
     }
 
     public static func setCFBundleURLTypes(_ value: [[String: Any]]) -> [String: Plist.Value] {
-        return ["CFBundleURLTypes": .array(value.map { .dictionary($0.mapValues { .string("\($0)") }) })]
+        func convertToPlistValue(_ value: Any) -> Plist.Value {
+            switch value {
+            case let string as String:
+                return .string(string)
+            case let array as [Any]:
+                return .array(array.map { convertToPlistValue($0) })
+            case let dictionary as [String: Any]:
+                return .dictionary(dictionary.mapValues { convertToPlistValue($0) })
+            case let bool as Bool:
+                return .boolean(bool)
+            default:
+                return .string("\(value)")
+            }
+        }
+        
+        return ["CFBundleURLTypes": .array(value.map { .dictionary($0.mapValues { convertToPlistValue($0) }) })]
     }
 
     public static func setCFBundleVersion(_ value: String) -> [String: Plist.Value] {

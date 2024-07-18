@@ -32,7 +32,7 @@ public struct QrCode {
         var startTime: Date? = Date.now
         var qrCodeImage: Image? = nil
         var loadingQRImage: Bool = false
-        var qrCodeReaderText: String = ""
+        var qrCodeReaderText: String = "로딩중!"
         var eventModel: [DDDEvent] = []
         @Presents var destination: Destination.State?
         
@@ -162,10 +162,11 @@ public struct QrCode {
                             Log.debug("Today's event found: \(todayEvent.id)")
                             if todayEvent.id != "" {
                                 if state.loadingQRImage == true {
-                                    state.qrCodeReaderText = "QRCode를 찍어주셔야 출석이 가능 합니다!"
+                                    state.qrCodeReaderText = "QR스캔으로 출석하세요!"
                                 }
                             }
                         } else {
+                            state.qrCodeReaderText = "오늘은 일정이 없습니다!"
                             Log.debug("No event for today.")
                         }
                     case let .failure(error):

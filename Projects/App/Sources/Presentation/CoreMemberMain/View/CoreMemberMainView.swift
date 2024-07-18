@@ -52,10 +52,11 @@ struct CoreMemberMainView: View {
             store.send(.view(.appearSelectPart(selectPart: .all)))
             store.send(.async(.fetchCurrentUser))
             store.send(.async(.observeAttendance))
+
         }
-        .onChange(of: store.attendaceModel) { oldValue , newValue in
-            store.send(.async(.updateAttendanceModel(newValue)))
-        }
+//        .onChange(of: store.attendaceModel) { oldValue , newValue in
+//            store.send(.async(.updateAttendanceModel(newValue)))
+//        }
         
 //        .onChange(of: store.combinedAttendances, { oldValue, newValue in
 //            store.send(.async(.updateAttendanceTypeModel(newValue)))
@@ -68,11 +69,14 @@ struct CoreMemberMainView: View {
                 .onEnded { value in
                     if value.translation.width < -UIScreen.screenWidth * 0.02 {
                         store.send(.view(.swipeNext))
-                        store.send(.async(.upDateFetchMember(selectPart: store.selectPart ?? .all)))
+//                        store.send(.async(.upDateFetchAttandanceMember(selectPart: store.selectPart ?? .all)))
+//                        getAttendanceCount()
                         
                     } else if value.translation.width > UIScreen.screenWidth * 0.02 {
                         store.send(.view(.swipePrevious))
-                        store.send(.async(.upDateFetchMember(selectPart: store.selectPart ?? .all)))
+//                        store.send(.async(.upDateFetchAttandanceMember(selectPart: store.selectPart ?? .all)))
+//                        getAttendanceCount()
+                        
                     }
                 }
         )
@@ -90,11 +94,14 @@ extension CoreMemberMainView {
             HStack {
                 Spacer()
                 
-                Image(asset: store.mangerProfilemage)
+                Image(systemName: store.mangerProfilemage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 40, height: 40)
+                    .frame(width: 20, height: 20)
                     .foregroundStyle(Color.gray400)
+                    .onTapGesture {
+                        store.send(.navigation(.presentMangerProfile))
+                    }
                 
                 Spacer()
                     .frame(width: 6)
@@ -119,15 +126,6 @@ extension CoreMemberMainView {
                     .onTapGesture {
                         store.send(.navigation(.presentSchedule))
                     }
-                
-//                Image(systemName: store.qrcodeImage)
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(width: 20, height: 20)
-//                    .foregroundColor(.basicWhite)
-//                    .onTapGesture {
-//                        store.send(.navigation(.presentQrcode))
-//                    }
             }
             
             Spacer()
@@ -198,7 +196,7 @@ extension CoreMemberMainView {
                                 }
                                 .onTapGesture {
                                     store.send(.view(.selectPartButton(selectPart: item)))
-                                    store.send(.async(.upDateFetchMember(selectPart: item)))
+                                    store.send(.async(.upDateFetchAttandanceMember(selectPart: item)))
                                 }
                                 .id(item)
                             }
@@ -220,7 +218,7 @@ extension CoreMemberMainView {
         LazyVStack {
             switch store.selectPart {
             case .all:
-                if store.attendaceModel.isEmpty {
+                if store.attendaceModel.isEmpty  && store.attendaceModel ==  [] {
                    
                     VStack {
                         Spacer()
@@ -239,7 +237,7 @@ extension CoreMemberMainView {
                 }
                 
             default:
-                if store.attendaceModel.isEmpty {
+                if store.attendaceModel.isEmpty  && store.attendaceModel ==  [] {
                    
                     VStack {
                         Spacer()
@@ -302,9 +300,15 @@ extension CoreMemberMainView {
                             )
                         )
                         .id(item.memberId)
-                        .task {
-                            await Task.sleep(seconds: 5)
-                            store.send(.view(.updateAttendanceCount(attenace: item.status ?? .run, count: store.attendanceCount)))
+                        .onTapGesture(perform: {
+                            print("tap \(item.status)")
+                        })
+                        .onAppear {
+                            store.send(.async(.fetchMember))
+                            if item.status == .present || item.status == .late {
+//                                getAttendanceCount()
+//                                store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
+                            }
                         }
                         Spacer()
                     }
@@ -316,7 +320,7 @@ extension CoreMemberMainView {
                     AttendanceStatusText(
                         name: item.name,
                         generataion: "\(item.generation)",
-                        roleType: item.roleType.attendanceListDesc,
+                        roleType: item.roleType.desc,
                         nameColor: getBackgroundColor(
                             for: item.memberId ?? "",
                             generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceNameColor) ?? Color.gray600,
@@ -344,7 +348,14 @@ extension CoreMemberMainView {
                     )
                     .id(item.memberId)
                     .onAppear{
-                        store.send(.view(.updateAttendanceCount(attenace: item.status ?? .run, count: store.attendanceCount)))
+                        store.send(.async(.fetchMember))
+                        if item.roleType == roleType {
+//                            store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
+                        } else if item.status == .present {
+//                            store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
+                        } else {
+//                            store.send(.view(.updateAttendanceCount(count:  store.attendanceCount)))
+                        }
                     }
 
                     Spacer()
@@ -410,7 +421,22 @@ extension CoreMemberMainView {
                 return .gray
             }
         }
-    
+
+    func getAttendanceCount() {
+        var newAttendanceCount = 0
+
+        for index in store.attendaceModel.indices {
+            let attendance = store.attendaceModel[index]
+            
+            if attendance.status == .present {
+                newAttendanceCount += 1
+            } else if attendance.status == .late {
+                newAttendanceCount -= 1
+            }
+        }
+        
+        store.attendanceCount = newAttendanceCount
+    }
     
     @ViewBuilder
     private func attendanceMemberCount(count:  Int) -> some View {
@@ -431,12 +457,4 @@ extension CoreMemberMainView {
         .padding(.horizontal ,24)
     }
     
-}
-
-
-#Preview {
-    TooltipShape()
-//    CoreMemberMainView(store: Store(initialState: CoreMember.State(), reducer: {
-//        CoreMember()
-//    }))
 }

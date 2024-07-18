@@ -31,19 +31,25 @@ struct QrCodeView: View {
           
           VStack {
               Spacer()
-                  .frame(height: 20)
+                  .frame(height: 16)
               
               NavigationBackButton(buttonAction: backAction)
               
-              generateQrImage()
-              
-              TooltipShape()
-              
-              if store.eventID?.isEmpty != nil {
-                  qrCodeReaderText()
+              if store.loadingQRImage == true {
+                  TooltipShape(tooltipText: store.qrCodeReaderText)
+                      .offset(y: UIScreen.screenHeight * 0.2)
               } else {
-                  creatEventButton()
+                  TooltipShape(tooltipText: store.qrCodeReaderText)
+                      .offset(y: UIScreen.screenHeight * 0.2)
               }
+              
+              
+              Spacer()
+                  .frame(height: 24)
+              
+              generateQrImage()
+                  
+              Spacer()
           }
           .navigationBarBackButtonHidden()
           .task {
@@ -97,10 +103,20 @@ extension QrCodeView {
                         .frame(width: 200, height: 200)
                 }
             } else {
-                AnimatedImage(name: "DDDLoding.gif", isAnimating: .constant(true))
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 200, height: 200)
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.gray800.opacity(0.4))
+                    .frame(width:  200, height: 200)
+                    .overlay {
+                        VStack {
+                            Spacer()
+                            Image(asset: .qrCode)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 96, height: 96)
+                            Spacer()
+                        }
+                        
+                    }
             }
         }
     }

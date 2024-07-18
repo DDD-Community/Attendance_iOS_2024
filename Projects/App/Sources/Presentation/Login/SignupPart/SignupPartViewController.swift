@@ -81,7 +81,7 @@ extension SignupPartViewController: View {
             .disposed(by: disposeBag)
         
         mainView.androidButton.rx.tap
-            .map { Reactor.Action.selectPart(.Android) }
+            .map { Reactor.Action.selectPart(.android) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -91,7 +91,7 @@ extension SignupPartViewController: View {
             .disposed(by: disposeBag)
         
         mainView.pmButton.rx.tap
-            .map { Reactor.Action.selectPart(.productManger) }
+            .map { Reactor.Action.selectPart(.pm) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -107,9 +107,9 @@ extension SignupPartViewController: View {
                 self?.mainView.iOSButton.isSelected = part == .iOS
                 self?.mainView.webButton.isSelected = part == .web
                 self?.mainView.serverButton.isSelected = part == .server
-                self?.mainView.androidButton.isSelected = part == .Android
+                self?.mainView.androidButton.isSelected = part == .android
                 self?.mainView.designerButton.isSelected = part == .design
-                self?.mainView.pmButton.isSelected = part == .productManger
+                self?.mainView.pmButton.isSelected = part == .pm
                 
                 self?.mainView.nextButton.isEnabled = part != nil
             })
