@@ -12,109 +12,78 @@ import DesignSystem
 
 public struct EditEventModalView: View {
     @Bindable var store: StoreOf<EditEventModal>
-    var completion: ()  -> Void
+    var completion: () -> Void
+    var selectMakeEventReason: String?
     
     public init(
         store: StoreOf<EditEventModal>,
-        completion: @escaping () -> Void
+        completion: @escaping () -> Void,
+        selectMakeEventReason: String? = nil
     ) {
         self.store = store
         self.completion = completion
+        self.selectMakeEventReason = selectMakeEventReason
     }
     
     public var body: some View {
         ZStack {
-            Color.basicBlackDimmed
+            Color.gray800
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
-                editEventModalTitle()
+                editEventTitle()
                 
                 selectEventDropDownMenu()
                 
-                if store.isSelectEditDropDownMenu {
+                if !store.isSelectEditDropDownMenu {
+                    selectDateAndTimeText()
                     
-                    Spacer()
-                        .frame(height: UIScreen.screenHeight * 0.15)
+                    Spacer().frame(height: 20)
                     
-                } else {
-                    selectDateAndTime()
+                    selectDateAndTime(text: "시작")
                     
-                    Spacer()
-                        .frame(height: 10)
+                    Spacer().frame(height: 16)
                     
+                    selectDateAndTime(text: "종료")
                 }
                 
-                editEvenetButton()
-                
                 Spacer()
-                
+                    
+                editEventButton()
+                    .padding(.bottom, -30)
             }
-            .popup(isPresented: $store.selectEditEventDatePicker.sending(\.selectEditEventDatePicker)) {
-                CustomPopUPDatePickerView(selectDate: $store.editEventStartTime)
-            } customize: {
-                $0
-                    .backgroundColor(Color.basicBlack.opacity(0.8))
-                    .type(.floater(verticalPadding: UIScreen.screenHeight * 0.2))
-                    .position(.bottom)
-                    .animation(.smooth)
-                    .closeOnTapOutside(true)
-                    .closeOnTap(true)
-                
-            }
+            .padding(.top, -20)
         }
-        
         .onTapGesture {
             store.send(.view(.tapCloseDropDown))
         }
     }
 }
 
-
 extension EditEventModalView {
     
     @ViewBuilder
-    fileprivate func editEventModalTitle() -> some View {
+    private func editEventTitle() -> some View {
         VStack {
             Spacer()
-                .frame(height: UIScreen.screenHeight * 0.03)
+                .frame(height: 44)
             
             HStack {
                 Text(store.editEventModalTitle)
                     .pretendardFont(family: .Bold, size: 20)
-                    .foregroundColor(.basicWhite)
+                    .foregroundStyle(Color.gray400)
                 
                 Spacer()
             }
-            .padding(.horizontal ,20)
+            .padding(.horizontal, 24)
             
             Spacer()
-                .frame(height: 20)
+                .frame(height: 16)
         }
     }
     
     @ViewBuilder
-    private func selectEventDropDownMenu() -> some View{
-        VStack {
-            HStack {
-                Text(store.editEventReasonTitle)
-                    .foregroundStyle(Color.basicWhite)
-                    .pretendardFont(family: .Bold, size: 18)
-                
-                Spacer()
-            }
-            .padding(.horizontal, 20)
-            
-            CustomDropdownMenu(
-                isSelecting: $store.isSelectEditDropDownMenu,
-                selectionTitle: $store.editMakeEventReason
-            )
-            .offset(y: -10)
-        }
-    }
-    
-    @ViewBuilder
-    private func selectDateAndTime() -> some View {
+    private func selectEventDropDownMenu() -> some View {
         VStack {
             HStack {
                 Text(store.selectMakeEventTiltle)
@@ -123,68 +92,82 @@ extension EditEventModalView {
                 
                 Spacer()
             }
+            .padding(.horizontal, 24)
             
-            Spacer()
-                .frame(height: 20)
-            
-            HStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.basicBlue.opacity(0.4))
-                    .frame(width: UIScreen.screenWidth * 0.45 , height: 35)
-                    .overlay {
-                        HStack {
-                            Spacer()
-                                .frame(width: 12)
-                            
-                            Text(store.editEventStartTime.formattedDate(date: store.editEventStartTime))
-                                .pretendardFont(family: .Regular, size: 14)
-                                .foregroundColor(Color.basicWhite)
-                                .onTapGesture {
-                                    store.send(.view(.selectEditEventDatePOPUP(isBool: store.selectEditEventDatePicker)))
-                                }
-                            
-                            Spacer()
-                        }
-                        
-                        Spacer()
-                        
-                    }
-                
-                Spacer()
-                    .frame(width: 12)
-                
-                DatePicker(selection: $store.editEventStartTime.sending(\.selectMakeEventDate), in: ...Date() ,displayedComponents: .hourAndMinute, label: {})
-                    .frame(width: UIScreen.screenWidth * 0.2)
-                    .offset(x: -UIScreen.screenWidth * 0.01)
-                
-                Spacer()
-            }
-            
-            Spacer()
-            
+            CustomDropdownMenu(
+                isSelecting: $store.isSelectEditDropDownMenu,
+                selectionTitle: $store.editMakeEventReason
+            )
+            .offset(y: -16)
         }
-        .padding(.horizontal, 20)
     }
     
     @ViewBuilder
-    private func editEvenetButton() -> some View {
-        VStack {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray600.opacity(0.3))
-                .frame(height: 48)
-                .padding(.horizontal, 20)
-                .overlay {
-                    Text("이벤트 수정")
-                        .pretendardFont(family: .SemiBold, size: 20)
-                        .foregroundColor(Color.basicWhite)
-                }
-                .disabled(store.editMakeEventReason != "이번주 세션 이벤트를 선택 해주세요!")
-                .onTapGesture {
-                    if store.editMakeEventReason != "이번주 세션 이벤트를 선택 해주세요!" {
-                        store.send(.async(.saveEvent))
-                        completion()
-                    }
-                }
+    private func selectDateAndTimeText() -> some View {
+        HStack {
+            Text(store.selectMakeEventTiltle)
+                .foregroundStyle(Color.basicWhite)
+                .pretendardFont(family: .Bold, size: 18)
+            
+            Spacer()
         }
+        .padding(.horizontal, 24)
+    }
+    
+    @ViewBuilder
+    private func selectDateAndTime(text: String) -> some View {
+        VStack {
+            HStack {
+                Text(text)
+                    .pretendardFont(family: .Regular, size: 16)
+                    .foregroundStyle(Color.gray600)
+                
+                Spacer().frame(width: 8)
+                
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(Color.basicBlack.opacity(0.4))
+                    .frame(width: UIScreen.main.bounds.width * 0.3, height: 34)
+                    .overlay {
+                        CustomDatePickerShortText(selectedDate: $store.editEventStartTime.sending(\.selectMakeEventDate), isTimeDate: false)
+                    }
+                
+                Spacer().frame(width: 6)
+                
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.basicBlack.opacity(0.4))
+                    .frame(width: UIScreen.main.bounds.width * 0.24, height: 34)
+                    .overlay {
+                        CustomDatePickerShortText(selectedDate: $store.editEventStartTime.sending(\.selectMakeEventDate), isTimeDate: true)
+                    }
+                
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 24)
+    }
+    
+    @ViewBuilder
+    private func editEventButton() -> some View {
+        RoundedRectangle(cornerRadius: 12)
+            .fill(store.editMakeEventReason == "이벤트 선택" || store.editMakeEventReason == selectMakeEventReason ? Color.gray600 : Color.basicWhite)
+            .frame(height: 90)
+            .overlay {
+                VStack {
+                    Spacer().frame(height: 18)
+                    
+                    Text("수정")
+                        .pretendardFont(family: .SemiBold, size: 20)
+                        .foregroundColor(store.editMakeEventReason == "이벤트 선택" || store.editMakeEventReason == selectMakeEventReason ? Color.gray400 : Color.basicBlack)
+                    
+                    Spacer()
+                }
+            }
+            .disabled(store.editMakeEventReason == "이벤트 선택")
+            .onTapGesture {
+                if store.editMakeEventReason != "이벤트 선택" {
+                    store.send(.async(.saveEvent))
+                    completion()
+                }
+            }
     }
 }

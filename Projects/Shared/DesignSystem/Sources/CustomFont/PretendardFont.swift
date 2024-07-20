@@ -7,7 +7,7 @@
 
 import UIKit
 import SwiftUI
-
+import ComposableArchitecture
 
 public struct PretendardFont: ViewModifier {
     public var family: PretendardFontFamily

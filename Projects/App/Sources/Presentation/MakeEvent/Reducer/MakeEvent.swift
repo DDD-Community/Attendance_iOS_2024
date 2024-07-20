@@ -11,6 +11,7 @@ import KeychainAccess
 
 import Service
 import Utill
+import Model
 
 @Reducer
 public struct MakeEvent {
@@ -20,15 +21,19 @@ public struct MakeEvent {
     public struct State: Equatable {
         public init() {}
         
-        var makeEventTitle: String = "이벤트 생성"
+        var makeEventTitle: String = "일정 등록"
         var isSelectDropDownMenu: Bool = false
-        var selectMakeEventReason: String = "이번주 세션 이벤트를 선택 해주세요!"
-        var selectMakeEventReasonTitle: String =  "생성할 이벤트 이름을 선택 해주세요!"
-        var selectMakeEventTiltle: String = "이벤트를 생성할 날짜를 선택해주세요!"
+        var selectMakeEventReason: String = "이벤트 선택"
+        var selectMakeEventReasonTitle: String =  "등록할 일정을 선택해 주세요."
+        var selectMakeEventTiltle: String = "시작과 종료 시간을 정해주세요."
         var selectPart: SelectPart? = nil
         var eventModel: [DDDEvent] = []
         var selectMakeEventDate: Date = Date.now
+        var eventID: String?
         var selectMakeEventDatePicker: Bool = false
+        
+        
+        
     }
     
     public enum Action: BindableAction, ViewAction, FeatureAction {
@@ -117,7 +122,7 @@ public struct MakeEvent {
                         endTime: convertStringToDate.addingTimeInterval(1800))
                     state.eventModel = [event]
                     return .run  { @MainActor  send in
-                        let events = try await fireStoreUseCase.createEvent(event: event, from: .event)
+                        let events = try await fireStoreUseCase.createEvent(event: event, from: .event, uuid: event.id ?? "")
                         Log.debug("event 생성", events)
                     }
                 }
@@ -156,7 +161,7 @@ public struct MakeEvent {
                         endTime: convertStringToDate.addingTimeInterval(1800))
                     state.eventModel = [event]
                     return .run  { @MainActor  send in
-                        let events = try await fireStoreUseCase.createEvent(event: event, from: .event)
+                        let events = try await fireStoreUseCase.createEvent(event: event, from: .event, uuid: UUID().uuidString)
                         Log.debug("event 생성", events)
                     }
                 }

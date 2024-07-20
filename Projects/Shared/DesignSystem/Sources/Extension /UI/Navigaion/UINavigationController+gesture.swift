@@ -1,8 +1,8 @@
 //
 //  UINavigationController+gesture.swift
-//  DDDAttendance
+//  DesignSystem
 //
-//  Created by 서원지 on 6/21/24.
+//  Created by 서원지 on 7/20/24.
 //
 
 import UIKit
@@ -18,5 +18,3 @@ extension UINavigationController: @retroactive UIGestureRecognizerDelegate {
         return viewControllers.count > 1
     }
 }
-
-

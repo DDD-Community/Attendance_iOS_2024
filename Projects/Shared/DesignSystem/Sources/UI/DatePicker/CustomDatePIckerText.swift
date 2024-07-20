@@ -5,8 +5,9 @@
 //  Created by 서원지 on 7/14/24.
 //
 
-import Foundation
 import SwiftUI
+
+import Utill
 
 public struct CustomDatePIckerText: View {
     @Binding private var selectedDate: Date
@@ -51,12 +52,3 @@ public struct CustomDatePIckerText: View {
 }
 
 
-extension Date {
-    func formatteDateTimeText(date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "ko_KR")
-        dateFormatter.dateFormat = "yyyy.MM.dd"
-        dateFormatter.dateStyle = .short
-        return dateFormatter.string(from: date)
-    }
-}

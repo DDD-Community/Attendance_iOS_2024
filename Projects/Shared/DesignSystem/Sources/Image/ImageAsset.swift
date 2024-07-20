@@ -14,5 +14,6 @@ public enum ImageAsset: String {
     case eventGenerate
     case arrowBack
     case plus
+    case logo
     case empty
 }

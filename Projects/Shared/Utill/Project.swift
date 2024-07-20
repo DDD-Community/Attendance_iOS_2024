@@ -10,7 +10,8 @@ let project = Project.makeAppModule(
     product: .staticFramework,
     settings:  .settings(),
     dependencies: [
-        .SPM.composableArchitecture
+        .SPM.composableArchitecture,
+        .Networking(implements: .Model),
     ],
     sources: ["Sources/**"]
 )

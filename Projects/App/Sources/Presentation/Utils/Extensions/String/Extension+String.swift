@@ -27,5 +27,12 @@ extension String {
         dateFormatter.dateFormat = "yyyy년 MM월 dd일 a hh시 mm분"
         return dateFormatter.date(from: dateString)
     }
+    
+    func stringToTimeFirebaseDate(_ dateString: String) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+        dateFormatter.dateFormat = "yyyy년 MM월 dd일 a hh시 mm분 ss초 'UTC'Z"
+        return dateFormatter.date(from: dateString)
+    }
 
 }

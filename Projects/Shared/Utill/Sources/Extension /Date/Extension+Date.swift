@@ -1,13 +1,14 @@
 //
 //  Extension+Date.swift
-//  DDDAttendance
+//  Utill
 //
-//  Created by 서원지 on 6/11/24.
+//  Created by 서원지 on 7/20/24.
 //
 
 import Foundation
+import Model
 
-extension Date {
+public extension Date {
     func formattedString() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -29,6 +30,14 @@ extension Date {
         return dateFormatter.string(from: date)
     }
     
+    func formattedTimes(date: Date) -> String {
+        let dateFormatter = DateFormatter()
+//        dateFormatter.locale = Locale(identifier: "ko_KR")
+        dateFormatter.dateFormat = "h:mm a"
+        return dateFormatter.string(from: date)
+    }
+    
+    
     func formattedDateToString() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ko_KR")
@@ -49,6 +58,13 @@ extension Date {
         dateFormatter.locale = Locale(identifier: "ko_KR")
         dateFormatter.dateFormat = "yyyy.MM.dd"
         dateFormatter.dateStyle = .short
+        return dateFormatter.string(from: date)
+    }
+    
+    public func extractDate(date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+        dateFormatter.dateFormat = "MM월"
         return dateFormatter.string(from: date)
     }
     

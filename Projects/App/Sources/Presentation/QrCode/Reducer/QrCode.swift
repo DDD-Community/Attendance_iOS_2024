@@ -14,6 +14,7 @@ import ComposableArchitecture
 import KeychainAccess
 
 import Utill
+import Model
 
 @Reducer
 public struct QrCode {

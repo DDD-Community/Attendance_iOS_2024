@@ -16,7 +16,6 @@ public struct MakeEventView: View {
     @Bindable var store: StoreOf<MakeEvent>
     var completion: () -> Void
     
-    
     public init(
         store: StoreOf<MakeEvent>,
         completion: @escaping () -> Void
@@ -27,7 +26,7 @@ public struct MakeEventView: View {
     
     public var body: some View {
         ZStack {
-            Color.basicBlackDimmed
+            Color.gray800
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
@@ -35,42 +34,28 @@ public struct MakeEventView: View {
                 
                 selectEventDropDownMenu()
                 
-                if store.isSelectDropDownMenu {
+                if !store.isSelectDropDownMenu {
+                    selectDateAndTimeText()
                     
-                    Spacer()
-                        .frame(height: UIScreen.screenHeight * 0.15)
+                    Spacer().frame(height: 20)
                     
-                } else {
-                    selectDateAndTime()
+                    selectDateAndTime(text: "시작")
                     
-                    Spacer()
-                        .frame(height: 10)
+                    Spacer().frame(height: 16)
                     
+                    selectDateAndTime(text: "종료")
                 }
                 
-
-                makeEvenetButton()
-                
                 Spacer()
+                    
+                makeEventButton()
+                    .padding(.bottom, -30)
             }
-            .popup(isPresented: $store.selectMakeEventDatePicker.sending(\.selectMakeEventDatePicker)) {
-                CustomPopUPDatePickerView(selectDate:  $store.selectMakeEventDate.sending(\.selectMakeEventDate))
-            } customize: {
-                $0
-                    .backgroundColor(Color.basicBlack.opacity(0.4))
-                    .type(.floater(verticalPadding: UIScreen.screenHeight * 0.2))
-                    .position(.bottom)
-                    .animation(.spring)
-                    .closeOnTapOutside(true)
-                    .closeOnTap(true)
-                
-            }
+            .padding(.top, -20)
         }
-        
         .onTapGesture {
             store.send(.view(.tapCloseDropDown))
         }
-        
         .task {
             store.send(.async(.observeEvent))
         }
@@ -83,24 +68,24 @@ extension MakeEventView {
     private func makeEventTitle() -> some View {
         VStack {
             Spacer()
-                .frame(height: UIScreen.screenHeight * 0.03)
+                .frame(height: 44)
             
             HStack {
                 Text(store.makeEventTitle)
                     .pretendardFont(family: .Bold, size: 20)
-                    .foregroundColor(.basicWhite)
+                    .foregroundStyle(Color.gray400)
                 
                 Spacer()
             }
-            .padding(.horizontal ,20)
+            .padding(.horizontal, 24)
             
             Spacer()
-                .frame(height: 20)
+                .frame(height: 16)
         }
     }
     
     @ViewBuilder
-    private func selectEventDropDownMenu() -> some View{
+    private func selectEventDropDownMenu() -> some View {
         VStack {
             HStack {
                 Text(store.selectMakeEventReasonTitle)
@@ -109,90 +94,86 @@ extension MakeEventView {
                 
                 Spacer()
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 24)
             
             CustomDropdownMenu(
                 isSelecting: $store.isSelectDropDownMenu,
                 selectionTitle: $store.selectMakeEventReason
             )
-            .offset(y: -10)
+            .offset(y: -16)
         }
     }
     
     @ViewBuilder
-    private func selectDateAndTime() -> some View {
-        VStack {
-            HStack {
-                Text(store.selectMakeEventTiltle)
-                    .foregroundStyle(Color.basicWhite)
-                    .pretendardFont(family: .Bold, size: 18)
-                
-                Spacer()
-            }
+    private func selectDateAndTimeText() -> some View {
+        HStack {
+            Text(store.selectMakeEventTiltle)
+                .foregroundStyle(Color.basicWhite)
+                .pretendardFont(family: .Bold, size: 18)
             
             Spacer()
-                .frame(height: 20)
-            
+        }
+        .padding(.horizontal, 24)
+    }
+    
+    @ViewBuilder
+    private func selectDateAndTime(text: String) -> some View {
+        VStack {
             HStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.basicBlue.opacity(0.4))
-                    .frame(width: UIScreen.screenWidth * 0.45 , height: 35)
+                Text(text)
+                    .pretendardFont(family: .Regular, size: 16)
+                    .foregroundStyle(Color.gray600)
+                
+                Spacer().frame(width: 8)
+                
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(Color.basicBlack.opacity(0.4))
+                    .frame(width: UIScreen.main.bounds.width * 0.3, height: 34)
                     .overlay {
-                            HStack {
-                                Spacer()
-                                    .frame(width: 12)
-                                
-                                Text(store.selectMakeEventDate.formattedDate(date: store.selectMakeEventDate))
-                                    .pretendardFont(family: .Regular, size: 14)
-                                    .foregroundColor(Color.basicWhite)
-                                    .onTapGesture {
-                                        store.send(.view(.selectMakeEventDatePicker(isBool: store.selectMakeEventDatePicker)))
-                                    }
-                                
-                                Spacer()
-                            }
-                            
-                            Spacer()
-
+                        CustomDatePickerShortText(selectedDate: $store.selectMakeEventDate.sending(\.selectMakeEventDate), isTimeDate: false)
+                    }
+                
+                Spacer().frame(width: 6)
+                
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.basicBlack.opacity(0.4))
+                    .frame(width: UIScreen.main.bounds.width * 0.24, height: 34)
+                    .overlay {
+                        CustomDatePickerShortText(selectedDate: $store.selectMakeEventDate.sending(\.selectMakeEventDate), isTimeDate: true)
                     }
                 
                 Spacer()
-                    .frame(width: 12)
-                
-                
-                DatePicker(selection: $store.selectMakeEventDate.sending(\.selectMakeEventDate), in: ...Date() ,displayedComponents: .hourAndMinute, label: {})
-                    .frame(width: UIScreen.screenWidth * 0.2)
-                    .offset(x: -UIScreen.screenWidth * 0.01)
-                
-                Spacer()
             }
-            
-            Spacer()
-            
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 24)
     }
     
     @ViewBuilder
-    private func makeEvenetButton() -> some View {
+    private func makeEventButton() -> some View {
         RoundedRectangle(cornerRadius: 12)
-            .fill(Color.gray600.opacity(0.3))
-            .frame(height: 48)
-            .padding(.horizontal, 20)
+            .fill(store.selectMakeEventReason == "이벤트 선택" ? Color.gray600 : Color.basicWhite)
+            .frame(height: 90)
             .overlay {
-                Text("이벤트 생성")
-                    .pretendardFont(family: .SemiBold, size: 20)
-                    .foregroundColor(Color.basicWhite)
+                VStack {
+                    Spacer().frame(height: 18)
+                    
+                    Text("등록")
+                        .pretendardFont(family: .SemiBold, size: 20)
+                        .foregroundColor(store.selectMakeEventReason == "이벤트 선택" ? Color.gray400 : Color.basicBlack)
+                    
+                    Spacer()
+                }
             }
-            .disabled(store.selectMakeEventReason != "이번주 세션 이벤트를 선택 해주세요!")
+            .disabled(store.selectMakeEventReason == "이벤트 선택")
             .onTapGesture {
-                if store.selectMakeEventReason != "이번주 세션 이벤트를 선택 해주세요!" {
+                if store.selectMakeEventReason != "이벤트 선택" {
                     store.send(.view(.makeEventToFireBase(eventName: store.selectMakeEventReason)))
                     completion()
                 }
             }
     }
 }
+
 
 #Preview {
     MakeEventView(store: Store(initialState: MakeEvent.State(), reducer: {

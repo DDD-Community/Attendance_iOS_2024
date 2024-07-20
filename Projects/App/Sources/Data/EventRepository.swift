@@ -9,6 +9,7 @@ import Firebase
 import RxSwift
 
 import Foundation
+import Model
 
 final class EventRepository: EventRepositoryProtocol {
     

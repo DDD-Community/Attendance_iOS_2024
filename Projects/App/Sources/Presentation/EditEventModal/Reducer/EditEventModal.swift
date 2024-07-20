@@ -13,6 +13,8 @@ import FirebaseFirestore
 import Service
 import Utill
 
+import Model
+
 @Reducer
 public struct EditEventModal {
     public init() {}
@@ -21,11 +23,11 @@ public struct EditEventModal {
     public struct State: Equatable {
         public init() {}
         
-        var editEventModalTitle: String = "이벤트 수정"
+        var editEventModalTitle: String = "일정 등록"
         var isSelectEditDropDownMenu: Bool = false
-        var editMakeEventReason: String = "이번주 세션 이벤트를 선택 해주세요!"
-        var editEventReasonTitle: String =  "수정할 이벤트 이름을 선택 해주세요!"
-        var selectMakeEventTiltle: String = "수정할 날짜를 선택해주세요!"
+        var editMakeEventReason: String = "이벤트 선택"
+        var editEventReasonTitle: String =  "등록할 일정을 선택해 주세요."
+        var selectMakeEventTiltle: String = "시작과 종료 시간을 정해주세요."
         var editEventID: String? = ""
         var editEventStartTime: Date = Date.now
         var selectEditEventDatePicker: Bool = false
@@ -109,9 +111,11 @@ public struct EditEventModal {
             case .async(let AsyncAction):
                 switch AsyncAction {
                 case .saveEvent:
+                    let eventID = state.editEventID
                     let convertDate = state.editEventStartTime.formattedFireBaseDate(date: state.editEventStartTime)
                     let convertStringToDate = state.editEventStartTime.formattedFireBaseStringToDate(dateString: convertDate)
                     let event = DDDEvent(
+                        id: state.editEventID,
                         name: state.editMakeEventReason,
                         startTime: convertStringToDate,
                         endTime: convertStringToDate.addingTimeInterval(1800)
@@ -120,7 +124,8 @@ public struct EditEventModal {
                         let fetchedEventResult = await Result {
                             try await fireStoreUseCase.editEvent(
                                 event: event,
-                                in: .event
+                                in: .event,
+                                eventID: eventID ?? ""
                             )
                         }
                     }

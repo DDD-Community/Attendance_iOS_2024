@@ -9,6 +9,8 @@ import RxSwift
 
 import Foundation
 
+import Model
+
 protocol EventRepositoryProtocol {
     func fetchTodayEvent() -> Single<DDDEvent>
     func fetchEventList(generation: Int) -> Single<[DDDEvent]>

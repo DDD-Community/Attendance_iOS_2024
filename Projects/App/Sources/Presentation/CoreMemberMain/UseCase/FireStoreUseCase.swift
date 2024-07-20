@@ -10,6 +10,7 @@ import DiContainer
 
 import ComposableArchitecture
 import Firebase
+import Model
 
 public struct FireStoreUseCase: FireStoreUseCaseProtocol {
    
@@ -41,22 +42,25 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
    
     public func createEvent(
         event: DDDEvent,
-        from collection: FireBaseCollection
+        from collection: FireBaseCollection,
+        uuid: String
     ) async throws -> DDDEvent? {
-        try await repository.createEvent(event: event, from: collection)
+        try await repository.createEvent(event: event, from: collection, uuid: uuid)
     }
     
     public func editEvent(
         event: DDDEvent,
-        in collection: FireBaseCollection
+        in collection: FireBaseCollection,
+        eventID: String
     ) async throws -> DDDEvent? {
-        try await repository.editEvent(event: event, in: collection)
+        try await repository.editEvent(event: event, in: collection, eventID: eventID)
     }
     
     public func deleteEvent(
-        from collection: FireBaseCollection
+        from collection: FireBaseCollection,
+        eventID: String
     ) async throws {
-        try await repository.deleteEvent(from: collection)
+        try await repository.deleteEvent(from: collection, eventID: eventID)
     }
     
     public func getUserLogOut() async throws -> User? {

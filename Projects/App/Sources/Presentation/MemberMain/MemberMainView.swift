@@ -11,6 +11,8 @@ import Then
 
 import UIKit
 
+import Model
+
 final class MemberMainView: BaseView {
     // MARK: - UI properties
     private let rootView: UIView = .init()

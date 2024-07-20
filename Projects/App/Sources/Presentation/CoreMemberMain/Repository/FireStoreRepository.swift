@@ -37,19 +37,14 @@ import Model
         
         var decodedData: [T] = []
         var uniqueKeys: Set<String> = Set()
-        var documentIDs: [String] = []
         
         for document in querySnapshot.documents {
             do {
                 let data = try document.data(as: T.self)
-                if shouldSave {
-                    try Keychain().saveDocumentIDToKeychain(documentID: document.documentID)
-                }
                 let uniqueKey = document.documentID  // Use documentID or another unique attribute
                 if !uniqueKeys.contains(uniqueKey) {
                     decodedData.append(data)
                     uniqueKeys.insert(uniqueKey)
-                    documentIDs.append(document.documentID)
                 } else {
                     // If shouldSave is true, remove duplicate document from Firestore
                     if shouldSave {
@@ -83,9 +78,6 @@ import Model
                     for document in querySnapshot.documents {
                         do {
                             let data = try document.data(as: T.self)
-                            if shouldSave {
-                                try Keychain().saveDocumentIDToKeychain(documentID: document.documentID)
-                            }
                             let uniqueKey = document.documentID  // Use documentID or another unique attribute
                             if !uniqueKeys.contains(uniqueKey) {
                                 decodedData.append(data)
@@ -112,6 +104,7 @@ import Model
             }
         }
     }
+
     
     //MARK: - firebase 유저 정보가져오기
     public func getCurrentUser() async throws -> User? {
@@ -176,128 +169,70 @@ import Model
     //MARK: - firebase 로 이벤트 만들기
     public func createEvent(
         event: DDDEvent,
-        from collection: FireBaseCollection
+        from collection: FireBaseCollection,
+        uuid: String
     ) async throws -> DDDEvent? {
-        // Fetch existing documents
-        let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
-        var duplicateDocumentIDs: [String] = []
-        
-        let documentStream = AsyncThrowingStream { continuation in
-            for document in querySnapshot.documents {
-                continuation.yield(document)
-            }
-            continuation.finish()
-        }
-            .eraseToThrowingStream()
-        
-        // Check for duplicates
-        for try await document in documentStream {
-            let existingEvent = try document.data(as: DDDEvent.self)
-            if existingEvent == event { // Assuming DDDEvent conforms to Equatable
-                duplicateDocumentIDs.append(document.documentID)
-            }
-        }
-        
-        // Remove duplicates except one
-        if duplicateDocumentIDs.count > 1 {
-            for documentID in duplicateDocumentIDs.dropFirst() {
-                try await fireStoreDB.collection(collection.desc).document(documentID).delete()
-                Log.debug("Duplicate document removed with ID: ", "\(#function)", "\(documentID)")
-            }
-        }
-        
-        // Add the new event
+          
         var newEvent = event
-        if let documentReference = try? await fireStoreDB.collection(collection.desc).addDocument(data: event.toDictionary()) {
-            newEvent.id = documentReference.documentID
-            Log.debug("Document added with ID: ", "\(#function)", "\(documentReference.documentID)")
-            try Keychain().saveDocumentIDToKeychain(documentID: documentReference.documentID)
+        let documentReference = fireStoreDB.collection(collection.desc).document(uuid)
+        let newDocumentID = documentReference.documentID
+        newEvent.id = newDocumentID
+        
+        var data = newEvent.toDictionary()
+        data["id"] = newDocumentID // Ensure the document ID is included in the data
+
+        do {
+            try await documentReference.setData(data)
+            Log.debug("Document added with ID: \(documentReference.documentID)")
             return newEvent
-        } else {
-            Log.error("Error adding document")
-            return nil
+        } catch {
+            Log.error("Error adding document: \(error)")
+            throw CustomError.unknownError("Error adding document: \(error.localizedDescription)")
         }
     }
     
     //MARK: - event 수정하기
     public func editEvent(
-            event: DDDEvent,
-            in collection: FireBaseCollection
+        event: DDDEvent,
+        in collection: FireBaseCollection,
+        eventID: String
     ) async throws -> DDDEvent? {
-        let updateEvent = event
-        guard let storedData = try Keychain().getData("deleteEventIDs"),
-              let storedDocumentIDs = try? JSONDecoder().decode([String].self, from: storedData) else {
-            throw CustomError.unknownError("No stored document IDs found in Keychain.")
+
+        let eventRef = fireStoreDB.collection(collection.desc).document(eventID)
+        let data: [String: Any] =  event.toDictionary()
+
+        do {
+            try await eventRef.updateData(data)
+            Log.debug("Document successfully updated with ID: \(eventID)")
+            return event
+        } catch {
+            Log.error("Error updating document: \(error)")
+            throw CustomError.unknownError("Error updating document: \(error.localizedDescription)")
         }
-        Log.debug("Document IDs from Firestore: \(storedDocumentIDs)")
-        let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
-        
-        Log.debug("Document IDs from Firestore: \(querySnapshot.documents.map { $0.documentID })")
-        Log.debug("update document IDs: \(storedDocumentIDs)")
-        
-        let documentStream = AsyncThrowingStream { continuation in
-            for document in querySnapshot.documents {
-                continuation.yield(document)
-            }
-            continuation.finish()
-        }
-            .eraseToThrowingStream()
-        
-        for try await document in documentStream {
-            do {
-                Log.debug("Deleting document with ID: \(document.documentID)")
-                try await fireStoreDB.collection(collection.desc).document(document.documentID).updateData(updateEvent.toDictionary())
-                Log.debug("Document successfully removed!")
-                return updateEvent
-            } catch {
-                Log.error("Error removing document: \(error)")
-                throw CustomError.unknownError("Error removing document: \(error.localizedDescription)")
-            }
-        }
-        return updateEvent
-        
     }
     
     //MARK: - evnet삭제 하기
-    public func deleteEvent(from collection: FireBaseCollection) async throws {
-        guard let storedData = try Keychain().getData("deleteEventIDs"),
-              let storedDocumentIDs = try? JSONDecoder().decode([String].self, from: storedData) else {
-            throw CustomError.unknownError("No stored document IDs found in Keychain.")
-        }
-        
-        let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
-        
-        Log.debug("Document IDs from Firestore: \(querySnapshot.documents.map { $0.documentID })")
-        let uniqueStoredDocumentIDs = Set(storedDocumentIDs)
-        Log.debug("Stored document IDs: \(uniqueStoredDocumentIDs)")
-        
-        let documentStream = AsyncThrowingStream { continuation in
-                for document in querySnapshot.documents {
-                    continuation.yield(document)
-                }
-                continuation.finish()
-            }
-            .eraseToThrowingStream()
-        
-        for try await document in documentStream {
+    public func deleteEvent(from collection: FireBaseCollection, eventID: String) async throws {
+        let eventRef = fireStoreDB.collection(collection.desc)
+        do {
+            // Query for the document with the specified eventID
+            let querySnapshot = try await eventRef.whereField("id", isEqualTo: eventID).getDocuments()
             
-            if uniqueStoredDocumentIDs.contains(document.documentID) {
-                do {
-                    Log.debug("Deleting document with ID: \(document.documentID)")
-                    try await fireStoreDB.collection(collection.desc).document(document.documentID).delete()
-                    Log.debug("Document successfully removed!")
-                    try? Keychain().remove("startTime")
-                    
-                    try Keychain().removeDocumentIDFromKeychain(documentID: document.documentID)
-                    
-                    break
-                } catch {
-                    Log.error("Error removing document: \(error)")
-                    throw CustomError.unknownError("Error removing document: \(error.localizedDescription)")
-                }
+            // Ensure we have at least one document
+            guard let document = querySnapshot.documents.first else {
+                Log.error("firebase 데이터에서 eventID: \(eventID)")
+                throw CustomError.unknownError("이벤트 아이디를 찾을수 없어요: \(eventID)")
             }
+            // Delete the document
+            try await eventRef.document(document.documentID).delete()
+            Log.debug("Document successfully 이벤트 ID 삭제 : \(document.documentID)")
+            
+        } catch {
+            Log.error("Error removing document: \(error)")
+            throw CustomError.unknownError("Error removing document: \(error.localizedDescription)")
         }
     }
+
     
     //MARK: - 출석 현황 체크
     public func fetchAttendanceHistory(

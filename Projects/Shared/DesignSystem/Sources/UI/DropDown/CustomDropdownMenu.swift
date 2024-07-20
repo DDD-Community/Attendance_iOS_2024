@@ -28,21 +28,24 @@ public struct CustomDropdownMenu: View {
                         .frame(height: 12)
                     
                     HStack {
-                        Text(isSelecting ? "선택해주세요." : selectionTitle)
-                            .pretendardFont(family: isSelecting ? .Medium : .Bold, size: 16)
-                            .foregroundColor(isSelecting ? .gray600 : .basicWhite)
+                        Text(selectionTitle == "선택해주세요." ? "선택해주세요." : selectionTitle)
+                            .pretendardFont(family: selectionTitle == "선택해주세요." ? .Medium : .Bold, size: 16)
+                            .foregroundColor(selectionTitle == "선택해주세요." || selectionTitle == "이벤트 선택" ? Color.gray600 : Color.basicWhite)
                             .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 0))
                             .onTapGesture {
                                 isSelecting.toggle()
-                                selectionTitle = "이번주 세션 이벤트를 선택 해주세요!"
+                                if !isSelecting {
+                                    selectionTitle = "이벤트 선택"
+                                }
                             }
                         Spacer()
                         
                         VStack {
                             Spacer()
-                            Image(systemName: isSelecting ? "chevron.up" : "chevron.down")
-                                .frame(width: 20, height: 20)
-                                .foregroundColor(Color.basicWhite)
+                            Image(systemName: isSelecting ? "arrowtriangle.up.fill" : "arrowtriangle.down.fill")
+                                .frame(width: 12, height: 8)
+                                .foregroundColor(Color.gray600)
+                                .offset(y: isSelecting ? -10 : 0)
                                 .padding(16)
                             Spacer()
                         }
@@ -70,10 +73,14 @@ public struct CustomDropdownMenu: View {
             }
             .frame(width: UIScreen.screenWidth - 40, height: isSelecting ? UIScreen.screenHeight * 0.25 : 48)
             .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(lineWidth: 1)
-                    .foregroundColor(isSelecting ? Color.gray600 : Color.gray800 )
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(Color.basicBlack.opacity(0.4), lineWidth: 1)
+                    .foregroundColor(isSelecting ? Color.basicWhite : Color.gray600 )
+                    .blur(radius: isSelecting ? 10 : 0)
             )
+            .background(Color.basicBlack.opacity(0.4))
+            .cornerRadius(5)
+            
             .padding(EdgeInsets(top: 12, leading: 20, bottom: 12, trailing: 20))
         }
         .frame(maxWidth: .infinity)
