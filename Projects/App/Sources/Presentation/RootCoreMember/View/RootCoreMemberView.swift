@@ -17,8 +17,6 @@ struct RootCoreMemberView: View {
                 CoreMemberMainView(store: store.scope(state: \.coreStore, action: \.coreStoreAction)) 
             }
             .onAppear {
-                store.send(.async(.fetchMember))
-                store.send(.async(.fetchAttenDance))
                 store.send(.inner(.appearPath))
                 store.send(.async(.fetchEvent))
             }
@@ -48,6 +46,12 @@ struct RootCoreMemberView: View {
                 
             case let .mangeProfile(mangeProfileStore):
                 MangerProfileView(store: mangeProfileStore) {
+                    store.send(.inner(.removePath))
+                }
+                .navigationBarBackButtonHidden()
+                
+            case let .createByApp(creatByAppStore):
+                CreatByAppView(store: creatByAppStore) {
                     store.send(.inner(.removePath))
                 }
                 .navigationBarBackButtonHidden()

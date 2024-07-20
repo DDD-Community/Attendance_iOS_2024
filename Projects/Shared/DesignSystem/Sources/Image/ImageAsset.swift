@@ -15,5 +15,8 @@ public enum ImageAsset: String {
     case arrowBack
     case plus
     case logo
+    case pet
+    
+
     case empty
 }

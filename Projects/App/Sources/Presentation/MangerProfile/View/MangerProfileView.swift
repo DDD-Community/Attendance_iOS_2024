@@ -32,8 +32,10 @@ public struct MangerProfileView: View {
                 Spacer()
                     .frame(height: 16)
                 
+                CustomNavigationBar(backAction: backAction, addAction: {
+                    store.send(.navigation(.presentCreatByApp))
+                }, image: .pet)
                 
-                NavigationBackButton(buttonAction: backAction)
                 
                 mangerProfile()
                 

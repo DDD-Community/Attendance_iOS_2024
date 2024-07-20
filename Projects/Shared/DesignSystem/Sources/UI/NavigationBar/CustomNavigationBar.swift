@@ -10,13 +10,16 @@ import SwiftUI
 public struct CustomNavigationBar: View {
     var backAction: () -> Void = { }
     var addAction: () -> Void = { }
+    var image: ImageAsset
     
     public init(
         backAction: @escaping () -> Void,
-        addAction: @escaping () -> Void
+        addAction: @escaping () -> Void,
+        image: ImageAsset
     ) {
         self.backAction = backAction
         self.addAction = addAction
+        self.image = image
     }
     
     public var body: some View {
@@ -33,7 +36,7 @@ public struct CustomNavigationBar: View {
             Spacer()
             
             HStack {
-                Image(asset: .plus)
+                Image(asset: image)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 24, height: 24)

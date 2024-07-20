@@ -48,6 +48,8 @@ public struct RootCoreMember {
         case scheduleEvent(ScheduleEvent)
         case snsLogin(SNSLoginViewReducer)
         case mangeProfile(MangerProfile)
+        case createByApp(CreatByApp)
+        
     }
     
     public enum View {
@@ -104,6 +106,10 @@ public struct RootCoreMember {
                     
                 case .element(id: _, action: .coreMember(.navigation(.presentMangerProfile))):
                     state.path.append(.mangeProfile(.init()))
+                    
+                case .element(id: _, action: .mangeProfile(.navigation(.presentCreatByApp))):
+                    state.path.append(.createByApp(.init()))
+                    
                     
                 default:
                     break

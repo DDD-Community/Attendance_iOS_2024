@@ -46,7 +46,7 @@ public struct CustomDatePickerShortText: View {
                 }), in: ...Date(), displayedComponents: [.hourAndMinute]) { }
                 .environment(\.locale, Locale(identifier: "ko_KR"))
                 .colorMultiply(.clear)
-                .datePickerStyle(.automatic)
+//                .datePickerStyle(.automatic)
                 .labelsHidden()
             } else {
                 DatePicker(selection: Binding(get: {

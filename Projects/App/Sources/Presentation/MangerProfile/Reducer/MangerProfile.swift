@@ -64,6 +64,7 @@ public struct MangerProfile {
     //MARK: - 네비게이션 연결 액션
     public enum NavigationAction: Equatable {
         case tapLogOut
+        case presentCreatByApp
     }
     
     @Dependency(FireStoreUseCase.self) var fireStoreUseCase
@@ -177,6 +178,9 @@ public struct MangerProfile {
                     return .run { @MainActor send in
                         send(.async(.signOut))
                     }
+                    
+                case .presentCreatByApp:
+                    return .none
                 }
             }
         }

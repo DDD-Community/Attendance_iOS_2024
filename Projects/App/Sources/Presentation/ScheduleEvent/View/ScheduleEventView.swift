@@ -36,20 +36,21 @@ public struct ScheduleEventView: View {
                 Spacer()
                     .frame(height: 16)
                 
-                CustomNavigationBar(backAction: backAction) {
+                CustomNavigationBar(backAction: backAction, addAction: {
                     store.send(.view(.presntEventModal))
-                }
+                }, image: .plus)
                 
                 scheduleEventNavigationTitle()
                 
-                ScrollView(.vertical, showsIndicators: false) {
-                    if store.eventModel == [ ] {
-                        createEvent()
-                    } else {
+                if store.eventModel == [ ] {
+                    createEvent()
+                       
+                } else  {
+                    ScrollView(.vertical, showsIndicators: false) {
                         editEventListView()
                     }
+                    .bounce(true)
                 }
-                .bounce(false)
             }
         }
         .task {
@@ -234,9 +235,9 @@ extension ScheduleEventView {
                 .foregroundStyle(Color.gray800)
             
             Spacer()
-                .frame(height: UIScreen.screenHeight * 0.35)
+                .frame(height: UIScreen.screenHeight * 0.4)
             
-            Rectangle()
+            RoundedRectangle(cornerRadius: 5)
                 .fill(Color.basicWhite)
                 .frame(height: 90)
                 .overlay {
@@ -248,6 +249,7 @@ extension ScheduleEventView {
                             .pretendardFont(family: .SemiBold, size: 20)
                             .foregroundStyle(Color.basicBlack)
                         
+                        Spacer()
                     }
                 }
                 .onTapGesture {
