@@ -45,6 +45,8 @@ public struct CoreMember {
         var attenaceBackGroudColor: Color? = nil
         var attendanceCount: Int = 0
         
+        var notEventText: String = "인원이 없습니다."
+        
         @Presents var destination: Destination.State?
         var selectDate: Date = Date.now
         var selectDatePicker: Bool = false

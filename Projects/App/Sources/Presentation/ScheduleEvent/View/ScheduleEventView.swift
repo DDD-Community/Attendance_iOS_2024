@@ -235,11 +235,13 @@ extension ScheduleEventView {
                 .foregroundStyle(Color.gray800)
             
             Spacer()
-                .frame(height: UIScreen.screenHeight * 0.4)
+               
             
             RoundedRectangle(cornerRadius: 5)
                 .fill(Color.basicWhite)
                 .frame(height: 90)
+                .padding(.bottom, -30)
+            
                 .overlay {
                     VStack {
                         Spacer()
@@ -256,7 +258,8 @@ extension ScheduleEventView {
                     store.send(.view(.presntEventModal))
                 }
             
-            Spacer()
+//            Spacer()
+            
         }
     }
 }

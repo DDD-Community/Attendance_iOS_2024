@@ -227,10 +227,18 @@ extension CoreMemberMainView {
                         Spacer()
                             .frame(height: UIScreen.screenHeight * 0.2)
                         
-                        AnimatedImage(name: "DDDLoding.gif", isAnimating: .constant(true))
+                       
+                        Image(asset: .logo)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 200, height: 200)
+                            .frame(width: 64, height: 72)
+                        
+                        Spacer()
+                            .frame(height: 16)
+                        
+                        Text(store.notEventText)
+                            .pretendardFont(family: .Regular, size: 16)
+                            .foregroundStyle(Color.gray800)
                         
                         Spacer()
                     }
@@ -246,10 +254,18 @@ extension CoreMemberMainView {
                         Spacer()
                             .frame(height: UIScreen.screenHeight * 0.2)
                         
-                        AnimatedImage(name: "DDDLoding.gif", isAnimating: .constant(true))
+                       
+                        Image(asset: .logo)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 200, height: 200)
+                            .frame(width: 64, height: 72)
+                        
+                        Spacer()
+                            .frame(height: 16)
+                        
+                        Text(store.notEventText)
+                            .pretendardFont(family: .Regular, size: 16)
+                            .foregroundStyle(Color.gray800)
                         
                         Spacer()
                     }

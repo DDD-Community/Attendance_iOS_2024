@@ -17,6 +17,9 @@ struct RootCoreMemberView: View {
                 CoreMemberMainView(store: store.scope(state: \.coreStore, action: \.coreStoreAction)) 
             }
             .onAppear {
+                store.send(.async(.fetchMember))
+                store.send(.async(.fetchAttenDance))
+                
                 store.send(.inner(.appearPath))
                 store.send(.async(.fetchEvent))
             }
