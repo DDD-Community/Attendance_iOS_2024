@@ -73,11 +73,11 @@ final class MemberMainViewController: UIViewController {
 
 extension MemberMainViewController: View {
     func bind(reactor: Reactor) {
-        mainView.qrCheckInButton.rx.throttleTap
-            .bind { [weak self] in
-                self?.presentQRLoginView()
-            }.disposed(by: disposeBag)
-        
+        bindState(reactor)
+        bindAction(reactor)
+    }
+    
+    private func bindState(_ reactor: Reactor) {
         reactor.state.map { $0.userAttendanceHistory }
             .distinctUntilChanged()
             .compactMap { $0 }
@@ -112,6 +112,17 @@ extension MemberMainViewController: View {
             .bind { [weak self] profile in
                 self?.mainView.bindProfile(profile)
             }.disposed(by: disposeBag)
+    }
+    
+    private func bindAction(_ reactor: Reactor) {
+        mainView.qrCheckInButton.rx.throttleTap.bind { [weak self] in
+            self?.presentQRLoginView()
+        }.disposed(by: disposeBag)
+        
+        mainView.checkInHistoryButton.rx.throttleTap.bind { [weak self] in
+            let vc: MemberAttendanceHistoryViewController = .init()
+            self?.navigationController?.pushViewController(vc, animated: true)
+        }.disposed(by: disposeBag)
     }
 }
 

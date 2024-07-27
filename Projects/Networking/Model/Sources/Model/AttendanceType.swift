@@ -14,7 +14,7 @@ public enum AttendanceType: String, Codable {
     case earlyLeave = "EARLY_LEAVE"
     case disease = "DISEASE"
     case run = "RUN"
-    case notAttandance
+    case notAttendance
     
     var desc: String {
         switch self {
@@ -31,7 +31,7 @@ public enum AttendanceType: String, Codable {
         case .run:
             return "RUN"
             
-        case .notAttandance:
+        case .notAttendance:
             return "NONE"
         }
     }

@@ -12,7 +12,7 @@ let project = Project.makeAppModule(
     dependencies: [
         .Networking(implements: .Model),
         .Shared(implements: .Utill),
-        .SPM.composableArchitecture
+        .Shared(implements: .ThirdParty)
     ],
     sources: ["Sources/**"],
     resources: ["Resources/**", "FontAsset"]

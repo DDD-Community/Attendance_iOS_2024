@@ -17,7 +17,7 @@ final class MemberMainView: BaseView {
     // MARK: - UI properties
     private let rootView: UIView = .init()
     
-    let greetingLabel: UILabel = .init().then {
+    private let greetingLabel: UILabel = .init().then {
         $0.text = "김디디님 반갑습니다 👋"
         $0.textColor = .basicWhite
         $0.font = .pretendardFontFamily(family: .SemiBold, size: 24)
@@ -92,7 +92,6 @@ final class MemberMainView: BaseView {
                 .marginTop(60)
                 .marginHorizontal(24)
                 .marginBottom(24)
-                .height(20)
             
             flex.addItem(attendanceView)
                 .height(80)

@@ -53,7 +53,7 @@ public extension Date {
         return dateFormatter.string(from: date)
     }
     
-    func formatteDateTimeText(date: Date) -> String {
+    static func formattedDateTimeText(date: Date) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ko_KR")
         dateFormatter.dateFormat = "yyyy.MM.dd"

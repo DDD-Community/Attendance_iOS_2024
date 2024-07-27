@@ -11,14 +11,17 @@ import Foundation
 
 final class MemberAttendanceHistoryReactor: Reactor {
     enum Action {
+        case fetchProfile
         case fetchAttendanceList
     }
     
     enum Mutation {
+        case setProfile(Member)
         case setAttendanceList([Attendance])
     }
     
     struct State {
+        var profile: Member?
         var attendanceList: [Attendance] = []
     }
     
@@ -28,10 +31,13 @@ final class MemberAttendanceHistoryReactor: Reactor {
     init() {
         self.initialState = State()
         self.repository = UserRepository()
+        action.onNext(.fetchProfile)
+        action.onNext(.fetchAttendanceList)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case .fetchProfile: return fetchMemberProfile()
         case .fetchAttendanceList: return fetchAttendanceList()
         }
     }
@@ -39,6 +45,8 @@ final class MemberAttendanceHistoryReactor: Reactor {
     func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
+        case let .setProfile(member):
+            newState.profile = member
         case let .setAttendanceList(attendanceList):
             newState.attendanceList = attendanceList
         }
@@ -50,6 +58,12 @@ extension MemberAttendanceHistoryReactor {
     private func fetchAttendanceList() -> Observable<Mutation> {
         return repository.fetchAttendanceList()
             .map { Mutation.setAttendanceList($0) }
+            .asObservable()
+    }
+    
+    private func fetchMemberProfile() -> Observable<Mutation> {
+        return repository.fetchMember()
+            .map { Mutation.setProfile($0) }
             .asObservable()
     }
 }
