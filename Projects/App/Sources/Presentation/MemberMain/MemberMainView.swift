@@ -23,41 +23,7 @@ final class MemberMainView: BaseView {
         $0.font = .pretendardFontFamily(family: .SemiBold, size: 24)
     }
     
-    private let presentLabel: UILabel = .init().then {
-        $0.text = "출석"
-        $0.font = .pretendardFontFamily(family: .Regular, size: 14)
-        $0.textColor = .gray400
-    }
-    
-    private let presentCountLabel: UILabel = .init().then {
-        $0.text = "0회"
-        $0.font = .pretendardFontFamily(family: .SemiBold, size: 18)
-        $0.textColor = .basicWhite
-    }
-    
-    private let lateLabel: UILabel = .init().then {
-        $0.text = "지각"
-        $0.font = .pretendardFontFamily(family: .Regular, size: 14)
-        $0.textColor = .gray400
-    }
-    
-    private let lateCountLabel: UILabel = .init().then {
-        $0.text = "0회"
-        $0.font = .pretendardFontFamily(family: .SemiBold, size: 18)
-        $0.textColor = .basicWhite
-    }
-    
-    private let absentLabel: UILabel = .init().then {
-        $0.text = "결석"
-        $0.font = .pretendardFontFamily(family: .Regular, size: 14)
-        $0.textColor = .gray400
-    }
-    
-    private let absentCountLabel: UILabel = .init().then {
-        $0.text = "0회"
-        $0.font = .pretendardFontFamily(family: .SemiBold, size: 18)
-        $0.textColor = .basicWhite
-    }
+    private let attendanceView: AttendanceStatusView = .init()
     
     let checkInHistoryButton: UIButton = .init().then {
         $0.backgroundColor = .gray800
@@ -128,60 +94,10 @@ final class MemberMainView: BaseView {
                 .marginBottom(24)
                 .height(20)
             
-            flex.addItem()
-                .direction(.row)
-                .alignItems(.center)
-                .justifyContent(.center)
+            flex.addItem(attendanceView)
                 .height(80)
                 .marginHorizontal(24)
                 .marginBottom(16)
-                .backgroundColor(.gray800.withAlphaComponent(0.4))
-                .cornerRadius(16)
-                .columnGap(30)
-                .define { flex in
-                    flex.addItem()
-                        .justifyContent(.center)
-                        .alignItems(.center)
-                        .define { flex in
-                            flex.addItem(presentLabel)
-                                .marginBottom(8)
-                                .height(14)
-                            flex.addItem(presentCountLabel)
-                                .height(18)
-                        }
-                    
-                    flex.addItem()
-                        .height(48)
-                        .width(1)
-                        .backgroundColor(.gray600)
-                    
-                    flex.addItem()
-                        .justifyContent(.center)
-                        .alignItems(.center)
-                        .define { flex in
-                            flex.addItem(lateLabel)
-                                .marginBottom(8)
-                                .height(14)
-                            flex.addItem(lateCountLabel)
-                                .height(18)
-                        }
-                    
-                    flex.addItem()
-                        .height(48)
-                        .width(1)
-                        .backgroundColor(.gray600)
-                    
-                    flex.addItem()
-                        .justifyContent(.center)
-                        .alignItems(.center)
-                        .define { flex in
-                            flex.addItem(absentLabel)
-                                .marginBottom(8)
-                                .height(14)
-                            flex.addItem(absentCountLabel)
-                                .height(18)
-                        }
-                }
             
             flex.addItem()
                 .direction(.row)
@@ -247,27 +163,7 @@ final class MemberMainView: BaseView {
     
     // MARK: - Public helpers
     func bindAttendances(_ attendances: [Attendance]) {
-        let attendances = attendances.reduce(into: (attendance: 0, late: 0, absent: 0)) { result, attendance in
-            switch attendance.status {
-            case .present:
-                result.attendance += 1
-            case .late:
-                result.late += 1
-            case .absent:
-                result.absent += 1
-            default: return
-            }
-        }
-        
-        presentCountLabel.text = "\(attendances.attendance)회"
-        presentCountLabel.flex.markDirty()
-        
-        lateCountLabel.text = "\(attendances.late)회"
-        lateCountLabel.flex.markDirty()
-        
-        absentCountLabel.text = "\(attendances.absent)회"
-        absentCountLabel.flex.markDirty()
-        
+        attendanceView.bind(attendances: attendances)
         layout()
     }
     
