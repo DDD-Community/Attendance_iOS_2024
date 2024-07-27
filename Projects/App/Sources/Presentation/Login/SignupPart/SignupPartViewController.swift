@@ -22,15 +22,10 @@ final class SignupPartViewController: UIViewController {
     // MARK: - Lifecycles
     init(
         uid: String,
-        name: String,
-        isManager: Bool
+        name: String
     ) {
         super.init(nibName: nil, bundle: nil)
-        self.reactor = Reactor(
-            uid: uid,
-            name: name,
-            isManager: isManager
-        )
+        self.reactor = Reactor(uid: uid, name: name)
     }
     
     required init?(coder: NSCoder) {
@@ -52,8 +47,7 @@ final class SignupPartViewController: UIViewController {
         let inviteCodeVC = SignupInviteCodeViewController(
             uid: state.uid,
             name: state.name,
-            part: part,
-            isManager: state.isManager
+            part: part
         )
         self.navigationController?.pushViewController(
             inviteCodeVC,

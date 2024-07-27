@@ -23,16 +23,6 @@ final class SNSLoginView: BaseView {
         $0.font = .systemFont(ofSize: 48, weight: .bold)
     }
     
-    private let coreMemberCheckLabel: UILabel = .init().then {
-        $0.text = "운영진이신가요?"
-        $0.textColor = .white
-        $0.font = .systemFont(ofSize: 16, weight: .bold)
-    }
-    
-    let coreMemberCheckSwitch: UISwitch = .init().then {
-        $0.onTintColor = .white
-    }
-    
     let appleLoginButton: UIButton = .init().then {
         $0.setTitle(" Apple로 계속하기", for: .normal)
         $0.setTitleColor(.black, for: .normal)
@@ -65,16 +55,6 @@ final class SNSLoginView: BaseView {
                 .marginTop(100)
             
             flex.addItem().define { flex in
-                flex.addItem()
-                    .direction(.row)
-                    .justifyContent(.center)
-                    .alignItems(.center)
-                    .marginBottom(16)
-                    .define { flex in
-                        flex.addItem(coreMemberCheckLabel)
-                            .marginRight(8)
-                        flex.addItem(coreMemberCheckSwitch)
-                    }
                 flex.addItem(appleLoginButton)
                     .height(56)
                     .marginHorizontal(16)

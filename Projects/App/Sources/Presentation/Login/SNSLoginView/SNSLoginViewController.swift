@@ -36,11 +36,7 @@ final class SNSLoginViewController: UIViewController {
     // MARK: - Private helpers
     private func routeToSignup() {
         guard let uid = reactor?.currentState.userUID else { return }
-        let isManager: Bool = mainView.coreMemberCheckSwitch.isOn
-        let signupNameViewController = SignupNameViewController(
-            uid: uid,
-            isManager: isManager
-        )
+        let signupNameViewController = SignupNameViewController(uid: uid)
         self.navigationController?.pushViewController(signupNameViewController, animated: true)
     }
     

@@ -26,14 +26,12 @@ final class SignupInviteCodeViewController: UIViewController {
     init(
         uid: String,
         name: String,
-        part: SelectPart,
-        isManager: Bool
+        part: SelectPart
     ) {
         super.init(nibName: nil, bundle: nil)
         self.reactor = SignupInviteCodeReactor(
             uid: uid,
             name: name,
-            isManager: isManager,
             part: part
         )
     }
@@ -58,9 +56,10 @@ final class SignupInviteCodeViewController: UIViewController {
     
     // MARK: - Private helpers
     private func getViewController() -> UIViewController? {
-        guard let isManager: Bool = self.reactor?.currentState.isManager else {
-            return nil
-        }
+//        guard let isManager: Bool = self.reactor?.currentState.isManager else {
+//            return nil
+//        }
+        let isManager: Bool = true
         if isManager {
             let rootCoreMemberView = RootCoreMemberView(store: Store(
                 initialState: RootCoreMember.State(),

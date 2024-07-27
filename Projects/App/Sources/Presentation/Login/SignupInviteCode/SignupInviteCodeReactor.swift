@@ -14,7 +14,6 @@ final class SignupInviteCodeReactor: Reactor {
         var uid: String
         var name: String
         var part: SelectPart
-        var isManager: Bool
         var inviteCode: String = ""
         var isSignupSuccess: Bool?
         var errorMessage: String?
@@ -37,14 +36,12 @@ final class SignupInviteCodeReactor: Reactor {
     init(
         uid: String,
         name: String,
-        isManager: Bool,
         part: SelectPart
     ) {
         self.initialState = State(
             uid: uid,
             name: name,
-            part: part,
-            isManager: isManager
+            part: part
         )
         self.repository = UserRepository()
     }
@@ -85,7 +82,7 @@ extension SignupInviteCodeReactor {
                     memberid: self.currentState.uid,
                     name: self.currentState.name,
                     role: self.currentState.part,
-                    memberType: self.currentState.isManager ? .coreMember : .member,
+                    memberType: .member,
                     createdAt: Date(),
                     updatedAt: Date(),
                     generation: 11

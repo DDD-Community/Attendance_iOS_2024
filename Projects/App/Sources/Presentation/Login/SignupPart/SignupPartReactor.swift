@@ -13,7 +13,6 @@ final class SignupPartReactor: Reactor {
     struct State {
         var uid: String
         var name: String
-        var isManager: Bool
         var selectedPart: SelectPart?
     }
     
@@ -27,15 +26,10 @@ final class SignupPartReactor: Reactor {
     
     let initialState: State
     
-    init(
-        uid: String,
-        name: String,
-        isManager: Bool
-    ) {
+    init(uid: String, name: String) {
         self.initialState = State(
             uid: uid,
             name: name,
-            isManager: isManager,
             selectedPart: nil
         )
     }
