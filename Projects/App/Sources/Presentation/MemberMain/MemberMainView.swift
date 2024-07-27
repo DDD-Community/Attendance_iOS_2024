@@ -17,43 +17,96 @@ final class MemberMainView: BaseView {
     // MARK: - UI properties
     private let rootView: UIView = .init()
     
-    private let scrollView: UIScrollView = .init()
-    
-    private let scrollContentView: UIView = .init()
-    
-    let checkInStatusTitleLabel: UILabel = .init().then {
-        $0.text = "🙋 출석 현황"
-        $0.font = .systemFont(ofSize: 20)
+    let greetingLabel: UILabel = .init().then {
+        $0.text = "김디디님 반갑습니다 👋"
+        $0.textColor = .basicWhite
+        $0.font = .pretendardFontFamily(family: .SemiBold, size: 24)
     }
     
-    let checkInStatusLabel: UILabel = .init().then {
-        $0.text = "출석 1회 | 지각 1회 | 결석 1회"
-        $0.textColor = .black
-        $0.font = .systemFont(ofSize: 20, weight: .semibold)
+    private let presentLabel: UILabel = .init().then {
+        $0.text = "출석"
+        $0.font = .pretendardFontFamily(family: .Regular, size: 14)
+        $0.textColor = .gray400
     }
     
-    let qrCheckInButton: UIButton = .init().then {
-        $0.setTitle("QR 출석", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 24, weight: .semibold)
-        $0.backgroundColor = .black
+    private let presentCountLabel: UILabel = .init().then {
+        $0.text = "0회"
+        $0.font = .pretendardFontFamily(family: .SemiBold, size: 18)
+        $0.textColor = .basicWhite
+    }
+    
+    private let lateLabel: UILabel = .init().then {
+        $0.text = "지각"
+        $0.font = .pretendardFontFamily(family: .Regular, size: 14)
+        $0.textColor = .gray400
+    }
+    
+    private let lateCountLabel: UILabel = .init().then {
+        $0.text = "0회"
+        $0.font = .pretendardFontFamily(family: .SemiBold, size: 18)
+        $0.textColor = .basicWhite
+    }
+    
+    private let absentLabel: UILabel = .init().then {
+        $0.text = "결석"
+        $0.font = .pretendardFontFamily(family: .Regular, size: 14)
+        $0.textColor = .gray400
+    }
+    
+    private let absentCountLabel: UILabel = .init().then {
+        $0.text = "0회"
+        $0.font = .pretendardFontFamily(family: .SemiBold, size: 18)
+        $0.textColor = .basicWhite
     }
     
     let checkInHistoryButton: UIButton = .init().then {
-        $0.setTitle("출석 기록", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
-        $0.backgroundColor = .black
+        $0.backgroundColor = .gray800
+    }
+    
+    private let checkInHistoryImageView: UIImageView = .init().then {
+        $0.image = .init(named: "icon_history")
+        $0.contentMode = .scaleAspectFit
+    }
+    
+    private let checkInHistoryLabel: UILabel = .init().then {
+        $0.text = "출석 기록"
+        $0.textColor = .gray200
+        $0.font = .pretendardFontFamily(family: .Regular, size: 14)
     }
     
     let profileButton: UIButton = .init().then {
-        $0.setTitle("프로필", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
-        $0.backgroundColor = .black
+        $0.backgroundColor = .gray800
     }
     
-    let logoutButton: UIButton = .init().then {
-        $0.setTitle("로그아웃", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
-        $0.backgroundColor = .black
+    private let profileImageView: UIImageView = .init().then {
+        $0.image = .init(named: "icon_person")
+        $0.contentMode = .scaleAspectFit
+    }
+    
+    private let profileLabel: UILabel = .init().then {
+        $0.text = "프로필"
+        $0.textColor = .gray200
+        $0.font = .pretendardFontFamily(family: .Regular, size: 14)
+    }
+    
+    let qrCheckInButton: UIButton = .init()
+    
+    private let qrCheckInImageView: UIImageView = .init().then {
+        $0.image = .init(named: "icon_qr")
+        $0.contentMode = .scaleAspectFit
+    }
+    
+    private let toolTipLabel: UILabel = .init().then {
+        $0.text = "QR스캔으로 출석하세요"
+        $0.textColor = .basicWhite
+        $0.textAlignment = .center
+        $0.font = .pretendardFontFamily(family: .Regular, size: 14)
+        $0.clipsToBounds = true
+    }
+    
+    private let toolTipTailView: UIImageView = .init().then {
+        $0.image = .init(named: "icon_tooltip_tail")
+        $0.contentMode = .scaleAspectFill
     }
     
     // MARK: - Properties
@@ -65,59 +118,130 @@ final class MemberMainView: BaseView {
     }
     
     override func configureViews() {
-        backgroundColor = .white
+        backgroundColor = .basicBlack
         addSubview(rootView)
-        scrollView.addSubview(scrollContentView)
         
         rootView.flex.define { flex in
-            flex.addItem(scrollView)
-                .grow(1)
-        }
-        
-        scrollContentView.flex.define { flex in
-            
-            flex.addItem(checkInStatusTitleLabel)
-                .marginTop(16)
-                .marginHorizontal(16)
-                .marginBottom(12)
-                .height(20)
-            flex.addItem(checkInStatusLabel)
-                .marginHorizontal(16)
-                .marginBottom(16)
+            flex.addItem(greetingLabel)
+                .marginTop(60)
+                .marginHorizontal(24)
+                .marginBottom(24)
                 .height(20)
             
             flex.addItem()
                 .direction(.row)
+                .alignItems(.center)
                 .justifyContent(.center)
-                .columnGap(4)
-                .marginBottom(4)
-                .height(150)
+                .height(80)
+                .marginHorizontal(24)
+                .marginBottom(16)
+                .backgroundColor(.gray800.withAlphaComponent(0.4))
+                .cornerRadius(16)
+                .columnGap(30)
                 .define { flex in
-                    flex.addItem(qrCheckInButton)
-                        .maxWidth(65%)
-                        .grow(1)
-                        .cornerRadius(12)
-                        .marginLeft(16)
+                    flex.addItem()
+                        .justifyContent(.center)
+                        .alignItems(.center)
+                        .define { flex in
+                            flex.addItem(presentLabel)
+                                .marginBottom(8)
+                                .height(14)
+                            flex.addItem(presentCountLabel)
+                                .height(18)
+                        }
                     
                     flex.addItem()
-                        .maxWidth(35%)
-                        .grow(1)
-                        .rowGap(4)
-                        .marginRight(16)
+                        .height(48)
+                        .width(1)
+                        .backgroundColor(.gray600)
+                    
+                    flex.addItem()
+                        .justifyContent(.center)
+                        .alignItems(.center)
                         .define { flex in
-                            flex.addItem(profileButton)
-                                .cornerRadius(12)
-                                .grow(1)
-                            flex.addItem(checkInHistoryButton)
-                                .cornerRadius(12)
-                                .grow(1)
+                            flex.addItem(lateLabel)
+                                .marginBottom(8)
+                                .height(14)
+                            flex.addItem(lateCountLabel)
+                                .height(18)
+                        }
+                    
+                    flex.addItem()
+                        .height(48)
+                        .width(1)
+                        .backgroundColor(.gray600)
+                    
+                    flex.addItem()
+                        .justifyContent(.center)
+                        .alignItems(.center)
+                        .define { flex in
+                            flex.addItem(absentLabel)
+                                .marginBottom(8)
+                                .height(14)
+                            flex.addItem(absentCountLabel)
+                                .height(18)
                         }
                 }
             
-            flex.addItem(logoutButton)
-                .marginHorizontal(16)
-                .height(80)
-                .cornerRadius(12)
+            flex.addItem()
+                .direction(.row)
+                .justifyContent(.center)
+                .marginHorizontal(24)
+                .marginBottom(4)
+                .define { flex in
+                    flex.addItem(checkInHistoryButton)
+                        .aspectRatio(1)
+                        .cornerRadius(16)
+                        .grow(1)
+                        .marginRight(6)
+                        .justifyContent(.center)
+                        .alignItems(.center)
+                        .define { flex in
+                            flex.addItem(checkInHistoryImageView)
+                                .marginBottom(8)
+                                .size(48)
+                            flex.addItem(checkInHistoryLabel)
+                        }
+                    flex.addItem(profileButton)
+                        .aspectRatio(1)
+                        .cornerRadius(16)
+                        .grow(1)
+                        .marginLeft(6)
+                        .justifyContent(.center)
+                        .alignItems(.center)
+                        .define { flex in
+                            flex.addItem(profileImageView)
+                                .marginBottom(8)
+                                .size(48)
+                            flex.addItem(profileLabel)
+                        }
+                }
+            
+            flex.addItem()
+                .position(.absolute)
+                .bottom(96)
+                .alignSelf(.center)
+                .alignItems(.center)
+                .define { flex in
+                    flex.addItem(toolTipLabel)
+                        .height(30)
+                        .paddingHorizontal(10)
+                        .backgroundColor(.gray800)
+                        .cornerRadius(8)
+                    flex.addItem(toolTipTailView)
+                        .height(10)
+                        .width(11)
+                }
+            
+            flex.addItem(qrCheckInButton)
+                .position(.absolute)
+                .bottom(24)
+                .alignSelf(.center)
+                .height(64)
+                .define { flex in
+                    flex.addItem(qrCheckInImageView)
+                        .size(64)
+                }
         }
     }
     
@@ -134,7 +258,17 @@ final class MemberMainView: BaseView {
             default: return
             }
         }
-        checkInStatusLabel.text = "출석 \(attendances.attendance)회 | 지각 \(attendances.late)회 | 결석 \(attendances.absent)회"
+        
+        presentCountLabel.text = "\(attendances.attendance)회"
+        presentCountLabel.flex.markDirty()
+        
+        lateCountLabel.text = "\(attendances.late)회"
+        lateCountLabel.flex.markDirty()
+        
+        absentCountLabel.text = "\(attendances.absent)회"
+        absentCountLabel.flex.markDirty()
+        
+        layout()
     }
     
     func bindEvent(_ event: DDDEvent, _ isAttendanceNeeded: Bool) {
@@ -148,13 +282,25 @@ final class MemberMainView: BaseView {
         }
     }
     
+    func bindProfile(_ profile: Member) {
+        greetingLabel.text = "\(profile.name)님 반갑습니다 👋"
+        greetingLabel.flex.markDirty()
+        layout()
+    }
+    
+    func hideToolTip() {
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            self?.toolTipLabel.alpha = 0
+            self?.toolTipTailView.alpha = 0
+        } completion: { [weak self] _ in
+            self?.toolTipLabel.isHidden = true
+            self?.toolTipTailView.isHidden = true
+        }
+    }
+    
     // MARK: - Private helpers
     private func layout() {
-        rootView.pin.top(pin.safeArea.top)
-            .left(pin.safeArea.left)
-            .right(pin.safeArea.right)
-            .bottom()
+        rootView.pin.all(pin.safeArea)
         rootView.flex.layout()
-        scrollView.contentSize = scrollContentView.frame.size
     }
 }

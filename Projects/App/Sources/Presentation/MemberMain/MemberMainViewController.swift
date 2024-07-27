@@ -29,6 +29,11 @@ final class MemberMainViewController: UIViewController {
         self.reactor?.action.onNext(.fetchData)
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.hideTooltip(after: 5)
+    }
+    
     // MARK: - Public helpers
     
     // MARK: - Private helpers
@@ -58,15 +63,16 @@ final class MemberMainViewController: UIViewController {
         alert.addAction(.init(title: "확인", style: .default, handler: nil))
         present(alert, animated: true, completion: nil)
     }
+    
+    private func hideTooltip(after: Int) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(after)) { [weak self] in
+            self?.mainView.hideToolTip()
+        }
+    }
 }
 
 extension MemberMainViewController: View {
     func bind(reactor: Reactor) {
-        mainView.logoutButton.rx.throttleTap
-            .map { Reactor.Action.didTapLogout }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
         mainView.qrCheckInButton.rx.throttleTap
             .bind { [weak self] in
                 self?.presentQRLoginView()
@@ -97,6 +103,14 @@ extension MemberMainViewController: View {
                     return
                 }
                 self?.mainView.bindEvent(event, isAttendanceNeeded)
+            }.disposed(by: disposeBag)
+        
+        reactor.state.map { $0.userProfile }
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .bind { [weak self] profile in
+                self?.mainView.bindProfile(profile)
             }.disposed(by: disposeBag)
     }
 }
