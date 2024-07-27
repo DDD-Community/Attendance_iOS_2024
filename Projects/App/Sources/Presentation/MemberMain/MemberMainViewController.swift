@@ -46,18 +46,6 @@ final class MemberMainViewController: UIViewController {
         self.present(vc, animated: true)
     }
     
-    private func switchToLoginView() {
-        guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate,
-              let window = sceneDelegate.window else {
-            return
-        }
-        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
-            let viewController: SNSLoginViewController = .init()
-            let navigationController: UINavigationController = .init(rootViewController: viewController)
-            window.rootViewController = navigationController
-        }
-    }
-    
     private func showAlert(title: String, message: String) {
         let alert: UIAlertController = .init(title: title, message: message, preferredStyle: .alert)
         alert.addAction(.init(title: "확인", style: .default, handler: nil))
@@ -86,15 +74,6 @@ extension MemberMainViewController: View {
                 self?.mainView.bindAttendances(attendances)
             }.disposed(by: disposeBag)
         
-        reactor.state.map { $0.isUserLoggedOut }
-            .distinctUntilChanged()
-            .compactMap { $0 }
-            .observe(on: MainScheduler.asyncInstance)
-            .bind { [weak self] isLoggedOut in
-                guard isLoggedOut else { return }
-                self?.switchToLoginView()
-            }.disposed(by: disposeBag)
-        
         reactor.state.map { ($0.todayEvent, $0.isAttendanceNeeded) }
             .observe(on: MainScheduler.asyncInstance)
             .bind { [weak self] event, isAttendanceNeeded in
@@ -121,6 +100,11 @@ extension MemberMainViewController: View {
         
         mainView.checkInHistoryButton.rx.throttleTap.bind { [weak self] in
             let vc: MemberAttendanceHistoryViewController = .init()
+            self?.navigationController?.pushViewController(vc, animated: true)
+        }.disposed(by: disposeBag)
+        
+        mainView.profileButton.rx.throttleTap.bind { [weak self] in
+            let vc: MemberProfileDetailViewController = .init()
             self?.navigationController?.pushViewController(vc, animated: true)
         }.disposed(by: disposeBag)
     }
