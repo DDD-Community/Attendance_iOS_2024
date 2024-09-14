@@ -42,12 +42,17 @@ final class SignupMemberTeamViewController: UIViewController {
     // MARK: - Public helpers
     
     // MARK: - Private helpers
-    private func pushSignupInviteCodeViewController() {
-//        let vc: SignupRoleViewController =
-//        self.navigationController?.pushViewController(
-//            vc,
-//            animated: true
-//        )
+    private func switchView() {
+        guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate,
+              let window = sceneDelegate.window else {
+            return
+        }
+        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
+            let viewController: MemberMainViewController = .init()
+            let navigationController: UINavigationController = .init(rootViewController: viewController)
+            navigationController.navigationBar.isHidden = true
+            window.rootViewController = navigationController
+        }
     }
 }
 
@@ -84,10 +89,9 @@ extension SignupMemberTeamViewController: View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        mainView.nextButton.rx.tap
-            .bind { [weak self] in
-                self?.pushSignupInviteCodeViewController()
-            }.disposed(by: disposeBag)
+        self.mainView.nextButton.rx.throttleTap.bind { [weak self] in
+            self?.reactor?.action.onNext(.didTapNextButton)
+        }.disposed(by: self.disposeBag)
         
         self.mainView.backButton.rx.throttleTap.bind { [weak self] in
             self?.navigationController?.popViewController(animated: true)
@@ -110,6 +114,14 @@ extension SignupMemberTeamViewController: View {
                 }
             })
             .disposed(by: self.disposeBag)
+        
+        reactor.state.map { $0.isSignupSuccess }
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .bind { [weak self] isSuccess in
+                guard isSuccess else { return }
+                self?.switchView()
+            }.disposed(by: self.disposeBag)
     }
 }
 
