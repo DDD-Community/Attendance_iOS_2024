@@ -170,14 +170,15 @@ final class MemberMainView: BaseView {
     
     func bindEvent(_ event: DDDEvent, _ isAttendanceNeeded: Bool) {
         qrCheckInButton.isEnabled = isAttendanceNeeded
-        qrCheckInImageView.isHidden = true
+        qrCheckInImageView.isHidden = !isAttendanceNeeded
+        toolTipLabel.isHidden = !isAttendanceNeeded
+        toolTipTailView.isHidden = !isAttendanceNeeded
+        
         if !isAttendanceNeeded {
             qrCheckInButton.setTitle("출석 완료!", for: .normal)
             qrCheckInButton.titleLabel?.flex.markDirty()
-            toolTipLabel.isHidden = true
-            toolTipTailView.isHidden = true
-            layout()
         }
+        layout()
     }
     
     func bindProfile(_ profile: Member) {
