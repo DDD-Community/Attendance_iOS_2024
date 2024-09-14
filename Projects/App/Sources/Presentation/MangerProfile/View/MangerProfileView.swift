@@ -71,7 +71,7 @@ extension MangerProfileView {
                 
                 mangerTextComponent(
                     title: store.mangerProfileManging,
-                    subTitle: Manging.attendanceCheck.mangingDesc,
+                    subTitle: Managing.attendanceCheck.mangingDesc,
                     mangingTeam: "",
                     isManging: false,
                     isGeneration: false

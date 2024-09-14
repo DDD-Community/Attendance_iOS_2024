@@ -19,9 +19,12 @@ final class SignupNameViewController: UIViewController {
     var disposeBag: DisposeBag = .init()
     
     // MARK: - Lifecycles
-    init(uid: String) {
+    init(uid: String, memberType: MemberType) {
         super.init(nibName: nil, bundle: nil)
-        self.reactor = Reactor(uid: uid)
+        self.reactor = Reactor(
+            uid: uid,
+            memberType: memberType
+        )
     }
     
     required init?(coder: NSCoder) {
@@ -51,34 +54,39 @@ final class SignupNameViewController: UIViewController {
     
     // MARK: - Private helpers
     private func pushSignupPartViewController() {
-        guard let state = self.reactor?.currentState else { return }
-        let signupPartViewController = SignupPartViewController(
-            uid: state.uid,
-            name: state.name
-        )
-        self.view.endEditing(true)
-        self.navigationController?.pushViewController(
-            signupPartViewController,
-            animated: true
-        )
+//        guard let state = self.reactor?.currentState else { return }
+//        let signupPartViewController = SignupPartViewController(
+//            uid: state.uid,
+//            name: state.name
+//        )
+//        self.view.endEditing(true)
+//        self.navigationController?.pushViewController(
+//            signupPartViewController,
+//            animated: true
+//        )
     }
 }
 
 extension SignupNameViewController: View {
     func bind(reactor: SignupNameReactor) {
-        mainView.nameTextField.rx.text
+        self.mainView.nameTextField.rx.text
             .orEmpty
             .map { SignupNameReactor.Action.setName($0) }
             .bind(to: reactor.action)
             .disposed(by: self.disposeBag)
         
-        mainView.nextButton.rx.throttleTap
+        self.mainView.textFieldClearButton.rx.throttleTap.bind { [weak self] in
+            self?.mainView.nameTextField.text = ""
+        }.disposed(by: self.disposeBag)
+        
+        self.mainView.nextButton.rx.throttleTap
             .bind { [weak self] in
                 self?.pushSignupPartViewController()
             }.disposed(by: self.disposeBag)
         
-        reactor.state.map { $0.name }
+        reactor.state.map { $0.member.name }
             .distinctUntilChanged()
+            .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .map { !$0.isEmpty }
             .bind(to: mainView.nextButton.rx.isEnabled)

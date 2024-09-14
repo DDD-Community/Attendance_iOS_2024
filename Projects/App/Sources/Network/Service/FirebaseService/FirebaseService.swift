@@ -17,23 +17,27 @@ import Foundation
 final class FirebaseService {
     
     // MARK: - Invite code
-    func validateInviteCode(_ code: String) -> Single<Bool> {
+    func validateInviteCode(_ code: String) -> Single<(Bool, Bool?)> {
         return Single.create { single in
             let db = Firestore.firestore()
             let inviteCodesRef = db.collection("invite_code")
             inviteCodesRef.whereField("code", isEqualTo: code).getDocuments { (querySnapshot, error) in
+                var result: (Bool, Bool?) = (false, nil)
                 if error != nil {
-                    single(.success(false))
+                    single(.success(result))
                     return
                 }
                 guard let documents = querySnapshot?.documents,
                       !documents.isEmpty,
                       let timeStamp = documents.first?.data()["expired_date"] as? Timestamp,
-                      timeStamp.seconds > Int(Date().timeIntervalSince1970) else {
+                      timeStamp.seconds > Int(Date().timeIntervalSince1970),
+                      let isAdmin: Bool = documents.first?.data()["is_admin"] as? Bool
+                else {
                     single(.failure(UserRepositoryError.invalidInviteCode))
                     return
                 }
-                single(.success(true))
+                result = (true, isAdmin)
+                single(.success(result))
             }
             return Disposables.create()
         }

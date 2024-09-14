@@ -44,11 +44,7 @@ final class SignupPartViewController: UIViewController {
               let part = state.selectedPart else {
             return
         }
-        let inviteCodeVC = SignupInviteCodeViewController(
-            uid: state.uid,
-            name: state.name,
-            part: part
-        )
+        let inviteCodeVC = SignupInviteCodeViewController(uid: state.uid)
         self.navigationController?.pushViewController(
             inviteCodeVC,
             animated: true

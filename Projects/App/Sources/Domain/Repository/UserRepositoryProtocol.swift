@@ -22,7 +22,7 @@ protocol UserRepositoryProtocol {
     func checkMemberAttendance(_ attendance: Attendance) -> Single<Bool>
     func editMemberAttendance(_ userId: String, _ attendance: Attendance) -> Single<Bool>
     
-    func validateInviteCode(_ code: String) -> Single<Bool>
+    func validateInviteCode(_ code: String) -> Single<(Bool, Bool?)>
     func fetchInviteCodeList() -> Single<[InvitedCode]>
     func createInviteCode(_ expireDate: Date) -> Single<String>
     func removeInviteCode(_ code: String) -> Single<Bool>

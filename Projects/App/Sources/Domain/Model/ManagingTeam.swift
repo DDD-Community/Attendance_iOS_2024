@@ -5,7 +5,7 @@
 //  Created by 서원지 on 7/19/24.
 //
 
-public enum MangingTeam: String, CaseIterable {
+public enum ManagingTeam: String, CaseIterable, Codable {
     case ios1
     case ios2
     case and1

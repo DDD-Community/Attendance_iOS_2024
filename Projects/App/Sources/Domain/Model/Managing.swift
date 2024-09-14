@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum Manging: String, CaseIterable {
+public enum Managing: String, CaseIterable, Codable {
     case accountiConsulting
     case photographer
     case scheduleManagement
