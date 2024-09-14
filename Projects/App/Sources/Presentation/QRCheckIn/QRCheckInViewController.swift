@@ -119,6 +119,7 @@ extension QRCheckInViewController: ReactorKit.View {
     func bind(reactor: QRCheckInReactor) {
         reactor.state.map { $0.isCheckInSuccess }
             .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
             .compactMap { $0 }
             .bind { [weak self] isSuccess in
                 self?.mainView.stopCaptureSession()

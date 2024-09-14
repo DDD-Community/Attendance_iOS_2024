@@ -55,7 +55,9 @@ final class MemberMainView: BaseView {
         $0.font = .pretendardFontFamily(family: .Regular, size: 14)
     }
     
-    let qrCheckInButton: UIButton = .init()
+    let qrCheckInButton: UIButton = .init().then {
+        $0.titleLabel?.textColor = .white
+    }
     
     private let qrCheckInImageView: UIImageView = .init().then {
         $0.image = .init(named: "icon_qr")
@@ -168,12 +170,13 @@ final class MemberMainView: BaseView {
     
     func bindEvent(_ event: DDDEvent, _ isAttendanceNeeded: Bool) {
         qrCheckInButton.isEnabled = isAttendanceNeeded
-        if isAttendanceNeeded {
-            qrCheckInButton.setTitle("QR 출석 👉", for: .normal)
-            qrCheckInButton.backgroundColor = .black
-        } else {
-            qrCheckInButton.setTitle("출석 불필요", for: .normal)
-            qrCheckInButton.backgroundColor = .gray
+        qrCheckInImageView.isHidden = true
+        if !isAttendanceNeeded {
+            qrCheckInButton.setTitle("출석 완료!", for: .normal)
+            qrCheckInButton.titleLabel?.flex.markDirty()
+            toolTipLabel.isHidden = true
+            toolTipTailView.isHidden = true
+            layout()
         }
     }
     
