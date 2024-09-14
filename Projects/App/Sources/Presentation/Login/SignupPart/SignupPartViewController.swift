@@ -48,8 +48,8 @@ final class SignupPartViewController: UIViewController {
             let vc: SignupCoreMemberRoleViewController = .init(member)
             self.navigationController?.pushViewController(vc, animated: true)
         } else if member.memberType == .member {
-//            let vc: SignupCoreMemberRoleViewController = .init(member)
-//            self.navigationController?.pushViewController(vc, animated: true)
+            let vc: SignupMemberTeamViewController = .init(member)
+            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }

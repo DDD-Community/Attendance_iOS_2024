@@ -26,7 +26,7 @@ public enum Managing: String, CaseIterable, Codable {
         case .instagramManagement:
             return "인스타그램"
         case .attendanceCheck:
-            return  "출석 체크"
+            return "출석 체크"
         case .projectTeamManging:
             return "팀매니징"
         }

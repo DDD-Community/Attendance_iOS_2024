@@ -16,5 +16,5 @@ struct MemberRequestModel: Codable {
     /// 운영진이 아니면 nil
     var coreMemberRole: Managing?
     
-    var memberRole: ManagingTeam?
+    var memberTeam: ManagingTeam?
 }
