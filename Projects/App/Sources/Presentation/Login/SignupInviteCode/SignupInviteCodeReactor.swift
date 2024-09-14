@@ -12,95 +12,86 @@ import Foundation
 final class SignupInviteCodeReactor: Reactor {
     struct State {
         var uid: String
-        var name: String
-        var part: SelectPart
         var inviteCode: String = ""
-        var isSignupSuccess: Bool?
+        var isCodeValid: Bool?
         var errorMessage: String?
+        var memberType: MemberType?
     }
     
     enum Action {
         case updateInviteCode(String)
-        case signup
+        case checkCode
+        case reset
     }
     
     enum Mutation {
         case setInviteCode(String)
-        case setSignupSuccess(Bool)
+        case setCodeValid(Bool)
+        case setCodeMemberType(MemberType)
         case setErrorMessage(String)
+        case reset
     }
     
     let initialState: State
     private let repository: UserRepositoryProtocol
     
-    init(
-        uid: String,
-        name: String,
-        part: SelectPart
-    ) {
-        self.initialState = State(
-            uid: uid,
-            name: name,
-            part: part
-        )
+    init(uid: String) {
+        self.initialState = State(uid: uid)
         self.repository = UserRepository()
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case .reset:
+            return .just(.reset)
         case let .updateInviteCode(inviteCode):
             return .just(.setInviteCode(inviteCode))
-        case .signup:
-            return signup()
+        case .checkCode:
+            return checkCode()
         }
     }
     
     func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
+        newState.errorMessage = nil
+        
         switch mutation {
         case let .setInviteCode(inviteCode):
             newState.inviteCode = inviteCode
-        case let .setSignupSuccess(isSignupSuccess):
-            newState.isSignupSuccess = isSignupSuccess
+        case let .setCodeValid(isValid):
+            newState.isCodeValid = isValid
+            if !isValid {
+                newState.errorMessage = "코드가 유효하지 않아요"
+            }
         case let .setErrorMessage(message):
             newState.errorMessage = message
+        case let .setCodeMemberType(memberType):
+            newState.memberType = memberType
+        case .reset:
+            newState.isCodeValid = nil
+            newState.memberType = nil
         }
         return newState
     }
 }
 
 extension SignupInviteCodeReactor {
-    private func signup() -> Observable<Mutation> {
+    private func checkCode() -> Observable<Mutation> {
         return repository
             .validateInviteCode(currentState.inviteCode)
-            .flatMap { [weak self] isValid -> Single<Bool> in
-                guard let self, isValid else {
-                    return .just(false)
-                }
-                let member: Member = .init(
-                    uid: self.currentState.uid,
-                    memberid: self.currentState.uid,
-                    name: self.currentState.name,
-                    role: self.currentState.part,
-                    memberType: .member,
-                    createdAt: Date(),
-                    updatedAt: Date(),
-                    generation: 11
-                )
-                return self.repository.saveMember(member)
-            }
-            .map { Mutation.setSignupSuccess($0) }
-            .catch { error -> Single<Mutation> in
-                guard error is UserRepositoryError else {
-                    return .just(.setSignupSuccess(false))
-                }
-                switch error as! UserRepositoryError {
-                case .invalidInviteCode:
-                    return .just(.setErrorMessage("유효하지 않은 코드입니다."))
-                default:
-                    return .just(.setSignupSuccess(false))
-                }
-            }
             .asObservable()
+            .flatMap { (isValidCode: Bool, isAdmin: Bool?) in
+                guard let isAdmin else {
+                    return Observable.just(Mutation.setCodeValid(false))
+                }
+                return Observable.merge(
+                    .just(Mutation.setCodeValid(isValidCode)),
+                    .just(Mutation.setCodeMemberType(isAdmin ? .coreMember : .member))
+                )
+            }
+            .catch { error in
+                print("🚨 \(error)")
+                return .just(.setCodeValid(false))
+            }
     }
 }

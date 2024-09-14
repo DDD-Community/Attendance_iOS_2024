@@ -1,8 +1,8 @@
 //
-//  SignupPartView.swift
+//  SignupMemberTeamView.swift
 //  DDDAttendance
 //
-//  Created by 고병학 on 6/8/24.
+//  Created by 고병학 on 9/14/24.
 //
 
 import FlexLayout
@@ -12,7 +12,7 @@ import Then
 import DesignSystem
 import UIKit
 
-final class SignupPartView: BaseView {
+final class SignupMemberTeamView: BaseView {
     // MARK: - UI properties
     private let rootView: UIView = .init()
     
@@ -25,53 +25,53 @@ final class SignupPartView: BaseView {
     }
     
     private let partLabel: UILabel = .init().then {
-        $0.text = "직군을 선택해주세요"
+        $0.text = "팀을 선택해주세요"
         $0.textColor = .white
         $0.font = .systemFont(ofSize: 24, weight: .bold)
     }
     
-    let iOSButton: UIButton = .init().then {
-        $0.setTitle("iOS", for: .normal)
+    let and1TeamButton: UIButton = .init().then {
+        $0.setTitle("Android 1팀", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
         $0.contentHorizontalAlignment = .leading
     }
     
-    let webButton: UIButton = .init().then {
-        $0.setTitle("Front-end", for: .normal)
+    let and2TeamButton: UIButton = .init().then {
+        $0.setTitle("Android 2팀", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
         $0.contentHorizontalAlignment = .leading
     }
     
-    let serverButton: UIButton = .init().then {
-        $0.setTitle("Back-end", for: .normal)
+    let iOS1Button: UIButton = .init().then {
+        $0.setTitle("iOS 1팀", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
         $0.contentHorizontalAlignment = .leading
     }
     
-    let androidButton: UIButton = .init().then {
-        $0.setTitle("ANDROID", for: .normal)
+    let iOS2Button: UIButton = .init().then {
+        $0.setTitle("iOS 2팀", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
         $0.contentHorizontalAlignment = .leading
     }
     
-    let designerButton: UIButton = .init().then {
-        $0.setTitle("DESIGNER", for: .normal)
+    let web1Button: UIButton = .init().then {
+        $0.setTitle("Web 1팀", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
         $0.contentHorizontalAlignment = .leading
     }
     
-    let pmButton: UIButton = .init().then {
-        $0.setTitle("PM", for: .normal)
+    let web2Button: UIButton = .init().then {
+        $0.setTitle("Web 2팀", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
@@ -116,22 +116,22 @@ final class SignupPartView: BaseView {
                 .marginHorizontal(32)
                 .rowGap(24)
                 .define { flex in
-                    flex.addItem(pmButton)
+                    flex.addItem(and1TeamButton)
                         .height(38)
                     
-                    flex.addItem(designerButton)
+                    flex.addItem(and2TeamButton)
                         .height(38)
                     
-                    flex.addItem(androidButton)
+                    flex.addItem(iOS1Button)
                         .height(38)
                     
-                    flex.addItem(iOSButton)
+                    flex.addItem(iOS2Button)
                         .height(38)
                     
-                    flex.addItem(webButton)
+                    flex.addItem(web1Button)
                         .height(38)
                     
-                    flex.addItem(serverButton)
+                    flex.addItem(web2Button)
                         .height(38)
                 }
         }

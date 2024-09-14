@@ -16,24 +16,15 @@ final class SignupInviteCodeViewController: UIViewController {
     typealias Reactor = SignupInviteCodeReactor
     
     // MARK: - UI properties
-    private var mainView: SignupInviteCodeView { view as! SignupInviteCodeView }
+    private var mainView: SignupInviteCodeView { self.view as! SignupInviteCodeView }
     
     // MARK: - Properties
     var disposeBag: DisposeBag = .init()
     
-    
     // MARK: - Lifecycles
-    init(
-        uid: String,
-        name: String,
-        part: SelectPart
-    ) {
+    init(uid: String) {
         super.init(nibName: nil, bundle: nil)
-        self.reactor = SignupInviteCodeReactor(
-            uid: uid,
-            name: name,
-            part: part
-        )
+        self.reactor = SignupInviteCodeReactor(uid: uid)
     }
     
     required init?(coder: NSCoder) {
@@ -41,12 +32,18 @@ final class SignupInviteCodeViewController: UIViewController {
     }
     
     override func loadView() {
-        view = SignupInviteCodeView()
+        self.view = SignupInviteCodeView()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        registerForKeyboardNotifications()
+        self.setDelegate()
+        self.registerForKeyboardNotifications()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     deinit {
@@ -55,49 +52,29 @@ final class SignupInviteCodeViewController: UIViewController {
     // MARK: - Public helpers
     
     // MARK: - Private helpers
-    private func getViewController() -> UIViewController? {
-//        guard let isManager: Bool = self.reactor?.currentState.isManager else {
-//            return nil
-//        }
-        let isManager: Bool = true
-        if isManager {
-            let rootCoreMemberView = RootCoreMemberView(store: Store(
-                initialState: RootCoreMember.State(),
-                reducer: {
-                RootCoreMember()
-                        ._printChanges()
-            }))
-            let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
-            return coreMemberHostingViewController
-        } else {
-//            let rootCoreMemberView = RootCoreMemberView(store: Store(
-//                initialState: RootCoreMember.State(),
-//                reducer: {
-//                RootCoreMember()
-//                        ._printChanges()
-//            }))
-//            let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
-//            return coreMemberHostingViewController
-            return MemberMainViewController()
-        }
+    private func setDelegate() {
+        self.mainView.codeTextField.delegate = self
     }
     
-    private func switchView() {
-        guard let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate,
-              let window = sceneDelegate.window else {
-            return
-        }
-        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) { [weak self] in
-            guard let viewController = self?.getViewController() else { return }
-            let navigationController: UINavigationController = .init(rootViewController: viewController)
-            navigationController.navigationBar.isHidden = true
-            window.rootViewController = navigationController
-        }
+    private func routeToNextStep(_ memberType: MemberType) {
+        guard let uid: String = self.reactor?.currentState.uid else { return }
+        self.reactor?.action.onNext(.reset)
+        let vc: SignupNameViewController = .init(uid: uid, memberType: memberType)
+        self.view.endEditing(true)
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
 
 extension SignupInviteCodeViewController: ReactorKit.View {
     func bind(reactor: Reactor) {
+        self.mainView.backButton.rx.throttleTap.bind { [weak self] in
+            self?.navigationController?.popViewController(animated: true)
+        }.disposed(by: self.disposeBag)
+        
+        self.mainView.textFieldClearButton.rx.throttleTap.bind { [weak self] in
+            self?.mainView.codeTextField.text = ""
+        }.disposed(by: self.disposeBag)
+        
         mainView.codeTextField.rx.text
             .orEmpty
             .map { Reactor.Action.updateInviteCode($0) }
@@ -105,7 +82,7 @@ extension SignupInviteCodeViewController: ReactorKit.View {
             .disposed(by: disposeBag)
         
         mainView.nextButton.rx.throttleTap
-            .map { Reactor.Action.signup }
+            .map { Reactor.Action.checkCode }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -116,6 +93,13 @@ extension SignupInviteCodeViewController: ReactorKit.View {
             .bind(to: mainView.nextButton.rx.isEnabled)
             .disposed(by: disposeBag)
         
+        reactor.state.map { $0.inviteCode }
+            .distinctUntilChanged()
+            .map { $0.isEmpty }
+            .observe(on: MainScheduler.asyncInstance)
+            .bind(to: mainView.textFieldClearButton.rx.isHidden)
+            .disposed(by: disposeBag)
+        
         reactor.state.map { $0.errorMessage }
             .distinctUntilChanged()
             .observe(on: MainScheduler.asyncInstance)
@@ -124,12 +108,24 @@ extension SignupInviteCodeViewController: ReactorKit.View {
                 self?.mainView.codeErrorLabel.isHidden = errorMessage == nil
             }.disposed(by: disposeBag)
         
-        reactor.state.map { $0.isSignupSuccess }
+        reactor.state.map { $0.memberType }
             .distinctUntilChanged()
             .observe(on: MainScheduler.asyncInstance)
-            .bind { [weak self] isSignupSuccess in
-                guard let isSignupSuccess, isSignupSuccess else { return }
-                self?.switchView()
+            .bind { [weak self] memberType in
+                guard let memberType else { return }
+                self?.routeToNextStep(memberType)
             }.disposed(by: disposeBag)
+    }
+}
+
+extension SignupInviteCodeViewController: UITextFieldDelegate {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        let allowedCharacters: CharacterSet = CharacterSet.decimalDigits
+        let characterSet: CharacterSet = CharacterSet(charactersIn: string)
+        return allowedCharacters.isSuperset(of: characterSet)
     }
 }

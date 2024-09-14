@@ -11,8 +11,7 @@ import Foundation
 
 final class SignupNameReactor: Reactor {
     struct State {
-        var name: String = ""
-        var uid: String
+        var member: MemberRequestModel
     }
     
     enum Action {
@@ -25,8 +24,15 @@ final class SignupNameReactor: Reactor {
     
     var initialState: State
     
-    init(uid: String) {
-        self.initialState = .init(uid: uid)
+    init(
+        uid: String,
+        memberType: MemberType
+    ) {
+        let member: MemberRequestModel = .init(
+            uid: uid,
+            memberType: memberType
+        )
+        self.initialState = .init(member: member)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -40,7 +46,7 @@ final class SignupNameReactor: Reactor {
         var state = state
         switch mutation {
         case let .setName(name):
-            state.name = name
+            state.member.name = name
         }
         return state
     }

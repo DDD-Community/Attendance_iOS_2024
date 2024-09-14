@@ -36,8 +36,8 @@ final class SNSLoginViewController: UIViewController {
     // MARK: - Private helpers
     private func routeToSignup() {
         guard let uid = reactor?.currentState.userUID else { return }
-        let signupNameViewController = SignupNameViewController(uid: uid)
-        self.navigationController?.pushViewController(signupNameViewController, animated: true)
+        let vc: SignupInviteCodeViewController = .init(uid: uid)
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     private func routeToMemberMain() {

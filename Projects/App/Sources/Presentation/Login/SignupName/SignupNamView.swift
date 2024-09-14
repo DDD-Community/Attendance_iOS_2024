@@ -9,6 +9,7 @@ import FlexLayout
 import PinLayout
 import Then
 
+import DesignSystem
 import UIKit
 
 final class SignupNamView: BaseView {
@@ -16,16 +17,28 @@ final class SignupNamView: BaseView {
     // MARK: - UI properties
     private let rootView: UIView = .init()
     
+    private lazy var navigationBar: UICustomNavigationBar = .init().then {
+        $0.addLeftButton(backButton)
+    }
+    
+    let backButton: UIButton = .init().then {
+        $0.setImage(UIImage(named: "icon_back"), for: .normal)
+    }
+    
     private let nameTitleLabel: UILabel = .init().then {
-        $0.text = "이름"
+        $0.text = "이름이 어떻게 되시나요?"
         $0.textColor = .white
-        $0.textAlignment = .center
-        $0.font = .systemFont(ofSize: 24, weight: .semibold)
+        $0.font = .systemFont(ofSize: 24, weight: .bold)
+    }
+    
+    private let nameSubTitleLabel: UILabel = .init().then {
+        $0.text = "본명으로 입력해주세요."
+        $0.textColor = .gray400
+        $0.font = .systemFont(ofSize: 16)
     }
     
     let nameTextField: UITextField = .init().then {
         $0.textColor = .white
-        $0.textAlignment = .center
         $0.font = .systemFont(ofSize: 32, weight: .semibold)
         $0.tintColor = .white
         $0.textContentType = .name
@@ -33,6 +46,10 @@ final class SignupNamView: BaseView {
             string: "이름을 입력해주세요",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.white.withAlphaComponent(0.5)]
         )
+    }
+    
+    let textFieldClearButton: UIButton = .init().then {
+        $0.setImage(.init(named: "icon_clear_field"), for: .normal)
     }
     
     private let nextButtonContainer: UIView = .init().then {
@@ -66,12 +83,38 @@ final class SignupNamView: BaseView {
         }
         
         rootView.flex.define { flex in
-            flex.addItem(nameTitleLabel)
-                .marginTop(40)
-                .marginBottom(20)
-            flex.addItem(nameTextField)
+            flex.addItem(navigationBar)
+                .height(56)
                 .width(100%)
-                .height(50)
+            
+            flex.addItem(nameTitleLabel)
+                .height(26)
+                .marginTop(50)
+                .marginHorizontal(32)
+                .marginBottom(10)
+            
+            flex.addItem(nameSubTitleLabel)
+                .height(16)
+                .marginHorizontal(32)
+                .marginBottom(80)
+            
+            flex.addItem()
+                .direction(.row)
+                .alignItems(.center)
+                .marginHorizontal(32)
+                .marginBottom(8)
+                .define { flex in
+                    flex.addItem(nameTextField)
+                        .height(50)
+                        .grow(1)
+                    flex.addItem(textFieldClearButton)
+                        .size(24)
+                }
+            
+            flex.addItem()
+                .backgroundColor(.basicWhite)
+                .height(1)
+                .marginHorizontal(24)
         }
     }
     
@@ -80,7 +123,7 @@ final class SignupNamView: BaseView {
     // MARK: - Private helpers
     private func layout() {
         nextButtonContainer.pin
-            .height(50 + pin.safeArea.bottom)
+            .height(56 + pin.safeArea.bottom)
             .horizontally()
             .bottom()
         nextButtonContainer.flex.layout()

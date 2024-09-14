@@ -18,14 +18,12 @@ final class SignupPartViewController: UIViewController {
     
     // MARK: - Properties
     var disposeBag: DisposeBag = .init()
+    private lazy var feedbackGenerator: UIImpactFeedbackGenerator = .init()
     
     // MARK: - Lifecycles
-    init(
-        uid: String,
-        name: String
-    ) {
+    init(_ member: MemberRequestModel) {
         super.init(nibName: nil, bundle: nil)
-        self.reactor = Reactor(uid: uid, name: name)
+        self.reactor = Reactor(member: member)
     }
     
     required init?(coder: NSCoder) {
@@ -36,23 +34,23 @@ final class SignupPartViewController: UIViewController {
         view = SignupPartView()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
     // MARK: - Public helpers
     
     // MARK: - Private helpers
-    private func pushSignupInviteCodeViewController() {
-        guard let state = self.reactor?.currentState,
-              let part = state.selectedPart else {
-            return
+    private func pushSignupRoleButton() {
+        guard let member: MemberRequestModel = self.reactor?.currentState.member else { return }
+        if member.memberType == .coreMember {
+            let vc: SignupCoreMemberRoleViewController = .init(member)
+            self.navigationController?.pushViewController(vc, animated: true)
+        } else if member.memberType == .member {
+            let vc: SignupMemberTeamViewController = .init(member)
+            self.navigationController?.pushViewController(vc, animated: true)
         }
-        let inviteCodeVC = SignupInviteCodeViewController(
-            uid: state.uid,
-            name: state.name,
-            part: part
-        )
-        self.navigationController?.pushViewController(
-            inviteCodeVC,
-            animated: true
-        )
     }
 }
 
@@ -91,10 +89,14 @@ extension SignupPartViewController: View {
         
         mainView.nextButton.rx.tap
             .bind { [weak self] in
-                self?.pushSignupInviteCodeViewController()
+                self?.pushSignupRoleButton()
             }.disposed(by: disposeBag)
         
-        reactor.state.map { $0.selectedPart }
+        self.mainView.backButton.rx.throttleTap.bind { [weak self] in
+            self?.navigationController?.popViewController(animated: true)
+        }.disposed(by: self.disposeBag)
+        
+        reactor.state.map { $0.member.memberPart }
             .distinctUntilChanged()
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [weak self] part in
@@ -104,8 +106,11 @@ extension SignupPartViewController: View {
                 self?.mainView.androidButton.isSelected = part == .android
                 self?.mainView.designerButton.isSelected = part == .design
                 self?.mainView.pmButton.isSelected = part == .pm
-                
                 self?.mainView.nextButton.isEnabled = part != nil
+                
+                if part != nil {
+                    self?.feedbackGenerator.impactOccurred()
+                }
             })
             .disposed(by: self.disposeBag)
     }

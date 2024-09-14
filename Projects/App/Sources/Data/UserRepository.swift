@@ -61,7 +61,7 @@ final class UserRepository: UserRepositoryProtocol {
         }
     }
     
-    func validateInviteCode(_ code: String) -> Single<Bool> {
+    func validateInviteCode(_ code: String) -> Single<(Bool, Bool?)> {
         return firebaseService.validateInviteCode(code)
     }
     
