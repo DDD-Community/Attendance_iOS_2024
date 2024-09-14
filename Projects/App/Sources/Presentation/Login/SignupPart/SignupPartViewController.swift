@@ -42,12 +42,15 @@ final class SignupPartViewController: UIViewController {
     // MARK: - Public helpers
     
     // MARK: - Private helpers
-    private func pushSignupInviteCodeViewController() {
-//        let vc: SignupRoleViewController =
-//        self.navigationController?.pushViewController(
-//            vc,
-//            animated: true
-//        )
+    private func pushSignupRoleButton() {
+        guard let member: MemberRequestModel = self.reactor?.currentState.member else { return }
+        if member.memberType == .coreMember {
+            let vc: SignupCoreMemberRoleViewController = .init(member)
+            self.navigationController?.pushViewController(vc, animated: true)
+        } else if member.memberType == .member {
+//            let vc: SignupCoreMemberRoleViewController = .init(member)
+//            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }
 
@@ -86,7 +89,7 @@ extension SignupPartViewController: View {
         
         mainView.nextButton.rx.tap
             .bind { [weak self] in
-                self?.pushSignupInviteCodeViewController()
+                self?.pushSignupRoleButton()
             }.disposed(by: disposeBag)
         
         self.mainView.backButton.rx.throttleTap.bind { [weak self] in

@@ -1,8 +1,8 @@
 //
-//  SignupPartView.swift
+//  SignupCoreMemberRoleView.swift
 //  DDDAttendance
 //
-//  Created by 고병학 on 6/8/24.
+//  Created by 고병학 on 9/14/24.
 //
 
 import FlexLayout
@@ -12,7 +12,7 @@ import Then
 import DesignSystem
 import UIKit
 
-final class SignupPartView: BaseView {
+final class SignupCoreMemberRoleView: BaseView {
     // MARK: - UI properties
     private let rootView: UIView = .init()
     
@@ -25,53 +25,53 @@ final class SignupPartView: BaseView {
     }
     
     private let partLabel: UILabel = .init().then {
-        $0.text = "직군을 선택해주세요"
+        $0.text = "담당 업무를 선택해주세요"
         $0.textColor = .white
         $0.font = .systemFont(ofSize: 24, weight: .bold)
     }
     
-    let iOSButton: UIButton = .init().then {
-        $0.setTitle("iOS", for: .normal)
+    let teamManagingButton: UIButton = .init().then {
+        $0.setTitle("팀 매니징", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
         $0.contentHorizontalAlignment = .leading
     }
     
-    let webButton: UIButton = .init().then {
-        $0.setTitle("Front-end", for: .normal)
+    let calendarButton: UIButton = .init().then {
+        $0.setTitle("일정 관리", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
         $0.contentHorizontalAlignment = .leading
     }
     
-    let serverButton: UIButton = .init().then {
-        $0.setTitle("Back-end", for: .normal)
+    let photoButton: UIButton = .init().then {
+        $0.setTitle("사진 촬영", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
         $0.contentHorizontalAlignment = .leading
     }
     
-    let androidButton: UIButton = .init().then {
-        $0.setTitle("ANDROID", for: .normal)
+    let rentPlaceButton: UIButton = .init().then {
+        $0.setTitle("장소 대관", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
         $0.contentHorizontalAlignment = .leading
     }
     
-    let designerButton: UIButton = .init().then {
-        $0.setTitle("DESIGNER", for: .normal)
+    let snsManageButton: UIButton = .init().then {
+        $0.setTitle("SNS 관리", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
         $0.contentHorizontalAlignment = .leading
     }
     
-    let pmButton: UIButton = .init().then {
-        $0.setTitle("PM", for: .normal)
+    let attendanceCheckButton: UIButton = .init().then {
+        $0.setTitle("출석 체크", for: .normal)
         $0.setTitleColor(.gray800, for: .normal)
         $0.setTitleColor(.white, for: .selected)
         $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
@@ -116,22 +116,22 @@ final class SignupPartView: BaseView {
                 .marginHorizontal(32)
                 .rowGap(24)
                 .define { flex in
-                    flex.addItem(pmButton)
+                    flex.addItem(teamManagingButton)
                         .height(38)
                     
-                    flex.addItem(designerButton)
+                    flex.addItem(calendarButton)
                         .height(38)
                     
-                    flex.addItem(androidButton)
+                    flex.addItem(photoButton)
                         .height(38)
                     
-                    flex.addItem(iOSButton)
+                    flex.addItem(rentPlaceButton)
                         .height(38)
                     
-                    flex.addItem(webButton)
+                    flex.addItem(snsManageButton)
                         .height(38)
                     
-                    flex.addItem(serverButton)
+                    flex.addItem(attendanceCheckButton)
                         .height(38)
                 }
         }
@@ -159,3 +159,4 @@ final class SignupPartView: BaseView {
         rootView.flex.layout()
     }
 }
+
