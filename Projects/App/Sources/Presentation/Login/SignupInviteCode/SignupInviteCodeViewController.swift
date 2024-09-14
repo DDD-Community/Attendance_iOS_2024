@@ -53,7 +53,9 @@ final class SignupInviteCodeViewController: UIViewController {
     
     private func routeToNextStep(_ memberType: MemberType) {
         guard let uid: String = self.reactor?.currentState.uid else { return }
+        self.reactor?.action.onNext(.reset)
         let vc: SignupNameViewController = .init(uid: uid, memberType: memberType)
+        self.view.endEditing(true)
         self.navigationController?.pushViewController(vc, animated: true)
     }
 }

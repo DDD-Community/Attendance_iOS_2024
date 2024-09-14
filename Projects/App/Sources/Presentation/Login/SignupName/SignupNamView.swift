@@ -9,12 +9,21 @@ import FlexLayout
 import PinLayout
 import Then
 
+import DesignSystem
 import UIKit
 
 final class SignupNamView: BaseView {
     
     // MARK: - UI properties
     private let rootView: UIView = .init()
+    
+    private lazy var navigationBar: UICustomNavigationBar = .init().then {
+        $0.addLeftButton(backButton)
+    }
+    
+    let backButton: UIButton = .init().then {
+        $0.setImage(UIImage(named: "icon_back"), for: .normal)
+    }
     
     private let nameTitleLabel: UILabel = .init().then {
         $0.text = "이름이 어떻게 되시나요?"
@@ -74,6 +83,10 @@ final class SignupNamView: BaseView {
         }
         
         rootView.flex.define { flex in
+            flex.addItem(navigationBar)
+                .height(56)
+                .width(100%)
+            
             flex.addItem(nameTitleLabel)
                 .height(26)
                 .marginTop(50)

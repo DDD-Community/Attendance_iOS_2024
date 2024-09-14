@@ -18,14 +18,12 @@ final class SignupPartViewController: UIViewController {
     
     // MARK: - Properties
     var disposeBag: DisposeBag = .init()
+    private lazy var feedbackGenerator: UIImpactFeedbackGenerator = .init()
     
     // MARK: - Lifecycles
-    init(
-        uid: String,
-        name: String
-    ) {
+    init(_ member: MemberRequestModel) {
         super.init(nibName: nil, bundle: nil)
-        self.reactor = Reactor(uid: uid, name: name)
+        self.reactor = Reactor(member: member)
     }
     
     required init?(coder: NSCoder) {
@@ -40,15 +38,11 @@ final class SignupPartViewController: UIViewController {
     
     // MARK: - Private helpers
     private func pushSignupInviteCodeViewController() {
-        guard let state = self.reactor?.currentState,
-              let part = state.selectedPart else {
-            return
-        }
-        let inviteCodeVC = SignupInviteCodeViewController(uid: state.uid)
-        self.navigationController?.pushViewController(
-            inviteCodeVC,
-            animated: true
-        )
+//        let vc: SignupRoleViewController =
+//        self.navigationController?.pushViewController(
+//            vc,
+//            animated: true
+//        )
     }
 }
 
@@ -90,10 +84,16 @@ extension SignupPartViewController: View {
                 self?.pushSignupInviteCodeViewController()
             }.disposed(by: disposeBag)
         
-        reactor.state.map { $0.selectedPart }
+        self.mainView.backButton.rx.throttleTap.bind { [weak self] in
+            self?.navigationController?.popViewController(animated: true)
+        }.disposed(by: self.disposeBag)
+        
+        reactor.state.map { $0.member.memberPart }
             .distinctUntilChanged()
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [weak self] part in
+                self?.feedbackGenerator.impactOccurred()
+                
                 self?.mainView.iOSButton.isSelected = part == .iOS
                 self?.mainView.webButton.isSelected = part == .web
                 self?.mainView.serverButton.isSelected = part == .server

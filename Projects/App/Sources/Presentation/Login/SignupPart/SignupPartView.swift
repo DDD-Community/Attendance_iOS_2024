@@ -9,71 +9,73 @@ import FlexLayout
 import PinLayout
 import Then
 
+import DesignSystem
 import UIKit
 
 final class SignupPartView: BaseView {
     // MARK: - UI properties
     private let rootView: UIView = .init()
     
+    private lazy var navigationBar: UICustomNavigationBar = .init().then {
+        $0.addLeftButton(backButton)
+    }
+    
+    let backButton: UIButton = .init().then {
+        $0.setImage(UIImage(named: "icon_back"), for: .normal)
+    }
+    
     private let partLabel: UILabel = .init().then {
-        $0.text = "파트를 선택해주세요"
+        $0.text = "직군을 선택해주세요"
         $0.textColor = .white
-        $0.textAlignment = .center
-        $0.font = .systemFont(ofSize: 24, weight: .semibold)
+        $0.font = .systemFont(ofSize: 24, weight: .bold)
     }
     
     let iOSButton: UIButton = .init().then {
         $0.setTitle("iOS", for: .normal)
-        $0.setTitle("✅ iOS", for: .selected)
-        $0.setTitleColor(.black, for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 24, weight: .semibold)
-        $0.backgroundColor = .white
-        $0.layer.cornerRadius = 10
+        $0.setTitleColor(.gray800, for: .normal)
+        $0.setTitleColor(.white, for: .selected)
+        $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
+        $0.contentHorizontalAlignment = .leading
     }
     
     let webButton: UIButton = .init().then {
-        $0.setTitle("WEB", for: .normal)
-        $0.setTitle("✅ WEB", for: .selected)
-        $0.setTitleColor(.black, for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 24, weight: .semibold)
-        $0.backgroundColor = .white
-        $0.layer.cornerRadius = 10
+        $0.setTitle("Front-end", for: .normal)
+        $0.setTitleColor(.gray800, for: .normal)
+        $0.setTitleColor(.white, for: .selected)
+        $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
+        $0.contentHorizontalAlignment = .leading
     }
     
     let serverButton: UIButton = .init().then {
-        $0.setTitle("SERVER", for: .normal)
-        $0.setTitle("✅ SERVER", for: .selected)
-        $0.setTitleColor(.black, for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 24, weight: .semibold)
-        $0.backgroundColor = .white
-        $0.layer.cornerRadius = 10
+        $0.setTitle("Back-end", for: .normal)
+        $0.setTitleColor(.gray800, for: .normal)
+        $0.setTitleColor(.white, for: .selected)
+        $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
+        $0.contentHorizontalAlignment = .leading
     }
     
     let androidButton: UIButton = .init().then {
         $0.setTitle("ANDROID", for: .normal)
-        $0.setTitle("✅ ANDROID", for: .selected)
-        $0.setTitleColor(.black, for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 24, weight: .semibold)
-        $0.backgroundColor = .white
-        $0.layer.cornerRadius = 10
+        $0.setTitleColor(.gray800, for: .normal)
+        $0.setTitleColor(.white, for: .selected)
+        $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
+        $0.contentHorizontalAlignment = .leading
     }
     
     let designerButton: UIButton = .init().then {
         $0.setTitle("DESIGNER", for: .normal)
-        $0.setTitle("✅ DESIGNER", for: .selected)
-        $0.setTitleColor(.black, for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 24, weight: .semibold)
-        $0.backgroundColor = .white
-        $0.layer.cornerRadius = 10
+        $0.setTitleColor(.gray800, for: .normal)
+        $0.setTitleColor(.white, for: .selected)
+        $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
+        $0.contentHorizontalAlignment = .leading
     }
     
     let pmButton: UIButton = .init().then {
         $0.setTitle("PM", for: .normal)
-        $0.setTitle("✅ PM", for: .selected)
-        $0.setTitleColor(.black, for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 24, weight: .semibold)
-        $0.backgroundColor = .white
-        $0.layer.cornerRadius = 10
+        $0.setTitleColor(.gray800, for: .normal)
+        $0.setTitleColor(.white, for: .selected)
+        $0.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
+        $0.contentHorizontalAlignment = .leading
     }
     
     private let nextButtonContainer: UIView = .init().then {
@@ -100,41 +102,37 @@ final class SignupPartView: BaseView {
         backgroundColor = .black
         addSubview(rootView)
         rootView.flex.define { flex in
-            flex.addItem(partLabel)
-                .marginTop(40)
-                .marginBottom(20)
+            flex.addItem(navigationBar)
+                .height(56)
                 .width(100%)
             
+            flex.addItem(partLabel)
+                .marginTop(50)
+                .marginHorizontal(32)
+                .marginBottom(48)
+                .height(26)
+            
             flex.addItem()
-                .direction(.row)
-                .wrap(.wrap)
-                .justifyContent(.center)
-                .columnGap(10)
-                .rowGap(10)
+                .marginHorizontal(32)
+                .rowGap(24)
                 .define { flex in
-                    flex.addItem(iOSButton)
-                        .width(45%)
-                        .height(60)
-                    
-                    flex.addItem(webButton)
-                        .width(45%)
-                        .height(60)
-                    
-                    flex.addItem(serverButton)
-                        .width(45%)
-                        .height(60)
-                    
-                    flex.addItem(androidButton)
-                        .width(45%)
-                        .height(60)
+                    flex.addItem(pmButton)
+                        .height(38)
                     
                     flex.addItem(designerButton)
-                        .width(45%)
-                        .height(60)
+                        .height(38)
                     
-                    flex.addItem(pmButton)
-                        .width(45%)
-                        .height(60)
+                    flex.addItem(androidButton)
+                        .height(38)
+                    
+                    flex.addItem(iOSButton)
+                        .height(38)
+                    
+                    flex.addItem(webButton)
+                        .height(38)
+                    
+                    flex.addItem(serverButton)
+                        .height(38)
                 }
         }
         

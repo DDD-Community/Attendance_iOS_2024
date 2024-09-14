@@ -85,6 +85,8 @@ final class SignupInviteCodeView: BaseView {
         
         rootView.flex.define { flex in
             flex.addItem(navigationBar)
+                .height(56)
+                .width(100%)
             
             flex.addItem(codeTitleLabel)
                 .marginTop(40)

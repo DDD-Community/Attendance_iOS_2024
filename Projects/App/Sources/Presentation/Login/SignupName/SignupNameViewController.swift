@@ -54,21 +54,19 @@ final class SignupNameViewController: UIViewController {
     
     // MARK: - Private helpers
     private func pushSignupPartViewController() {
-//        guard let state = self.reactor?.currentState else { return }
-//        let signupPartViewController = SignupPartViewController(
-//            uid: state.uid,
-//            name: state.name
-//        )
-//        self.view.endEditing(true)
-//        self.navigationController?.pushViewController(
-//            signupPartViewController,
-//            animated: true
-//        )
+        guard let member: MemberRequestModel = self.reactor?.currentState.member else { return }
+        let vc: SignupPartViewController = .init(member)
+        self.view.endEditing(true)
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
 
 extension SignupNameViewController: View {
     func bind(reactor: SignupNameReactor) {
+        self.mainView.backButton.rx.throttleTap.bind { [weak self] in
+            self?.navigationController?.popViewController(animated: true)
+        }.disposed(by: self.disposeBag)
+        
         self.mainView.nameTextField.rx.text
             .orEmpty
             .map { SignupNameReactor.Action.setName($0) }
