@@ -42,8 +42,7 @@ final class SignupNameViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.isHidden = false
-        self.navigationController?.navigationBar.tintColor = .white
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     deinit {

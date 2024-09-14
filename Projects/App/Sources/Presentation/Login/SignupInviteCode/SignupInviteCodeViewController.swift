@@ -41,6 +41,11 @@ final class SignupInviteCodeViewController: UIViewController {
         self.registerForKeyboardNotifications()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
     deinit {
         self.unregisterForKeyboardNotifications()
     }

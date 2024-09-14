@@ -34,6 +34,11 @@ final class SignupPartViewController: UIViewController {
         view = SignupPartView()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
     // MARK: - Public helpers
     
     // MARK: - Private helpers
@@ -92,16 +97,17 @@ extension SignupPartViewController: View {
             .distinctUntilChanged()
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [weak self] part in
-                self?.feedbackGenerator.impactOccurred()
-                
                 self?.mainView.iOSButton.isSelected = part == .iOS
                 self?.mainView.webButton.isSelected = part == .web
                 self?.mainView.serverButton.isSelected = part == .server
                 self?.mainView.androidButton.isSelected = part == .android
                 self?.mainView.designerButton.isSelected = part == .design
                 self?.mainView.pmButton.isSelected = part == .pm
-                
                 self?.mainView.nextButton.isEnabled = part != nil
+                
+                if part != nil {
+                    self?.feedbackGenerator.impactOccurred()
+                }
             })
             .disposed(by: self.disposeBag)
     }
