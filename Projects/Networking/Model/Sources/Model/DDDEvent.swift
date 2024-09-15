@@ -14,7 +14,7 @@ public struct DDDEvent: Codable, Hashable {
     public var startTime: Date
     public var endTime: Date
     /// 기수
-    public var generation: Int?
+    public var generation: Int
     
     public init(
         id: String? = nil,
@@ -22,7 +22,7 @@ public struct DDDEvent: Codable, Hashable {
         description: String? = nil,
         startTime: Date,
         endTime: Date,
-        generation: Int? = nil
+        generation: Int = 11
     ) {
         self.id = id
         self.name = name
@@ -33,7 +33,7 @@ public struct DDDEvent: Codable, Hashable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, name, description, startTime, endTime
+        case id, name, description, startTime, endTime, generation
     }
     
     public func toDictionary() -> [String: Any] {
@@ -43,8 +43,7 @@ public struct DDDEvent: Codable, Hashable {
             "description": description ?? "",
             "startTime": startTime,
             "endTime": endTime,
-//            "latitude": latitude,
-//            "longitude": longitude,
+            "generation": generation
         ]
     }
 }
