@@ -332,12 +332,13 @@ public struct CoreMember {
                     state.combinedAttendances = attendances
                     
                     // Create a dictionary to quickly find the status by memberId from fetched data
-                    let statusDict = Dictionary(uniqueKeysWithValues: attendances.map { ($0.memberId, $0.status) })
+//                    let statusDict = Dictionary(uniqueKeysWithValues: attendances.map { ($0.memberId, $0.status) })
+                    let statusDict: [String: AttendanceType?] = Dictionary(uniqueKeysWithValues: attendances.map { ($0.id, $0.status) })
                     
                     // combinedAttendances에서 상태 업데이트
                     var updatedCombinedAttendances = state.combinedAttendances
                     for index in updatedCombinedAttendances.indices {
-                        if let updatedStatus = statusDict[updatedCombinedAttendances[index].memberId] {
+                        if let updatedStatus = statusDict[updatedCombinedAttendances[index].id] {
                             updatedCombinedAttendances[index].status = updatedStatus
                         }
                     }
@@ -347,7 +348,7 @@ public struct CoreMember {
                     
                     // attendaceModel을 업데이트하여 바뀐 값을 반영
                     let updatedAttendaceModel: [Attendance] = state.attendaceModel.map { data in
-                        let updatedStatus = statusDict[data.memberId]
+                        let updatedStatus = statusDict[data.id]
                         return Attendance(
                             id: data.id,
                             memberId: data.memberId ?? "",
@@ -481,12 +482,13 @@ public struct CoreMember {
                     case let .success(fetchedData):
                         state.isLoading = false
                         
-                        let statusDict = Dictionary(uniqueKeysWithValues: fetchedData.map { ($0.memberId, $0.status) })
+//                        let statusDict: [String? : AttendanceType?] = Dictionary(uniqueKeysWithValues: fetchedData.map { ($0.memberId, $0.status) })
+                        let statusDict: [String : AttendanceType?] = Dictionary(uniqueKeysWithValues: fetchedData.map { ($0.id, $0.status) })
                         
                         var updatedCombinedAttendances = state.combinedAttendances
                         
                         for index in updatedCombinedAttendances.indices {
-                            if let updatedStatus = statusDict[updatedCombinedAttendances[index].memberId] {
+                            if let updatedStatus = statusDict[updatedCombinedAttendances[index].id] {
                                 updatedCombinedAttendances[index].status = updatedStatus
                             }
                         }
@@ -496,7 +498,7 @@ public struct CoreMember {
                         
                         var updatedAttendaceModel: [Attendance] = []
                         for data in state.attendaceModel {
-                            let updatedStatus = statusDict[data.memberId] ?? .none
+                            let updatedStatus = statusDict[data.id] ?? .none
                             let updatedAttendance = Attendance(
                                 id: data.id,
                                 memberId: data.memberId ?? "",
