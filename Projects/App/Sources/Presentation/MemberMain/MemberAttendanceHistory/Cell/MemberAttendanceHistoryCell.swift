@@ -74,7 +74,7 @@ final class MemberAttendanceHistoryCell: UICollectionViewCell {
     
     // MARK: - Public helpers
     func bind(attendance: Attendance) {
-        sessionTitleLabel.text = "세션 이름" // attendance.eventName
+        sessionTitleLabel.text = attendance.name
         sessionTitleLabel.flex.markDirty()
         attendanceStatusLabel.text = "/ \(attendance.status?.rawValue ?? "")"
         attendanceStatusLabel.flex.markDirty()

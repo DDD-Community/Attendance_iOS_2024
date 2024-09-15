@@ -7,6 +7,7 @@
 
 import ReactorKit
 
+import Model
 import Foundation
 
 final class MemberAttendanceHistoryReactor: Reactor {
@@ -17,20 +18,24 @@ final class MemberAttendanceHistoryReactor: Reactor {
     
     enum Mutation {
         case setProfile(Member)
+        case setEvents([DDDEvent])
         case setAttendanceList([Attendance])
     }
     
     struct State {
         var profile: Member?
+        var events: [DDDEvent] = []
         var attendanceList: [Attendance] = []
     }
     
     let initialState: State
     private let repository: UserRepositoryProtocol
+    private let eventRepository: EventRepositoryProtocol
     
     init() {
         self.initialState = State()
         self.repository = UserRepository()
+        self.eventRepository = EventRepository()
         action.onNext(.fetchProfile)
         action.onNext(.fetchAttendanceList)
     }
@@ -47,8 +52,16 @@ final class MemberAttendanceHistoryReactor: Reactor {
         switch mutation {
         case let .setProfile(member):
             newState.profile = member
+        case let .setEvents(events):
+            newState.events = events
         case let .setAttendanceList(attendanceList):
-            newState.attendanceList = attendanceList
+            newState.attendanceList = attendanceList.map { attendance in
+                var attendance: Attendance = attendance
+                attendance.name = newState.events
+                    .filter({ $0.id == attendance.eventId })
+                    .first?.name ?? ""
+                return attendance
+            }
         }
         return newState
     }
@@ -56,9 +69,20 @@ final class MemberAttendanceHistoryReactor: Reactor {
 
 extension MemberAttendanceHistoryReactor {
     private func fetchAttendanceList() -> Observable<Mutation> {
-        return repository.fetchAttendanceList()
-            .map { Mutation.setAttendanceList($0) }
+        self.eventRepository
+            .fetchEventList(generation: 11)
             .asObservable()
+            .flatMap { [weak self] events -> Observable<Mutation> in
+                guard let self else { return .empty() }
+                let fetchAttendance: Observable<Mutation> = self.repository
+                    .fetchAttendanceList()
+                    .asObservable()
+                    .map { Mutation.setAttendanceList($0) }
+                return .concat(
+                    .just(.setEvents(events)),
+                    fetchAttendance
+                )
+            }
     }
     
     private func fetchMemberProfile() -> Observable<Mutation> {
