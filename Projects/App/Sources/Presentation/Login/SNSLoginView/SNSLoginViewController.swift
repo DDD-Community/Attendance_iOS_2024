@@ -51,6 +51,7 @@ final class SNSLoginViewController: UIViewController {
             reducer: {
             RootCoreMember()
                     ._printChanges()
+                    ._printChanges(.actionLabels)
         }))
         let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
         self.switchViewController(coreMemberHostingViewController)

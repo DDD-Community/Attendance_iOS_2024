@@ -138,7 +138,8 @@ final class FirebaseService {
                 "date": Timestamp(date: attendance.createdAt),
                 "updatedAt": Timestamp(date: attendance.updatedAt),
                 "status": attendance.status?.rawValue ?? .none,
-                "generation": attendance.generation
+                "generation": attendance.generation,
+                "roleType" : attendance.roleType.rawValue 
             ]
             attendanceRef.setData(data) { error in
                 guard error == nil else {

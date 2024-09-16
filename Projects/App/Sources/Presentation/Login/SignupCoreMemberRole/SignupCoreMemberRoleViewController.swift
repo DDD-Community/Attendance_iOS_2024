@@ -50,6 +50,7 @@ final class SignupCoreMemberRoleViewController: UIViewController {
             reducer: {
                 RootCoreMember()
                     ._printChanges()
+                    ._printChanges(.actionLabels)
             }))
         let coreMemberHostingViewController = UIHostingController(rootView: rootCoreMemberView)
         return coreMemberHostingViewController

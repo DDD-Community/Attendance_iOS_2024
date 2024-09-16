@@ -52,6 +52,7 @@ struct CoreMemberMainView: View {
             store.send(.view(.appearSelectPart(selectPart: .all)))
             store.send(.async(.fetchCurrentUser))
             store.send(.async(.observeAttendance))
+            store.send(.async(.updateAttenDance))
 
         }
         .onChange(of: store.attendaceModel) { oldValue, newValue in
@@ -289,31 +290,31 @@ extension CoreMemberMainView {
                             generataion: "\(item.generation)",
                             roleType: item.roleType.attendanceListDesc,
                             nameColor: getBackgroundColor(
-                                for: item.memberId ?? "",
+                                for: item.id ?? "",
                                 generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceNameColor) ?? Color.gray600,
                                 matchingAttendances: item,
                                 isNameColor: true
                             ),
                             roleTypeColor: getBackgroundColor(
-                                for: item.memberId ?? "",
+                                for: item.id ?? "",
                                 generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceRoleTypeColor) ?? Color.gray600 ,
                                 matchingAttendances: item,
                                 isRoletTypeColor: true
                             ),
                             generationColor: getBackgroundColor(
-                                for: item.memberId ?? "",
+                                for: item.id ?? "",
                                 generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceGenerationColor) ?? Color.gray800,
                                 matchingAttendances: item,
                                 isGenerationColor: true
                             ),
                             backGroudColor: getBackgroundColor(
-                                for: item.memberId ?? "",
+                                for: item.id ?? "",
                                 generationColor: (item.status == .run || item.status == nil ? Color.gray800 : store.attenaceBackGroudColor) ?? Color.gray800,
                                 matchingAttendances: item,
                                 isBackground: true
                             )
                         )
-                        .id(item.memberId)
+                        .id(item.id)
                         Spacer()
                     }
                 }
@@ -367,7 +368,7 @@ extension CoreMemberMainView {
             isGenerationColor: Bool = false,
             isRoletTypeColor: Bool = false
         ) -> Color {
-            let matchingAttendancesList = store.combinedAttendances.filter { $0.memberId == memberId }
+            let matchingAttendancesList = store.combinedAttendances.filter { $0.id == memberId }
             // Handle the case where all combinedAttendances count matches
             if matchingAttendancesList.count == store.combinedAttendances.count {
                 if let backgroundColor = matchingAttendancesList.first?.backgroundColor(
