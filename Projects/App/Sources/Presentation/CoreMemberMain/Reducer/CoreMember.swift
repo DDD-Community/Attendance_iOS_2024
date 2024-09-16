@@ -50,14 +50,15 @@ public struct CoreMember {
         @Presents var destination: Destination.State?
         var selectDate: Date = Date.now
         var selectDatePicker: Bool = false
+        var isDateSelected: Bool = false
         //        @Presents var alert: AlertState<Action.Alert>?
         
         public init(
-            attendaceModel : [Attendance] = [],
-            combinedAttendances: [Attendance] = []
+            //            attendaceModel : [Attendance] = [],
+            //            combinedAttendances: [Attendance] = []
         ) {
-            self.attendaceModel = attendaceModel
-            self.combinedAttendances = combinedAttendances
+            //            self.attendaceModel = attendaceModel
+            //            self.combinedAttendances = combinedAttendances
         }
         
     }
@@ -79,8 +80,8 @@ public struct CoreMember {
         case swipePrevious
         case selectPartButton(selectPart: SelectPart)
         case appearSelectPart(selectPart: SelectPart)
-        case selectDate(date: Date)
         case updateAttendanceCount(count: Int)
+        case updateAttendanceCountWithData(attendances: [Attendance])
         
     }
     
@@ -90,6 +91,7 @@ public struct CoreMember {
         case fetchAttenDance
         case fetchAttendanceHistory(String)
         case updateAttendanceTypeModel([Attendance])
+        case updateTodayAttendanceStatus([Attendance])
         case fetchAttendanceHistoryResponse(Result<[Attendance], CustomError>)
         case fetchCurrentUser
         case observeAttendance
@@ -136,15 +138,17 @@ public struct CoreMember {
             case .selectDate(let date):
                 if  state.selectDate == date {
                     state.selectDatePicker.toggle()
+                    state.isDateSelected.toggle()
                 } else {
                     state.selectDate = date
                     state.selectDatePicker.toggle()
+                    state.isDateSelected.toggle()
                 }
                 
                 return .run { @MainActor send in
                     let fetchedDataResult = await Result {
                         try await fireStoreUseCase.fetchFireStoreData(
-                            from: .member,
+                            from: .attendance,
                             as: Attendance.self,
                             shouldSave: false)
                     }
@@ -152,10 +156,11 @@ public struct CoreMember {
                     switch fetchedDataResult {
                         
                     case let .success(fetchedData):
-                        let filteredData = fetchedData.filter { $0.updatedAt.formattedDateToString() == date.formattedDateToString() }
+                        send(.async(.fetchMember))
+                        let filteredData = fetchedData.filter { $0.updatedAt.formattedDateToString() == date.formattedDateToString()  && (($0.id?.isEmpty) != nil) }
                         Log.debug("날짜 홗인", fetchedData.map { $0.updatedAt.formattedDateToString() }, date.formattedDateToString(), filteredData)
-                        send(.async(.updateAttendanceModel(fetchedData)))
-                        send(.async(.fetchDataResponse(.success(filteredData))))
+                        send(.async(.updateTodayAttendanceStatus(filteredData)))
+                        send(.view(.updateAttendanceCountWithData(attendances: filteredData)))
                         
                     case let .failure(error):
                         send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))
@@ -207,35 +212,6 @@ public struct CoreMember {
                     }
                     return .none
                     
-                case .selectDate(let date):
-                    if  state.selectDate == date {
-                        state.selectDatePicker.toggle()
-                    } else {
-                        state.selectDate = date
-                        state.selectDatePicker.toggle()
-                    }
-                    
-                    return .run { @MainActor send in
-                        let fetchedDataResult = await Result {
-                            try await fireStoreUseCase.fetchFireStoreData(
-                                from: .member,
-                                as: Attendance.self,
-                                shouldSave: false)
-                        }
-                        
-                        switch fetchedDataResult {
-                            
-                        case let .success(fetchedData):
-                            let filteredData = fetchedData.filter { $0.updatedAt.formattedDateToString() == date.formattedDateToString() }
-                            Log.debug("날짜 홗인", fetchedData.map { $0.updatedAt.formattedDateToString() }, date.formattedDateToString(), filteredData)
-                            send(.async(.fetchDataResponse(.success(filteredData))))
-                            send(.async(.updateAttendanceModel(fetchedData)))
-                            
-                        case let .failure(error):
-                            send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))
-                        }
-                    }
-                    
                     
                 case let .updateAttendanceCount(count: count):
                     var newAttendanceCount = 0
@@ -253,20 +229,129 @@ public struct CoreMember {
                         newAttendanceCount = 0
                     }
                     
-                    // Ensure newAttendanceCount does not exceed the total number of items in attendaceModel
                     if newAttendanceCount > state.attendaceModel.count {
                         newAttendanceCount = state.attendaceModel.count
                     }
                     
                     state.attendanceCount = newAttendanceCount
                     newAttendanceCount = count
+                    return .none
+                    
+                case let .updateAttendanceCountWithData(attendances):
+                    var newAttendanceCount = 0
+                    for attendance in attendances {
+                        if attendance.status == .present || attendance.status == .late {
+                            newAttendanceCount += 1
+                        }
+                    }
+                    newAttendanceCount = max(0, min(newAttendanceCount, attendances.count))
+                    state.attendanceCount = newAttendanceCount
+                    return .none
                 }
-                return .none
                 //MARK: - AsyncAction
             case .async(let AsyncAction):
                 switch AsyncAction {
+                case .updateTodayAttendanceStatus(let attendances):
+                    let selectedDate = state.selectDate
+                    
+                    // Group attendances by id
+                    let fetchedDataGroupedByMemberId = Dictionary(grouping: attendances) { $0.id }
+                    
+                    var attendanceDictByMemberId: [String: Attendance] = [:]
+                    
+                    // Process the grouped attendances
+                    for (id, attendances) in fetchedDataGroupedByMemberId {
+                        guard let memberId = id, !memberId.isEmpty else {
+                            Log.error("Attendance has empty memberId: \(attendances)")
+                            continue
+                        }
+                        
+                        // Filter attendances to consider only those for the selected date
+                        let attendancesForSelectedDate = attendances.filter {
+                            Calendar.current.isDate($0.updatedAt, inSameDayAs: selectedDate)
+                        }
+                        
+                        // Keep the latest attendance if multiple exist for the same memberId
+                        if let latestAttendance = attendancesForSelectedDate.max(by: { $0.updatedAt < $1.updatedAt }) {
+                            attendanceDictByMemberId[memberId] = latestAttendance
+                        }
+                    }
+                    
+                    // Update combinedAttendances with new statuses based on the attendance data for the selected date
+                    var updatedCombinedAttendances = state.combinedAttendances
+                    for index in updatedCombinedAttendances.indices {
+                        if let memberId = updatedCombinedAttendances[index].id,
+                           let updatedAttendance = attendanceDictByMemberId[memberId] {
+                            updatedCombinedAttendances[index].status = updatedAttendance.status
+                            updatedCombinedAttendances[index].updatedAt = updatedAttendance.updatedAt
+                            updatedCombinedAttendances[index].id = updatedAttendance.id // Ensure the id is updated correctly
+                        } else {
+                            if Calendar.current.isDate(selectedDate, inSameDayAs: Date()) {
+                                updatedCombinedAttendances[index].status = .notAttendance
+                                updatedCombinedAttendances[index].updatedAt = Date()
+                            }
+                        }
+                    }
+                    
+                    state.combinedAttendances = updatedCombinedAttendances
+                    Log.debug("combinedAttendances2", state.combinedAttendances)
+                    
+                    var updatedAttendaceModel: [Attendance] = []
+                    for data in state.attendaceModel {
+                        if let id = data.id {
+                            if let updatedAttendance = attendanceDictByMemberId[id] {
+                                // Ensure the id from updatedAttendance is used
+                                let updatedAttendanceModel = Attendance(
+                                    id: updatedAttendance.id ?? "", // Use the id from updatedAttendance
+                                    memberId: updatedAttendance.memberId ?? "", // Ensure memberId is updated if available
+                                    memberType: data.memberType ?? updatedAttendance.memberType,
+                                    name: data.name.isEmpty ? updatedAttendance.name : data.name,
+                                    roleType: data.roleType,
+                                    eventId: data.eventId.isEmpty ? updatedAttendance.eventId : data.eventId,
+                                    createdAt: data.createdAt,
+                                    updatedAt: updatedAttendance.updatedAt,
+                                    status: updatedAttendance.status ?? data.status,
+                                    generation: data.generation
+                                )
+                                updatedAttendaceModel.append(updatedAttendanceModel)
+                            } else {
+                                // Handle case where attendance is not found for today's date
+                                if Calendar.current.isDate(selectedDate, inSameDayAs: Date()) {
+                                    let absentAttendance = Attendance(
+                                        id: data.id ?? "",
+                                        memberId: data.memberId ?? "",
+                                        memberType: data.memberType,
+                                        name: data.name,
+                                        roleType: data.roleType,
+                                        eventId: data.eventId,
+                                        createdAt: data.createdAt,
+                                        updatedAt: Date(), // Set to current date/time
+                                        status: .notAttendance, // Mark as absent if no attendance for today
+                                        generation: data.generation
+                                    )
+                                    updatedAttendaceModel.append(absentAttendance)
+                                } else {
+                                    // No attendance found for other dates; use existing data
+                                    Log.debug("Attendance data has empty memberId: \(data)")
+                                    updatedAttendaceModel.append(data)
+                                }
+                            }
+                        } else {
+                            // Log error and append existing data if id is missing
+                            Log.error("Attendance data has empty memberId: \(data)")
+                            updatedAttendaceModel.append(data)
+                        }
+                    }
+                    
+                    state.attendaceModel = updatedAttendaceModel
+                    Log.debug("updatedAttendanceModel", updatedAttendaceModel)
+                    Log.debug("state.attendaceModel", state.attendaceModel)
+                    return .none
+
+
+                    
                 case .fetchMember:
-                    return .run { @MainActor send  in
+                    return .run {  send  in
                         let fetchedDataResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
                                 from: .member,
@@ -278,18 +363,18 @@ public struct CoreMember {
                             
                         case let .success(fetchedData):
                             let filterData = fetchedData.filter { $0.memberType == .member || $0.name != ""}
-                            send(.async(.fetchDataResponse(.success(filterData))))
+                            await send(.async(.fetchDataResponse(.success(filterData))))
                         case let .failure(error):
-                            send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))
+                            await send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))
                         }
                         
                     }
                     
-                //MARK: - 실시간으로 데이터 가져오기 출석현황
+                    //MARK: - 실시간으로 데이터 가져오기 출석현황
                 case .fetchAttenDance:
                     // Swift 6 and later requires the nonisolated keyword to avoid data race errors
                     // var attendanceModel = state.attendanceModel
-                    return .run { @MainActor send in
+                    return .run {  send in
                         let fetchedDataResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
                                 from: .attendance,
@@ -298,24 +383,24 @@ public struct CoreMember {
                         }
                         switch fetchedDataResult {
                         case let .success(fetchedData):
-                            send(.async(.fetchMember))
-                            send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
+                            await send(.async(.fetchMember))
+                            await send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
                             
-                            let uids = Set(fetchedData.map { $0.memberId })
+                            let uids = Set(fetchedData.map { $0.id })
                             
                             for uid in uids {
-                                send(.async(.fetchAttendanceHistory(uid ?? "")))
+                                await send(.async(.fetchAttendanceHistory(uid ?? "")))
                             }
                             
                         case let .failure(error):
-                            send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
+                            await send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
                         }
                     }
                     
                 case let .fetchAttendanceHistory(uid):
-                    return .run { @MainActor send in
+                    return .run {  send in
                         for await result in try await fireStoreUseCase.fetchAttendanceHistory(uid, from: .attendance) {
-                            send(.async(.fetchAttendanceHistoryResponse(result)))
+                            await send(.async(.fetchAttendanceHistoryResponse(result)))
                         }
                     }
                     
@@ -331,44 +416,60 @@ public struct CoreMember {
                 case let .updateAttendanceTypeModel(attendances):
                     state.combinedAttendances = attendances
                     
-                    // Create a dictionary to quickly find the status by memberId from fetched data
-//                    let statusDict = Dictionary(uniqueKeysWithValues: attendances.map { ($0.memberId, $0.status) })
-                    let statusDict: [String: AttendanceType?] = Dictionary(uniqueKeysWithValues: attendances.map { ($0.id, $0.status) })
+                    let statusDict: [String?: (AttendanceType?, String?)] = Dictionary(uniqueKeysWithValues: attendances.map { ($0.id, ($0.status, $0.id)) })
                     
-                    // combinedAttendances에서 상태 업데이트
+                    let today = Calendar.current.startOfDay(for: Date())
+                    
                     var updatedCombinedAttendances = state.combinedAttendances
                     for index in updatedCombinedAttendances.indices {
-                        if let updatedStatus = statusDict[updatedCombinedAttendances[index].id] {
-                            updatedCombinedAttendances[index].status = updatedStatus
+                        if let (updatedStatus, updatedId) = statusDict[updatedCombinedAttendances[index].id] {
+                            let isToday = Calendar.current.isDate(updatedCombinedAttendances[index].updatedAt ?? Date.distantPast, inSameDayAs: today)
+                            
+                            if isToday {
+                                updatedCombinedAttendances[index].status = updatedStatus
+                                updatedCombinedAttendances[index].id = updatedId ?? updatedCombinedAttendances[index].id
+                                updatedCombinedAttendances[index].updatedAt = Date()
+                            } else {
+                                updatedCombinedAttendances[index].status = .absent
+                            }
                         }
                     }
                     
                     state.combinedAttendances = updatedCombinedAttendances
                     Log.debug("combinedAttendances2", state.combinedAttendances)
                     
-                    // attendaceModel을 업데이트하여 바뀐 값을 반영
                     let updatedAttendaceModel: [Attendance] = state.attendaceModel.map { data in
-                        let updatedStatus = statusDict[data.id]
+                        let updatedStatusAndId = statusDict[data.id]
+                        let isToday = Calendar.current.isDate(data.updatedAt, inSameDayAs: today)
+                        
+                        let updatedStatus = updatedStatusAndId?.0
+                        let updatedId = updatedStatusAndId?.1
+                        
+                        let newUpdatedAt = (updatedStatus != nil && isToday) ? Date() : data.updatedAt
+                        let newStatus = isToday ? (updatedStatus ?? data.status) : .absent
+                        let newId = updatedId ?? data.id
+                        
                         return Attendance(
-                            id: data.id,
+                            id: newId ?? "",
                             memberId: data.memberId ?? "",
                             memberType: data.memberType,
                             name: data.name,
                             roleType: data.roleType,
                             eventId: data.eventId,
                             createdAt: data.createdAt,
-                            updatedAt: data.updatedAt, // updatedAt를 현재 시간으로 설정
-                            status: updatedStatus ?? data.status, // 새로운 상태가 있으면 사용, 없으면 기존 상태 유지
+                            updatedAt: newUpdatedAt,
+                            status: newStatus,
                             generation: data.generation
                         )
-                        
-                        Log.debug("updatedAttendanceModel", updatedStatus)
                     }
                     
                     state.attendaceModel = updatedAttendaceModel
                     Log.debug("updatedAttendanceModel", updatedAttendaceModel)
                     Log.debug("updatedAttendanceModel", state.attendaceModel)
                     return .none
+                    
+                    
+                    
                     
                 case .fetchCurrentUser:
                     return .run { @MainActor send in
@@ -397,11 +498,10 @@ public struct CoreMember {
                             
                         }
                     }
-                          
+                    
                 case let .upDateFetchAttandanceMember(selectPart: selectPart):
-                    let state = state.attendanceCount
                     return .run { @MainActor send in
-
+                        
                         let fetchedDataResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
                                 from: .member,
@@ -421,7 +521,6 @@ public struct CoreMember {
                             
                         case let .success(fetchedData):
                             let filteredData = fetchedData.filter { $0.roleType != .all && (selectPart == .all || $0.roleType.rawValue == selectPart.attendanceListDesc) && $0.memberType == .member && !$0.name.isEmpty }
-                            //                            send(.async(.updateAttendanceModel(filteredData)))
                             send(.async(.fetchDataResponse(.success(filteredData))))
                             
                         case let .failure(error):
@@ -436,9 +535,8 @@ public struct CoreMember {
                         case let .failure(error):
                             send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
                         }
-                        send(.view(.updateAttendanceCount(count: state)))
                     }
-                
+                    
                     
                 case .updateAttenDance:
                     return .run { @MainActor send in
@@ -461,10 +559,10 @@ public struct CoreMember {
                     }
                     
                 case let .updateAttendanceModel(newValue):
-                    state.attendaceModel = newValue.filter { $0.memberType == .member && !$0.name.isEmpty }
+                    state.attendaceModel = newValue.filter { $0.id?.isEmpty != nil && $0.memberType == .member && !$0.name.isEmpty }
                     return .none
                     
-                
+                    
                     
                 case let .fetchUserDataResponse(fetchUser):
                     switch fetchUser {
@@ -482,14 +580,34 @@ public struct CoreMember {
                     case let .success(fetchedData):
                         state.isLoading = false
                         
-//                        let statusDict: [String? : AttendanceType?] = Dictionary(uniqueKeysWithValues: fetchedData.map { ($0.memberId, $0.status) })
-                        let statusDict: [String : AttendanceType?] = Dictionary(uniqueKeysWithValues: fetchedData.map { ($0.id, $0.status) })
+                        // Group fetched attendances by id
+                        let fetchedDataGroupedById = Dictionary(grouping: fetchedData) { $0.id }
+                        
+                        var mergedAttendancesById: [String: Attendance] = [:]
+                        
+                        // Merge attendances by selecting the latest updated attendance for each id
+                        for (id, attendances) in fetchedDataGroupedById {
+                            if let mergedAttendance = attendances.max(by: { $0.updatedAt < $1.updatedAt }) {
+                                if let id = id { // Ensure the id is not nil
+                                    mergedAttendancesById[id] = mergedAttendance
+                                }
+                            }
+                        }
                         
                         var updatedCombinedAttendances = state.combinedAttendances
                         
+                        // Update combinedAttendances with statuses from merged fetched data using id
                         for index in updatedCombinedAttendances.indices {
-                            if let updatedStatus = statusDict[updatedCombinedAttendances[index].id] {
-                                updatedCombinedAttendances[index].status = updatedStatus
+                            var existingAttendance = updatedCombinedAttendances[index]
+                            if let id = existingAttendance.id,
+                               let mergedAttendance = mergedAttendancesById[id] {
+                                existingAttendance.status = mergedAttendance.status
+                                existingAttendance.updatedAt = mergedAttendance.updatedAt
+                                existingAttendance.id = mergedAttendance.id // Ensure the ID is updated correctly
+                                updatedCombinedAttendances[index] = existingAttendance
+                            } else {
+                                existingAttendance.status = .notAttendance
+                                updatedCombinedAttendances[index] = existingAttendance
                             }
                         }
                         
@@ -498,20 +616,37 @@ public struct CoreMember {
                         
                         var updatedAttendaceModel: [Attendance] = []
                         for data in state.attendaceModel {
-                            let updatedStatus = statusDict[data.id] ?? .none
-                            let updatedAttendance = Attendance(
-                                id: data.id,
-                                memberId: data.memberId ?? "",
-                                memberType: data.memberType,
-                                name: data.name,
-                                roleType: data.roleType,
-                                eventId: data.eventId,
-                                createdAt: data.createdAt,
-                                updatedAt: data.updatedAt,
-                                status: updatedStatus,
-                                generation: data.generation
-                            )
-                            updatedAttendaceModel.append(updatedAttendance)
+                            if let id = data.id,
+                               let mergedAttendance = mergedAttendancesById[id] {
+                                let updatedAttendance = Attendance(
+                                    id: mergedAttendance.id ?? "",
+                                    memberId: data.memberId ?? mergedAttendance.memberId ?? "",
+                                    memberType: data.memberType ?? mergedAttendance.memberType,
+                                    name: data.name.isEmpty ? mergedAttendance.name : data.name,
+                                    roleType: data.roleType,
+                                    eventId: data.eventId.isEmpty ? mergedAttendance.eventId : data.eventId,
+                                    createdAt: data.createdAt,
+                                    updatedAt: mergedAttendance.updatedAt,
+                                    status: mergedAttendance.status ?? data.status,
+                                    generation: data.generation
+                                )
+                                updatedAttendaceModel.append(updatedAttendance)
+                            } else {
+                                // Mark attendance as absent if no record found by id
+                                let absentAttendance = Attendance(
+                                    id: data.id ?? "",
+                                    memberId: data.memberId ?? "",
+                                    memberType: data.memberType,
+                                    name: data.name,
+                                    roleType: data.roleType,
+                                    eventId: data.eventId,
+                                    createdAt: data.createdAt,
+                                    updatedAt: Date(), // Set to current date/time
+                                    status: .notAttendance, // Mark as absent if no attendance found
+                                    generation: data.generation
+                                )
+                                updatedAttendaceModel.append(absentAttendance)
+                            }
                         }
                         
                         state.attendaceModel = updatedAttendaceModel
@@ -522,18 +657,17 @@ public struct CoreMember {
                         state.isLoading = true
                     }
                     return .none
-                    
+
+
                     
                     
                 case let .fetchDataResponse(fetchedData):
                     switch fetchedData {
                     case let .success(fetchedData):
                         state.isLoading = false
-                        let filteredData = fetchedData.filter { $0.memberType == .member && !$0.name.isEmpty }
-                        
+                        let filteredData = fetchedData.filter { (($0.id?.isEmpty) != nil) && $0.memberType == .member && !$0.name.isEmpty }
                         state.attendaceModel = filteredData
                         
-                        //                        state.combinedAttendances = state.attendaceModel
                     case let .failure(error):
                         Log.error("Error fetching data", error)
                         state.isLoading = true
@@ -557,8 +691,8 @@ public struct CoreMember {
                     
                 case .presentSchedule:
                     state.destination = .scheduleEvent(.init(generation: state.attendaceModel.first?.generation ?? .zero))
-                    return .run { @MainActor  send in
-                        send(.async(.fetchMember))
+                    return .run {  send in
+                        await send(.async(.fetchMember))
                     }
                     
                 case .presentMangerProfile:

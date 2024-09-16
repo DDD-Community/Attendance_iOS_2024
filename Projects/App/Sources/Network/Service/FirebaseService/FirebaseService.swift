@@ -130,10 +130,10 @@ final class FirebaseService {
     func saveAttendance(_ attendance: Attendance) -> Single<Bool> {
         return Single.create { single in
             let db = Firestore.firestore()
-            let attendanceRef = db.collection("attendance").document(attendance.id)
+            let attendanceRef = db.collection("attendance").document(attendance.id ?? "")
             let data: [String: Any] = [
-                "id": attendance.id,
-                "memberId": attendance.memberId,
+                "id": attendance.id ?? "",
+                "memberId": attendance.memberId ?? "",
                 "eventId": attendance.eventId,
                 "date": Timestamp(date: attendance.createdAt),
                 "updatedAt": Timestamp(date: attendance.updatedAt),

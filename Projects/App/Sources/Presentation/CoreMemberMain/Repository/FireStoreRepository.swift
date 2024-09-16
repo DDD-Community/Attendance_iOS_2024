@@ -241,7 +241,7 @@ import Model
     ) async throws -> AsyncStream<Result<[Attendance], CustomError>> {
         AsyncStream { continuation in
             let db = Firestore.firestore()
-            let attendanceRef = db.collection(collection.desc).whereField("memberId", isEqualTo: uid)
+            let attendanceRef = db.collection(collection.desc).whereField("id", isEqualTo: uid)
             
             let listener = attendanceRef.addSnapshotListener { querySnapshot, error in
                 if let error = error {

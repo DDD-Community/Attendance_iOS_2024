@@ -33,7 +33,7 @@ public struct DDDEvent: Codable, Hashable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, name, description, startTime, endTime
+        case id, name, description, startTime, endTime, generation
     }
     
     public func toDictionary() -> [String: Any] {
@@ -43,6 +43,7 @@ public struct DDDEvent: Codable, Hashable {
             "description": description ?? "",
             "startTime": startTime,
             "endTime": endTime,
+            "generation": generation ?? ""
 //            "latitude": latitude,
 //            "longitude": longitude,
         ]

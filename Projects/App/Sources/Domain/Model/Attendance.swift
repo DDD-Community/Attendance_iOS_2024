@@ -12,7 +12,7 @@ import DesignSystem
 import SwiftUI
 
 public struct Attendance: Codable, Hashable {
-    var id: String
+    var id: String?
     var memberId: String?
     var memberType: MemberType?
     var name: String
@@ -96,7 +96,7 @@ public struct Attendance: Codable, Hashable {
     }
     
     mutating func merge(with other: Attendance) {
-        self.id = self.id.isEmpty ? other.id : self.id
+        self.id = ((self.id?.isEmpty) != nil) ? other.id : self.id
         self.memberId = ((self.memberId?.isEmpty) != nil) ? other.memberId : self.memberId
         self.memberType = self.memberType ?? other.memberType
         self.name = self.name.isEmpty ? other.name : self.name
