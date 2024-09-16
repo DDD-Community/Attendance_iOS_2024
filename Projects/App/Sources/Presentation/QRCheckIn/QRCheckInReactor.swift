@@ -107,6 +107,7 @@ extension QRCheckInReactor {
         let attendance: Attendance = .init(
             id: UUID().uuidString,
             memberId: member.uid,
+            memberType: member.memberType,
             name: member.name,
             roleType: member.role,
             eventId: eventId,

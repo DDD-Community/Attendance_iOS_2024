@@ -120,12 +120,14 @@ extension MemberMainReactor {
         let memberId: String = self.currentState.userProfile?.uid ?? ""
         let name: String = self.currentState.userProfile?.name ?? ""
         let roleType: SelectPart = self.currentState.userProfile?.role ?? .all
+        let memberType: MemberType = self.currentState.userProfile?.memberType ?? .member
         let eventId: String = self.currentState.todayEvent?.id ?? ""
         let attendanceType: AttendanceType = buildAttendanceType()
         
         return .init(
             id: UUID().uuidString,
             memberId: memberId,
+            memberType: memberType,
             name: name,
             roleType: roleType,
             eventId: eventId,

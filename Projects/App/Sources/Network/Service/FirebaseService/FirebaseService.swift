@@ -138,7 +138,9 @@ final class FirebaseService {
                 "date": Timestamp(date: attendance.createdAt),
                 "updatedAt": Timestamp(date: attendance.updatedAt),
                 "status": attendance.status?.rawValue ?? .none,
-                "generation": attendance.generation
+                "generation": attendance.generation,
+                "memberType": attendance.memberType?.rawValue,
+                "roleType": attendance.roleType.rawValue
             ]
             attendanceRef.setData(data) { error in
                 guard error == nil else {
@@ -171,11 +173,14 @@ final class FirebaseService {
                     let updatedAt: Date = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
                     let status: AttendanceType = AttendanceType(rawValue: data["status"] as? String ?? "") ?? .absent
                     let generation: Int = data["generation"] as? Int ?? 0
+                    let memberType: MemberType = MemberType(rawValue: data["memberType"] as? String ?? "") ?? .member
+                    let roleType : SelectPart = SelectPart(rawValue:  data["roleType"] as? String ?? "") ?? .all
                     return Attendance(
                         id: id,
                         memberId: memberId,
+                        memberType: memberType,
                         name: data["name"] as? String ?? "",
-                        roleType: .init(rawValue: data["roleType"] as? String ?? "") ?? .all,
+                        roleType: roleType,
                         eventId: eventId,
                         createdAt: createdAt,
                         updatedAt: updatedAt,
