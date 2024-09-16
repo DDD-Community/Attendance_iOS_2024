@@ -254,10 +254,10 @@ public struct CoreMember {
                 case .updateTodayAttendanceStatus(let attendances):
                     let selectedDate = state.selectDate
                     // Step 1: Sort attendances by updatedAt in descending order to prioritize the latest records
-                    let sortedAttendances = attendances.sorted(by: { $0.updatedAt > $1.updatedAt })
+                    let sortedAttendances = attendances.sorted(by: { $0.updatedAt < $1.updatedAt })
 
                     // Step 2: Group attendances by memberId to process them by their unique identifiers
-                    let fetchedDataGroupedByMemberId = Dictionary(grouping: sortedAttendances) { $0.memberId }
+                    let fetchedDataGroupedByMemberId = Dictionary(grouping: sortedAttendances) { $0.id }
 
                     var mergedAttendancesByMemberId: [String: Attendance] = [:]
 
@@ -274,7 +274,7 @@ public struct CoreMember {
                         }
                         
                         // Keep the latest attendance if multiple exist for the same memberId
-                        if let latestAttendance = attendancesForSelectedDate.max(by: { $0.updatedAt > $1.updatedAt }) {
+                        if let latestAttendance = attendancesForSelectedDate.max(by: { $0.updatedAt < $1.updatedAt }) {
                             mergedAttendancesByMemberId[memberId] = latestAttendance
                         }
 
@@ -285,7 +285,7 @@ public struct CoreMember {
 
                     for index in updatedCombinedAttendances.indices {
                         var existingAttendance = updatedCombinedAttendances[index]
-                        if let memberId = existingAttendance.memberId,
+                        if let memberId = existingAttendance.id,
                            let mergedAttendance = mergedAttendancesByMemberId[memberId] {
                             // Merge the latest attendance data into the existing structure
                             existingAttendance.status = mergedAttendance.status
@@ -302,7 +302,7 @@ public struct CoreMember {
                     }
 
                     // Step 5: Ensure that combinedAttendances remain in the latest order
-                    state.combinedAttendances = updatedCombinedAttendances.sorted(by: { $0.updatedAt > $1.updatedAt })
+                    state.combinedAttendances = updatedCombinedAttendances.sorted(by: { $0.updatedAt < $1.updatedAt })
                     Log.debug("updateTodayAttendanceStatus2", state.combinedAttendances)
 
                     // Step 6: Update attendaceModel reflecting changes based on the latest data, only including the latest entries
@@ -327,7 +327,7 @@ public struct CoreMember {
                     }
 
                     // Step 7: Set the updated attendance model to state and sort by updatedAt to maintain order
-                    state.attendaceModel = updatedAttendaceModel.sorted(by: { $0.updatedAt > $1.updatedAt })
+                    state.attendaceModel = updatedAttendaceModel.sorted(by: { $0.updatedAt < $1.updatedAt })
                     Log.debug("updateTodayAttendanceStatus3", updatedAttendaceModel)
                     Log.debug("state.updateTodayAttendanceStatus", state.attendaceModel)
                     return .none
@@ -399,40 +399,53 @@ public struct CoreMember {
                     }
                     
                 case let .updateAttendanceTypeModel(attendances):
+                    // Update state.combinedAttendances with the provided attendances
                     state.combinedAttendances = attendances
                     
-                    let statusDict: [String?: (AttendanceType?, String?)] = Dictionary(uniqueKeysWithValues: attendances.map { ($0.id, ($0.status, $0.id)) })
+                    // Create a dictionary to quickly find the status by id from the provided data
+                    let statusDict: [String?: AttendanceType?] = Dictionary(uniqueKeysWithValues: attendances.compactMap { ($0.id, $0.status) })
                     
+                    // Get today's date for comparison
                     let today = Calendar.current.startOfDay(for: Date())
                     
+                    // Update combinedAttendances with new statuses from the provided data
                     var updatedCombinedAttendances = state.combinedAttendances
                     for index in updatedCombinedAttendances.indices {
-                        if let (updatedStatus, updatedId) = statusDict[updatedCombinedAttendances[index].id] {
+                        if let id = updatedCombinedAttendances[index].id, let updatedStatus = statusDict[id] {
+                            // Check if the record is for today
                             let isToday = Calendar.current.isDate(updatedCombinedAttendances[index].updatedAt ?? Date.distantPast, inSameDayAs: today)
                             
+                            // Update the status and set updatedAt to the current time only if it’s a valid attendance for today
                             if isToday {
                                 updatedCombinedAttendances[index].status = updatedStatus
-                                updatedCombinedAttendances[index].id = updatedId ?? updatedCombinedAttendances[index].id
-                                updatedCombinedAttendances[index].updatedAt = Date()
+                                updatedCombinedAttendances[index].updatedAt = Date() // Set updatedAt to the current time
                             } else {
+                                // If attendance is not for today, ensure status is not incorrectly marked as present
                                 updatedCombinedAttendances[index].status = .absent
                             }
                         }
                     }
                     
+                    // Set the updated combinedAttendances back to the state
                     state.combinedAttendances = updatedCombinedAttendances
                     Log.debug("combinedAttendances2", state.combinedAttendances)
                     
+                    // Update attendaceModel to reflect the changes in status and set updatedAt to the current time if the status has been updated
                     let updatedAttendaceModel: [Attendance] = state.attendaceModel.map { data in
-                        let updatedStatusAndId = statusDict[data.id]
+                        guard let id = data.id, !id.isEmpty else {
+                            Log.error("Attendance data has empty id: \(data)")
+                            return data
+                        }
+                        
+                        let updatedStatus = statusDict[id]
                         let isToday = Calendar.current.isDate(data.updatedAt, inSameDayAs: today)
                         
-                        let updatedStatus = updatedStatusAndId?.0
-                        let updatedId = updatedStatusAndId?.1
-                        
+                        // Only update status and updatedAt if the attendance record is for today
                         let newUpdatedAt = (updatedStatus != nil && isToday) ? Date() : data.updatedAt
                         let newStatus = isToday ? (updatedStatus ?? data.status) : .absent
-                        let newId = updatedId ?? data.id
+                        
+                        // Update id if the record matches today's date and has a valid updated status
+                        let newId = (updatedStatus != nil && isToday) ? id : data.id
                         
                         return Attendance(
                             id: newId ?? "",
@@ -442,16 +455,18 @@ public struct CoreMember {
                             roleType: data.roleType,
                             eventId: data.eventId,
                             createdAt: data.createdAt,
-                            updatedAt: newUpdatedAt,
-                            status: newStatus,
+                            updatedAt: newUpdatedAt, // Set updatedAt to the current time if status was updated for today
+                            status: newStatus, // Use the new status if available and for today, otherwise mark as absent
                             generation: data.generation
                         )
                     }
                     
+                    // Set the updated attendaceModel back to the state
                     state.attendaceModel = updatedAttendaceModel
                     Log.debug("updatedAttendanceModel", updatedAttendaceModel)
-                    Log.debug("updatedAttendanceModel", state.attendaceModel)
+                    Log.debug("state.attendaceModel", state.attendaceModel)
                     return .none
+
                     
                     
                     
@@ -572,7 +587,7 @@ public struct CoreMember {
                         
                         // Merge attendances by selecting the latest updated attendance for each id
                         for (id, attendances) in fetchedDataGroupedById {
-                            if let mergedAttendance = attendances.max(by: { $0.updatedAt < $1.updatedAt }) {
+                            if let mergedAttendance = attendances.max(by: { $0.updatedAt > $1.updatedAt }) {
                                 if let id = id { // Ensure the id is not nil
                                     mergedAttendancesById[id] = mergedAttendance
                                 }
