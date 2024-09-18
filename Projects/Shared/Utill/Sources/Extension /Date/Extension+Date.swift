@@ -18,7 +18,7 @@ public extension Date {
     func formattedDate(date: Date) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ko_KR")
-        dateFormatter.dateFormat = "yyyy년 MM월 dd일 EEEE"
+        dateFormatter.dateFormat = "yyyy년 MM월 dd일"
         return dateFormatter.string(from: date)
     }
     
@@ -78,9 +78,10 @@ public extension Date {
     func formattedFireBaseStringToDate(dateString: String) -> Date {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ko_KR")
-        dateFormatter.dateFormat = "yyyy년 MM월 dd일 a hh시 mm분 ss초 'UTC'Z"
+        dateFormatter.dateFormat = "yyyy년 MM월 dd일 a h시 mm분 ss초 'UTC'Z"
         return dateFormatter.date(from: dateString) ?? Date()
     }
+
     
     func dateFromTimeToString(dateString: String) -> Date {
         let dateFormatter = DateFormatter()

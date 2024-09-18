@@ -78,13 +78,12 @@ import Model
                     for document in querySnapshot.documents {
                         do {
                             let data = try document.data(as: T.self)
-                            let uniqueKey = document.documentID  // Use documentID or another unique attribute
+                            let uniqueKey = document.documentID 
                             if !uniqueKeys.contains(uniqueKey) {
                                 decodedData.append(data)
                                 uniqueKeys.insert(uniqueKey)
                                 continuation.yield(.success(decodedData))
                             } else {
-                                // If shouldSave is true, remove duplicate document from Firestore
                                 if shouldSave {
                                     try await fireStoreDB.collection(collection.desc).document(document.documentID).delete()
                                     Log.debug("Duplicate document removed with ID: ", "\(#function)", "\(document.documentID)")
@@ -179,14 +178,14 @@ import Model
         newEvent.id = newDocumentID
         
         var data = newEvent.toDictionary()
-        data["id"] = newDocumentID // Ensure the document ID is included in the data
+        data["id"] = newDocumentID
 
         do {
             try await documentReference.setData(data)
-            Log.debug("Document added with ID: \(documentReference.documentID)")
+            Log.debug("이벤트 생성 ID: \(documentReference.documentID)")
             return newEvent
         } catch {
-            Log.error("Error adding document: \(error)")
+            Log.error("이벤트 생성 실패 \(error)")
             throw CustomError.unknownError("Error adding document: \(error.localizedDescription)")
         }
     }
@@ -203,33 +202,35 @@ import Model
 
         do {
             try await eventRef.updateData(data)
-            Log.debug("Document successfully updated with ID: \(eventID)")
+            Log.debug("event 수정 ID: \(eventID)")
             return event
         } catch {
-            Log.error("Error updating document: \(error)")
-            throw CustomError.unknownError("Error updating document: \(error.localizedDescription)")
+            Log.error("이벤트 수정 실패: \(error)")
+            throw CustomError.unknownError("이벤트 수정 실패: \(error.localizedDescription)")
         }
     }
     
     //MARK: - evnet삭제 하기
-    public func deleteEvent(from collection: FireBaseCollection, eventID: String) async throws {
-        let eventRef = fireStoreDB.collection(collection.desc)
+    public func deleteEvent(from collection: FireBaseCollection, eventID: String) async throws -> DDDEvent? {
+        let db = fireStoreDB.collection(collection.desc)
+        let eventRef = db.document(eventID)
         do {
-            // Query for the document with the specified eventID
-            let querySnapshot = try await eventRef.whereField("id", isEqualTo: eventID).getDocuments()
+            let document = try await eventRef.getDocument()
             
-            // Ensure we have at least one document
-            guard let document = querySnapshot.documents.first else {
-                Log.error("firebase 데이터에서 eventID: \(eventID)")
-                throw CustomError.unknownError("이벤트 아이디를 찾을수 없어요: \(eventID)")
+            guard let eventData = document.data(), document.exists else {
+                Log.error("이벤트 삭제 아이디를 찾을수 없어요: \(eventID)")
+                throw CustomError.unknownError("이벤트를 찾을 수 없습니다: \(eventID)")
             }
-            // Delete the document
-            try await eventRef.document(document.documentID).delete()
-            Log.debug("Document successfully 이벤트 ID 삭제 : \(document.documentID)")
+            
+            let event = try Firestore.Decoder().decode(DDDEvent.self, from: eventData)
+            
+            try await eventRef.delete()
+            Log.debug("Document successfully 이벤트 ID 삭제 : \(eventID)")
+            return event
             
         } catch {
-            Log.error("Error removing document: \(error)")
-            throw CustomError.unknownError("Error removing document: \(error.localizedDescription)")
+            Log.error("이벤트 ID 삭제 실패: \(error)")
+            throw CustomError.unknownError("이벤트 ID 삭제 실패: \(error.localizedDescription)")
         }
     }
 

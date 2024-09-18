@@ -43,7 +43,7 @@ public struct CustomDropdownMenu: View {
                         VStack {
                             Spacer()
                             Image(systemName: isSelecting ? "arrowtriangle.up.fill" : "arrowtriangle.down.fill")
-                                .frame(width: 10, height: 8)
+                                .frame(width: 8, height: 8)
                                 .foregroundColor(Color.gray600)
                                 .offset(y: isSelecting ? -10 : 0)
                                 .padding(16)

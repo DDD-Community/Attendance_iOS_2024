@@ -36,6 +36,25 @@ public struct DDDEvent: Codable, Hashable {
         case id, name, description, startTime, endTime, generation
     }
     
+    public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decodeIfPresent(String.self, forKey: .id)
+            name = try container.decode(String.self, forKey: .name)
+            description = try container.decodeIfPresent(String.self, forKey: .description)
+            startTime = try container.decode(Date.self, forKey: .startTime)
+            endTime = try container.decode(Date.self, forKey: .endTime)
+
+            // Try decoding generation as Int first, then as String, and convert it to Int
+            if let generationInt = try? container.decodeIfPresent(Int.self, forKey: .generation) {
+                generation = generationInt
+            } else if let generationString = try? container.decodeIfPresent(String.self, forKey: .generation),
+                      let generationFromString = Int(generationString) {
+                generation = generationFromString
+            } else {
+                generation = nil
+            }
+        }
+    
     public func toDictionary() -> [String: Any] {
         return [
             "id": id ?? "",

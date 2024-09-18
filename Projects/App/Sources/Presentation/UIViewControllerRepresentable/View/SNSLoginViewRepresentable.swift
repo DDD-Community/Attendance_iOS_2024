@@ -7,12 +7,20 @@
 
 import SwiftUI
 import ComposableArchitecture
+import DesignSystem
 
 public struct SNSLoginViewRepresentable: View {
     @Bindable var store: StoreOf<SNSLoginViewReducer>
     
     public var body: some View {
-        SNSLoginViewControllerRepresentable()
+        ZStack {
+            Color.basicBlack
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack {
+                SNSLoginViewControllerRepresentable()
+            }
+        }
     }
 }
 

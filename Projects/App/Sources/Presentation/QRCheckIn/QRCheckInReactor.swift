@@ -114,7 +114,7 @@ extension QRCheckInReactor {
             createdAt: .init(),
             updatedAt: .init(),
             status: attendanceType,
-            generation: 11
+            generation: member.generation
         )
         return self.userRepository.checkMemberAttendance(attendance)
             .map { _ in .setCheckInSuccess(true) }

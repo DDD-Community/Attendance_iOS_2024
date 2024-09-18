@@ -59,4 +59,8 @@ public enum SelectPart: String, CaseIterable, Codable {
     public var isDescEqualToAttendanceListDesc: Bool {
         return desc == attendanceListDesc
     }
+    
+//    public static var allParts: [SelectPart] {
+//        return [.pm, .design, .android, .iOS, .web, .server]
+//    }
 }

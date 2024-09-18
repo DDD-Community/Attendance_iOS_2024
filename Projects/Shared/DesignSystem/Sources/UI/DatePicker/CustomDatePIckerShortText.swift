@@ -43,7 +43,7 @@ public struct CustomDatePickerShortText: View {
                 }, set: { newDate in
                     selectedDate = newDate
                     isDateSelected = true
-                }), in: ...Date(), displayedComponents: [.hourAndMinute]) { }
+                }), displayedComponents: [.hourAndMinute]) { }
                 .environment(\.locale, Locale(identifier: "ko_KR"))
                 .colorMultiply(.clear)
 //                .datePickerStyle(.automatic)
@@ -54,7 +54,7 @@ public struct CustomDatePickerShortText: View {
                 }, set: { newDate in
                     selectedDate = newDate
                     isDateSelected = true
-                }), in: ...Date(), displayedComponents: [.date]) { }
+                }), displayedComponents: [.date]) { }
                 .environment(\.locale, Locale(identifier: "ko_KR"))
                 .colorMultiply(.clear)
                 .datePickerStyle(.automatic)

@@ -28,10 +28,13 @@ public struct ScheduleEvent {
         var presentActionSheet: Bool = false
         var offset: CGFloat = 0
         var selectedEvent: DDDEvent?
+        var deletedEventModel: DDDEvent? = nil
         var deleteImage: String = "ellipsis"
         var editMakeEventResaon: String = ""
         var editEventid: String = ""
         var editEventDate: Date = Date.now
+        var editEventEndDate: Date = Date.now
+        
         var generation: Int = .zero
         var notEventText: String = "일정이 없습니다."
         var createScheduleText: String = "일정 등록"
@@ -63,7 +66,7 @@ public struct ScheduleEvent {
         
         @CasePathable
         public enum ConfirmationDialog: Equatable {
-            case editScheduleEventButtonTap(eventName: String, eventID: String, eventStartDate: Date)
+            case editScheduleEventButtonTap(eventName: String, eventID: String, eventStartDate: Date, eventEndDate: Date)
             case deleteEventButtonTap(eventID: String)
         }
         
@@ -79,7 +82,7 @@ public struct ScheduleEvent {
         case presntEventModal
         case closePresntEventModal
         case closeEditEventModal
-        case confirmationDialogButtonTapped(eventName: String, eventID: String, eventStartDate: Date)
+        case confirmationDialogButtonTapped(eventName: String, eventID: String, eventStartDate: Date, eventEndDate: Date)
         
     }
     
@@ -92,11 +95,12 @@ public struct ScheduleEvent {
         case deleteEvent(eventID: String)
         case eventDeletedSuccessfully(eventID: String)
         case eventDeletionFailed(CustomError)
+        case deleteEventResponse(Result<DDDEvent?, CustomError>)
     }
     
     //MARK: - 앱내에서 사용하는 액선
     public enum InnerAction: Equatable {
-        case tapEditEvent(eventName: String, eventID: String, eventStartDate: Date)
+        case tapEditEvent(eventName: String, eventID: String, eventStartDate: Date, eventEndDate: Date)
        
         
         
@@ -135,9 +139,9 @@ public struct ScheduleEvent {
                     send(.async(.deleteEvent(eventID: eventID)))
                 }
                                 
-            case .confirmationDialog(.presented(.editScheduleEventButtonTap(let eventName, let eventID,  let eventStartDate))):
-                return .run { @MainActor send in
-                    send(.inner(.tapEditEvent(eventName: eventName, eventID: eventID, eventStartDate: eventStartDate)))
+            case .confirmationDialog(.presented(.editScheduleEventButtonTap(let eventName, let eventID,  let eventStartDate, let eventEndDate))):
+                return .run {  send in
+                    await send(.inner(.tapEditEvent(eventName: eventName, eventID: eventID, eventStartDate: eventStartDate, eventEndDate: eventEndDate)))
                 }
 
             case .confirmationDialog(.presented(.deleteEventButtonTap(let eventID))):
@@ -164,7 +168,7 @@ public struct ScheduleEvent {
                 switch View {
                     
                 case .presntEventModal:
-                    state.destination = .makeEvent(MakeEvent.State())
+                    state.destination = .makeEvent(MakeEvent.State(generation: state.generation))
                     return .none
                     
                 case .closePresntEventModal:
@@ -175,7 +179,7 @@ public struct ScheduleEvent {
                     state.destination = nil
                     return .none
                     
-                case .confirmationDialogButtonTapped(let eventName, let eventID,  let eventStartDate):
+                case .confirmationDialogButtonTapped(let eventName, let eventID,  let eventStartDate, let eventEndDate):
                     state.confirmationDialog = ConfirmationDialogState {
                         TextState("")
                     } actions: {
@@ -185,7 +189,7 @@ public struct ScheduleEvent {
                                 .font(.system(size: 17, weight: .bold))
                         }
                         
-                        ButtonState(action: .editScheduleEventButtonTap(eventName: eventName, eventID: eventID, eventStartDate: eventStartDate)) {
+                        ButtonState(action: .editScheduleEventButtonTap(eventName: eventName, eventID: eventID, eventStartDate: eventStartDate, eventEndDate: eventEndDate)) {
                             TextState("일정수정")
                                 .font(.system(size: 17, weight: .bold))
                         }
@@ -216,7 +220,6 @@ public struct ScheduleEvent {
                         switch fetchedDataResult {
                         case let .success(fetchedData):
                             send(.async(.fetchEventResponse(.success(fetchedData))))
-                            await Task.sleep(seconds: 1)
                         case let .failure(error):
                             send(.async(.fetchEventResponse(.failure(CustomError.map(error)))))
                         }
@@ -234,7 +237,7 @@ public struct ScheduleEvent {
                     case let .success(fetchedData):
                         state.eventModel = fetchedData
                     case let .failure(error):
-                        Log.error("Error fetching data", error)
+                        Log.error("Error fetching data", error.localizedDescription)
                     }
                     return .none
                     
@@ -247,23 +250,32 @@ public struct ScheduleEvent {
                     }
                     
                 case .deleteEvent(let eventID):
-                    return .run {  @MainActor send in
-                        try await fireStoreUseCase.deleteEvent(from: .event, eventID: eventID)
+                    return .run {  send in
                         let fetchedEvent = await Result {
                             try await fireStoreUseCase.deleteEvent(from: .event, eventID: eventID)
                         }
                         
                         switch fetchedEvent {
-                        case .success:
-//                            send(.async(.eventDeletedSuccessfully(eventID: eventID)))
-                            send(.async(.fetchEvent))
+                        case .success(let deleteData):
+                            if let deleteData = deleteData {
+                                await send(.async(.deleteEventResponse(.success(deleteData))))
+                                await send(.async(.fetchEvent))
+                            }
                         
                         case .failure(let error):
-                            send(.async(.eventDeletionFailed(CustomError.map(error))))
+                             await send(.async(.deleteEventResponse(.failure(CustomError.encodingError(error.localizedDescription)))))
                         }
                         
                     }
 
+                case .deleteEventResponse(let result):
+                    switch result {
+                    case .success(let deleteResult):
+                        state.deletedEventModel = deleteResult
+                    case .failure(let error):
+                        Log.error("이벤트 삭제 실패", error.localizedDescription)
+                    }
+                    return .none
                     
                 case .eventDeletedSuccessfully(let eventID):
                     state.editEventid = eventID
@@ -279,19 +291,28 @@ public struct ScheduleEvent {
             case .inner(let InnerAction):
                 switch InnerAction {
                     
+                    
                 case let .tapEditEvent(eventName: eventName,
                      eventID: eventID,
-                     eventStartDate: eventStartDate):
+                     eventStartDate: eventStartDate,
+                    eventEndDate: eventEndDate
+                ):
                     state.editMakeEventResaon =  eventName
                     state.editEventid = eventID
                     let convertDate = "\(eventStartDate.formattedDateTimeToString(date: eventStartDate)) \(eventStartDate.formattedTime(date: eventStartDate))"
                     let convertDateString = convertDate.stringToTimeAndDate(convertDate)
+                    let convertEndDate = "\(eventEndDate.formattedDateTimeToString(date: eventEndDate)) \(eventStartDate.formattedTime(date: eventStartDate))"
+                    let convertEndDateString = convertEndDate.stringToTimeAndDate(convertEndDate)
+                    let generation = state.generation
                     state.editEventDate = convertDateString ?? Date()
+                    state.editEventEndDate = convertEndDateString ?? Date()
                     state.destination = .editEventModal(
                         EditEventModal.State(
                             editMakeEventReason: eventName,
                             editEventID: eventID,
-                            editEventStartTime:  eventStartDate
+                            editEventStartTime:  eventStartDate,
+                            editEventEndTime: eventEndDate,
+                            generation: generation
                         ))
                     return .none
                     
@@ -308,7 +329,6 @@ public struct ScheduleEvent {
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
         .ifLet(\.$alert, action: \.alert)
-        
         .onChange(of: \.eventModel) { oldValue, newValue in
             Reduce { state, action in
                 state.eventModel = newValue

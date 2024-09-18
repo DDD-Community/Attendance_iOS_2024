@@ -172,7 +172,7 @@ public struct RootCoreMember {
                         switch fetchedDataResult {
                             
                         case let .success(fetchedData):
-                            let filterData = fetchedData.filter { $0.memberType == .member || $0.name != ""}
+                            let filterData = fetchedData.filter { $0.memberType == .member && $0.name != "" }
                             send(.async(.fetchDataResponse(.success(filterData))))
                         case let .failure(error):
                             send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))

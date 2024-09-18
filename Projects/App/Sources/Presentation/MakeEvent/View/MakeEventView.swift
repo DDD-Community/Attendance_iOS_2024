@@ -130,7 +130,11 @@ extension MakeEventView {
                     .fill(Color.basicBlack.opacity(0.4))
                     .frame(width: UIScreen.main.bounds.width * 0.3, height: 34)
                     .overlay {
-                        CustomDatePickerShortText(selectedDate: $store.selectMakeEventDate.sending(\.selectMakeEventDate), isTimeDate: false)
+                        if text == "시작" {
+                            CustomDatePickerShortText(selectedDate: $store.selectMakeEventDate.sending(\.selectMakeEventDate), isTimeDate: false)
+                        } else if text == "종료" {
+                            CustomDatePickerShortText(selectedDate: $store.selectMakeEventEndDate.sending(\.selectMakeEventEndDate), isTimeDate: false)
+                        }
                     }
                 
                 Spacer().frame(width: 6)
@@ -139,7 +143,11 @@ extension MakeEventView {
                     .fill(Color.basicBlack.opacity(0.4))
                     .frame(width: UIScreen.main.bounds.width * 0.24, height: 34)
                     .overlay {
-                        CustomDatePickerShortText(selectedDate: $store.selectMakeEventDate.sending(\.selectMakeEventDate), isTimeDate: true)
+                        if text == "시작" {
+                            CustomDatePickerShortText(selectedDate: $store.selectMakeEventDate.sending(\.selectMakeEventDate), isTimeDate: true)
+                        } else if text == "종료" {
+                            CustomDatePickerShortText(selectedDate: $store.selectMakeEventEndDate.sending(\.selectMakeEventEndDate), isTimeDate: true)
+                        }
                     }
                 
                 Spacer()

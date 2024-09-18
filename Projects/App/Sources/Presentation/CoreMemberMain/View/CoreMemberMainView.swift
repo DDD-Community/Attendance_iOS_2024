@@ -47,22 +47,18 @@ struct CoreMemberMainView: View {
         }
       
         .task {
-            store.send(.async(.fetchMember))
-            store.send(.async(.fetchAttenDance))
-            store.send(.view(.appearSelectPart(selectPart: .all)))
-            store.send(.async(.fetchCurrentUser))
-            store.send(.async(.observeAttendance))
-
+//            store.send(.async(.fetchMember))
+//            store.send(.async(.observeAttendance))
+//            store.send(.async(.fetchCurrentUser))
         }
-        .onChange(of: store.attendaceModel) { oldValue, newValue in
-            store.send(.async(.updateTodayAttendanceStatus(newValue)))
+        .onAppear {
+//            store.send(.async(.fetchAttenDance))
+//            store.send(.view(.appearSelectPart(selectPart: .all)))
         }
         
-        .onChange(of: store.combinedAttendances, { oldValue, newValue in
-            store.send(.async(.updateTodayAttendanceStatus(newValue)))
-            
-        })
-        
+        .onChange(of: store.attendaceMemberModel) { oldValue, newValue in
+            store.send(.async(.fetchAttendanceDataResponse(.success(newValue))))
+        }
         
         .gesture(
             DragGesture()
@@ -216,7 +212,7 @@ extension CoreMemberMainView {
         LazyVStack {
             switch store.selectPart {
             case .all:
-                if store.attendaceModel.isEmpty  && store.attendaceModel ==  [] {
+                if store.attendanceCheckInModel.isEmpty  && store.attendanceCheckInModel ==  [] {
                    
                     VStack {
                         Spacer()
@@ -243,7 +239,7 @@ extension CoreMemberMainView {
                 }
                 
             default:
-                if store.attendaceModel.isEmpty  && store.attendaceModel ==  [] {
+                if store.attendanceCheckInModel.isEmpty  && store.attendanceCheckInModel ==  [] {
                    
                     VStack {
                         Spacer()
@@ -283,7 +279,7 @@ extension CoreMemberMainView {
             switch roleType {
             case .all:
                 ScrollView(.vertical, showsIndicators: false) {
-                    ForEach(store.attendaceModel, id: \.self) { item in
+                    ForEach(store.attendanceCheckInModel, id: \.self) { item in
                         AttendanceStatusText(
                             name: item.name,
                             generataion: "\(item.generation)",
@@ -320,7 +316,7 @@ extension CoreMemberMainView {
 
                 
             default:
-                ForEach(store.attendaceModel.filter { $0.roleType == roleType}, id: \.self) { item in
+                ForEach(store.attendanceCheckInModel.filter { $0.roleType == roleType}, id: \.self) { item in
                     AttendanceStatusText(
                         name: item.name,
                         generataion: "\(item.generation)",
@@ -367,9 +363,8 @@ extension CoreMemberMainView {
             isGenerationColor: Bool = false,
             isRoletTypeColor: Bool = false
         ) -> Color {
-            let matchingAttendancesList = store.combinedAttendances.filter { $0.id == memberId }
-            // Handle the case where all combinedAttendances count matches
-            if matchingAttendancesList.count == store.combinedAttendances.count {
+            let matchingAttendancesList = store.attendanceCheckInModel.filter { $0.id == memberId }
+            if matchingAttendancesList.count == store.attendanceCheckInModel.count {
                 if let backgroundColor = matchingAttendancesList.first?.backgroundColor(
                     isBackground: isBackground,
                     isNameColor: isNameColor,
@@ -388,9 +383,9 @@ extension CoreMemberMainView {
                         return backgroundColor
                     }
                 } else {
-                    return .gray // Return gray if the background color does not match the generation color
+                    return .gray
                 }
-            } else  if matchingAttendancesList.count != store.combinedAttendances.count {
+            } else  if matchingAttendancesList.count != store.attendanceCheckInModel.count {
                 if let backgroundColor = matchingAttendancesList.first?.backgroundColor(
                     isBackground: isBackground,
                     isNameColor: isNameColor,
@@ -421,7 +416,7 @@ extension CoreMemberMainView {
     private func attendanceMemberCount(count:  Int) -> some View {
         VStack {
             HStack {
-                Text("\(count) / \(store.attendaceModel.count) 명")
+                Text("\(count) / \(store.attendaceMemberModel.count) 명")
                     .pretendardFont(family: .Regular, size: 16)
                     .foregroundStyle(Color.basicWhite)
                 
