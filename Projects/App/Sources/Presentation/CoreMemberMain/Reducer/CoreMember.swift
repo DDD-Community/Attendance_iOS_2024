@@ -226,7 +226,7 @@ public struct CoreMember {
             case .async(let AsyncAction):
                 switch AsyncAction {
                 case .fetchMember:
-                    return .run { @MainActor send in
+                    return .run {  send in
                         let fetchedDataResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
                                 from: .member,
@@ -238,16 +238,16 @@ public struct CoreMember {
                         switch fetchedDataResult {
                         case let .success(fetchedData):
                             let filterData = fetchedData.filter { $0.memberType == .member || !$0.name.isEmpty }
-                             send(.async(.fetchMemberDataResponse(.success(filterData))))
+                            await send(.async(.fetchMemberDataResponse(.success(filterData))))
                             
                         case let .failure(error):
-                             send(.async(.fetchMemberDataResponse(.failure(CustomError.map(error)))))
+                            await send(.async(.fetchMemberDataResponse(.failure(CustomError.map(error)))))
                         }
                     }
                     
                     //MARK: - 실시간으로 데이터 가져오기 출석현황
                 case .fetchAttenDance:
-                    return .run { @MainActor send in
+                    return .run {  send in
                         let fetchedDataResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
                                 from: .attendance,
@@ -257,13 +257,13 @@ public struct CoreMember {
                         }
                         switch fetchedDataResult {
                         case let .success(fetchedData):
-                            send(.async(.fetchMember))
-                            send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
-                            send(.view(.updateAttendanceCountWithData(attendances: fetchedData)))
+                            await send(.async(.fetchMember))
+                            await send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
+                            await send(.view(.updateAttendanceCountWithData(attendances: fetchedData)))
                             
                             
                         case let .failure(error):
-                            send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
+                            await send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
                         }
                     }
                     
@@ -288,7 +288,7 @@ public struct CoreMember {
                     }
                     
                 case .fetchCurrentUser:
-                    return .run { @MainActor send in
+                    return .run {  send in
                         let fetchUserResult = await Result {
                             try await fireStoreUseCase.getCurrentUser()
                         }
@@ -296,10 +296,10 @@ public struct CoreMember {
                         switch fetchUserResult {
                         case let .success(user):
                             if let user = user {
-                                send(.async(.fetchUserDataResponse(.success(user))))
+                                await send(.async(.fetchUserDataResponse(.success(user))))
                             }
                         case let .failure(error):
-                            send(.async(.fetchUserDataResponse(.failure(CustomError.map(error)))))
+                            await send(.async(.fetchUserDataResponse(.failure(CustomError.map(error)))))
                         }
                     }
                     
@@ -316,7 +316,7 @@ public struct CoreMember {
                     
                 case let .upDateFetchAttandanceMember(selectPart: selectPart):
                     let selectData = state.selectDate
-                    return .run { @MainActor send in
+                    return .run {  send in
                         let fetchedAttandanceResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
                                 from: .attendance,
@@ -329,13 +329,14 @@ public struct CoreMember {
                         case let .success(fetchedData):
                             if selectPart == .all {
                                 let filteredData = fetchedData.filter { $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
-                                send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
+                                await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
                             } else {
                                 let filteredData = fetchedData.filter {$0.roleType == selectPart  && $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
-                                 send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
+                                await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
                             }
                             
                         case let .failure(error):
+                            await
                             send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
                         }
                     }
