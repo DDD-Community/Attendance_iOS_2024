@@ -226,7 +226,7 @@ public struct CoreMember {
             case .async(let AsyncAction):
                 switch AsyncAction {
                 case .fetchMember:
-                    return .run { send in
+                    return .run { @MainActor send in
                         let fetchedDataResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
                                 from: .member,
@@ -238,16 +238,16 @@ public struct CoreMember {
                         switch fetchedDataResult {
                         case let .success(fetchedData):
                             let filterData = fetchedData.filter { $0.memberType == .member || !$0.name.isEmpty }
-                            await send(.async(.fetchMemberDataResponse(.success(filterData))))
+                             send(.async(.fetchMemberDataResponse(.success(filterData))))
                             
                         case let .failure(error):
-                            await send(.async(.fetchMemberDataResponse(.failure(CustomError.map(error)))))
+                             send(.async(.fetchMemberDataResponse(.failure(CustomError.map(error)))))
                         }
                     }
                     
                     //MARK: - 실시간으로 데이터 가져오기 출석현황
                 case .fetchAttenDance:
-                    return .run { send in
+                    return .run { @MainActor send in
                         let fetchedDataResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
                                 from: .attendance,
@@ -257,13 +257,13 @@ public struct CoreMember {
                         }
                         switch fetchedDataResult {
                         case let .success(fetchedData):
-                            await send(.async(.fetchMember))
-                            await send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
-                            await send(.view(.updateAttendanceCountWithData(attendances: fetchedData)))
+                            send(.async(.fetchMember))
+                            send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
+                            send(.view(.updateAttendanceCountWithData(attendances: fetchedData)))
                             
                             
                         case let .failure(error):
-                            await send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
+                            send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
                         }
                     }
                     
@@ -316,7 +316,7 @@ public struct CoreMember {
                     
                 case let .upDateFetchAttandanceMember(selectPart: selectPart):
                     let selectData = state.selectDate
-                    return .run {  send in
+                    return .run { @MainActor send in
                         let fetchedAttandanceResult = await Result {
                             try await fireStoreUseCase.fetchFireStoreData(
                                 from: .attendance,
@@ -329,14 +329,14 @@ public struct CoreMember {
                         case let .success(fetchedData):
                             if selectPart == .all {
                                 let filteredData = fetchedData.filter { $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
-                                await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
+                                send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
                             } else {
                                 let filteredData = fetchedData.filter {$0.roleType == selectPart  && $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
-                                await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
+                                 send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
                             }
                             
                         case let .failure(error):
-                            await send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
+                            send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
                         }
                     }
                     
@@ -431,12 +431,12 @@ public struct CoreMember {
         
         .ifLet(\.$destination, action: \.destination)
         //        .ifLet(\.$alert, action: \.alert)
-        .onChange(of: \.attendaceMemberModel) { oldValue, newValue in
-            Reduce { state, action in
-                state.attendaceMemberModel = newValue
-                return .none
-            }
-        }
+//        .onChange(of: \.attendaceMemberModel) { oldValue, newValue in
+//            Reduce { state, action in
+//                state.attendaceMemberModel = newValue
+//                return .none
+//            }
+//        }
         .onChange(of: \.attendanceCheckInModel) { oldValue, newValue in
             Reduce { state, action in
                 state.attendanceCheckInModel = newValue

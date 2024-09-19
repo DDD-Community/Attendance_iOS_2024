@@ -86,7 +86,7 @@ public struct QrCode {
     
     //MARK: - 네비게이션 연결 액션
     public enum NavigationAction: Equatable {
-        
+        case presentSchedule
     }
     
     @Reducer(state: .equatable)
@@ -232,7 +232,8 @@ public struct QrCode {
                 //MARK: - NavigationAction
             case .navigation(let NavigationAction):
                 switch NavigationAction {
-                    
+                case .presentSchedule:
+                    return .none
                 }
             }
         }

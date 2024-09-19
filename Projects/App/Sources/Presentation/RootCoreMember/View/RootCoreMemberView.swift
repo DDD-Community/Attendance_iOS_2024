@@ -37,7 +37,6 @@ struct RootCoreMemberView: View {
             case let .scheduleEvent(scheduleEventStore):
                 ScheduleEventView(store: scheduleEventStore) {
                     store.send(.inner(.removePath))
-                    
                 }
                 .navigationBarBackButtonHidden()
                 

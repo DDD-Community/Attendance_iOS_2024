@@ -49,7 +49,7 @@ struct QrCodeView: View {
               
               generateQrImage()
                   
-              Spacer()
+              creatEventButton()
           }
           .navigationBarBackButtonHidden()
           .task {
@@ -139,23 +139,23 @@ extension QrCodeView {
     @ViewBuilder
     fileprivate func creatEventButton() -> some View {
         if store.eventID?.isEmpty == nil  {
-            Spacer()
-                .frame(height: UIScreen.screenHeight * 0.3)
             
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.basicBlue.opacity(0.4))
-                .frame(height: 48)
-                .padding(.horizontal, 20)
-                .overlay {
-                    Text("이벤트를 추가 해주세요")
-                        .pretendardFont(family: .SemiBold, size: 20)
-                        .foregroundColor(.basicWhite)
-                }
-                .onTapGesture {
-                    store.send(.view(.presntEventModal))
-                }
-            
-            Spacer()
+            VStack {
+                Spacer()
+                    .frame(height: UIScreen.screenHeight * 0.25)
+                
+                Text("일정 등록하기")
+                    .pretendardFont(family: .SemiBold, size: 16)
+                    .foregroundColor(Color.gray300)
+                    .underline(true, color: Color.gray300)
+                    .onTapGesture {
+                        store.send(.navigation(.presentSchedule))
+                    }
+                
+                
+                Spacer()
+                    .frame(height: 10)
+            }
         }
     }
 }

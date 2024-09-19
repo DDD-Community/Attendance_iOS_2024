@@ -106,6 +106,12 @@ public struct RootCoreMember {
                 case .element(id: _, action: .mangeProfile(.navigation(.presentCreatByApp))):
                     state.path.append(.createByApp(.init()))
                     
+                case .element(id: _, action: .qrCode(.navigation(.presentSchedule))):
+                    state.path.append(.scheduleEvent(.init(eventModel: state.eventModel, generation: state.attendaceModel.first?.generation ?? .zero)))
+//                    return .run { send in
+//                        await send(.async(.fetchMember))
+//                    }
+                    
                     
                 default:
                     break
@@ -170,24 +176,21 @@ public struct RootCoreMember {
                         }
                         
                         switch fetchedDataResult {
-                            
                         case let .success(fetchedData):
                             let filterData = fetchedData.filter { $0.memberType == .member && $0.name != "" }
                             send(.async(.fetchDataResponse(.success(filterData))))
                         case let .failure(error):
                             send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))
                         }
-                        
                     }
                     
                 case let .fetchDataResponse(fetchedData):
                     switch fetchedData {
                     case let .success(fetchedData):
-                        let filteredData = fetchedData.filter { $0.memberType == .member && !$0.name.isEmpty }
+                        let userID = try? Keychain().get("userID")
+                        let filteredData = fetchedData.filter { $0.memberType == .member }
                         
                         state.attendaceModel = filteredData
-                        
-//                        state.combinedAttendances = state.attendaceModel
                     case let .failure(error):
                         Log.error("Error fetching data", error)
                     }

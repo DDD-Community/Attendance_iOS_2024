@@ -35,13 +35,16 @@ struct CoreMemberMainView: View {
                 
                 attendanceStatus(selectPart: store.selectPart ?? .all)
                 
-                ScrollView(.vertical, showsIndicators: false) {
+                ScrollView(.vertical) {
                     
                     selctAttendance(selectPart: store.selectPart ?? .all)
                     
                     Spacer()
                 }
-                .bounce(false)
+                .scrollIndicators(.hidden)
+                .onAppear {
+                    UIScrollView.appearance().bounces = false
+                }
                 
             }
         }
@@ -56,7 +59,7 @@ struct CoreMemberMainView: View {
             store.send(.view(.appearSelectPart(selectPart: .all)))
         }
         
-        .onChange(of: store.attendaceMemberModel) { oldValue, newValue in
+        .onChange(of: store.attendanceCheckInModel) { oldValue, newValue in
             store.send(.async(.fetchAttendanceDataResponse(.success(newValue))))
         }
         
