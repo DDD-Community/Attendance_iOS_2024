@@ -12,7 +12,7 @@ import DesignSystem
 import SwiftUI
 
 public struct Attendance: Codable, Hashable {
-    var id: String
+    var id: String?
     var memberId: String?
     var memberType: MemberType?
     var name: String
@@ -84,7 +84,7 @@ public struct Attendance: Codable, Hashable {
            let status = AttendanceType(rawValue: statusString) {
             return status
         }
-        return .run  // Use a default value if the status string is invalid
+        return .run
     }
     
     private static func decodeStatus(from data: [String: Any]) -> AttendanceType {
@@ -92,11 +92,11 @@ public struct Attendance: Codable, Hashable {
            let status = AttendanceType(rawValue: statusString) {
             return status
         }
-        return .run  // Use a default value if the status string is invalid
+        return .run
     }
     
     mutating func merge(with other: Attendance) {
-        self.id = self.id.isEmpty ? other.id : self.id
+        self.id = ((self.id?.isEmpty) != nil) ? other.id : self.id
         self.memberId = ((self.memberId?.isEmpty) != nil) ? other.memberId : self.memberId
         self.memberType = self.memberType ?? other.memberType
         self.name = self.name.isEmpty ? other.name : self.name
@@ -139,7 +139,7 @@ public struct Attendance: Codable, Hashable {
             case (_, _, _, true):
                 return .gray600
             default:
-                return .gray800 // Default color if none match
+                return .gray800 
             }
         case .run:
             switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
@@ -152,7 +152,7 @@ public struct Attendance: Codable, Hashable {
             case (_, _, _, true):
                 return .gray600
             default:
-                return .gray800 // Default color if none match
+                return .gray800
             }
             
         case nil:
@@ -166,10 +166,9 @@ public struct Attendance: Codable, Hashable {
             case (_, _, _, true):
                 return .gray600
             default:
-                return .gray800 // Default color if none match
+                return .gray800
             }
             
-            // Add other cases as needed
         default:
             switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
             case (true, _, _, _):
@@ -181,7 +180,7 @@ public struct Attendance: Codable, Hashable {
             case (_, _, _, true):
                 return .gray600
             default:
-                return .gray800 // Default color if none match
+                return .gray800
             }
         }
     }

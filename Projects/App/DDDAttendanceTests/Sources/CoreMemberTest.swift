@@ -63,7 +63,7 @@ struct CoreMemberTest {
         
         await testStore.send(.async(.fetchMember))
         
-        await testStore.send(.async(.updateAttendanceModel([updateModel])))
+//        await testStore.send(.async(.updateAttendanceModel([updateModel])))
         
         Log.test("테스트 모델", updateModel)
     }

@@ -19,7 +19,7 @@ public struct MakeEvent {
     
     @ObservableState
     public struct State: Equatable {
-        public init() {}
+        
         
         var makeEventTitle: String = "일정 등록"
         var isSelectDropDownMenu: Bool = false
@@ -29,16 +29,23 @@ public struct MakeEvent {
         var selectPart: SelectPart? = nil
         var eventModel: [DDDEvent] = []
         var selectMakeEventDate: Date = Date.now
+        var selectMakeEventEndDate: Date = Date.now
         var eventID: String?
+        var generation: Int = .zero
         var selectMakeEventDatePicker: Bool = false
         
-        
+        public init(
+            generation: Int = .zero
+        ) {
+            self.generation = generation
+        }
         
     }
     
     public enum Action: BindableAction, ViewAction, FeatureAction {
         case binding(BindingAction<State>)
         case selectMakeEventDate(date: Date)
+        case selectMakeEventEndDate(date: Date)
         case selectMakeEventDatePicker(isBool: Bool)
         case view(View)
         case async(AsyncAction)
@@ -81,16 +88,16 @@ public struct MakeEvent {
             case .binding(_):
                 return .none
                 
-            case .binding(\.selectMakeEventDate):
-                state.selectMakeEventDate = state.selectMakeEventDate
-                return .none
-                
             case .binding(\.selectMakeEventDatePicker):
                 state.selectMakeEventDatePicker.toggle()
                 return .none
                 
             case .selectMakeEventDate(let date):
                 state.selectMakeEventDate = date
+                return .none
+                
+            case .selectMakeEventEndDate(let date):
+                state.selectMakeEventEndDate = date
                 return .none
                 
             case .selectMakeEventDatePicker(let isBool):
@@ -111,21 +118,43 @@ public struct MakeEvent {
                     return .none
                     
                 case let .makeEventToFireBase(eventName: eventName):
-                    let convertStartDate = state.selectMakeEventDate.formattedDate(date: state.selectMakeEventDate)
-                    let convertTime = state.selectMakeEventDate.formattedTime(date: state.selectMakeEventDate)
-                    let convertDate = convertStartDate + convertTime
-                    let convertStringToDate = state.selectMakeEventDate.formattedFireBaseStringToDate(dateString: convertDate)
-                    let event = DDDEvent(
-                        id: UUID().uuidString,
-                        name: eventName,
-                        startTime: convertStringToDate,
-                        endTime: convertStringToDate.addingTimeInterval(1800))
-                    state.eventModel = [event]
-                    return .run  { @MainActor  send in
+                       let startTime: Date
+                    if state.selectMakeEventDate == .now {
+                           let convertStartDate = state.selectMakeEventDate.formattedFireBaseDate(date: state.selectMakeEventDate)
+                           startTime = state.selectMakeEventDate.formattedFireBaseStringToDate(dateString: convertStartDate)
+                           print("시작 날짜가 선택되지 않음. 현재 시간으로 설정.")
+                       } else {
+                           let convertStartDate = state.selectMakeEventDate.formattedFireBaseDate(date: state.selectMakeEventDate)
+                           startTime = state.selectMakeEventDate.formattedFireBaseStringToDate(dateString: convertStartDate)
+                           print("선택된 시작 날짜: \(startTime)")
+                       }
+
+                       var endTime: Date
+                    if state.selectMakeEventEndDate != state.selectMakeEventDate || state.selectMakeEventEndDate == .now  {
+                           endTime = startTime.addingTimeInterval(1800)
+                           print("마침 날짜가 선택되지 않음. 30분 추가됨.")
+                       } else {
+                           let convertEndDate = state.selectMakeEventEndDate.formattedFireBaseDate(date: state.selectMakeEventEndDate)
+                           endTime = state.selectMakeEventEndDate.formattedFireBaseStringToDate(dateString: convertEndDate)
+                           print("선택된 마침 날짜: \(endTime)")
+                       }
+
+                       let event = DDDEvent(
+                           id: UUID().uuidString,
+                           name: eventName,
+                           startTime: startTime,
+                           endTime: endTime,
+                           generation: state.generation
+                       )
+
+                       state.eventModel = [event]
+                    
+                    return .run { @MainActor send in
                         let events = try await fireStoreUseCase.createEvent(event: event, from: .event, uuid: event.id ?? "")
                         Log.debug("event 생성", events)
                     }
                 }
+
                 
                 //MARK: - AsyncAction
                 case .async(let AsyncAction):
@@ -177,6 +206,7 @@ public struct MakeEvent {
                 switch NavigationAction {
                     
                 }
+            
             }
         }
         .onChange(of: \.eventModel) { oldValue, newValue in

@@ -22,15 +22,22 @@ public struct QrCode {
     
     @ObservableState
     public struct State: Equatable {
-        public init(userID: String? = nil, startTime: Date? = nil, eventID: String? = nil) {
+        public init(
+            userID: String? = nil,
+            startTime: Date? = nil,
+            endTime: Date? = nil,
+            eventID: String? = nil
+        ) {
             self.userID = userID
             self.startTime = startTime
+            self.endTime = endTime
             self.eventID = eventID
         }
         
         var userID: String? = ""
         var eventID: String? = ""
         var startTime: Date? = Date.now
+        var endTime: Date? = Date.now
         var qrCodeImage: Image? = nil
         var loadingQRImage: Bool = false
         var qrCodeReaderText: String = "로딩중!"
@@ -160,6 +167,7 @@ public struct QrCode {
                         if let todayEvent = todayEvents.first {
                             state.startTime = todayEvent.startTime
                             state.eventID = todayEvent.id
+                            state.endTime = todayEvent.endTime
                             Log.debug("Today's event found: \(todayEvent.id)")
                             if todayEvent.id != "" {
                                 if state.loadingQRImage == true {
@@ -194,16 +202,19 @@ public struct QrCode {
                     let userID = state.userID
                     let eventID = state.eventID
                     let startTime = state.startTime
+                    let endTime = state.endTime
                     return .run { send in
                         if eventID != "" && userID == userID {
                             await send(.async(.fetchEvent))
                             let convertDateString = startTime?.formattedFireBaseDate(date: startTime ?? Date())
                             let convertStringToDate = startTime?.formattedFireBaseStringToDate(dateString: convertDateString ?? "")
+                            let convertEndDateString = endTime?.formattedFireBaseDate(date: endTime ?? Date())
+                            let convertEndStringToDate = endTime?.formattedFireBaseStringToDate(dateString: convertEndDateString ?? "")
                             let qrCodeGenerateString = String.makeQrCodeValue(
                                 userID: userID ?? "",
                                 eventID: eventID ?? "",
                                 startTime: convertStringToDate ?? Date(),
-                                endTime: convertStringToDate?.addingTimeInterval(1800) ?? Date()
+                                endTime: convertEndStringToDate ?? Date()
                             )
                             let qrCodeImage = await qrCodeUseCase.generateQRCode(from: qrCodeGenerateString)
                             Log.debug(qrCodeGenerateString)

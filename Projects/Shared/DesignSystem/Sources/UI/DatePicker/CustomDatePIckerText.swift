@@ -41,7 +41,6 @@ public struct CustomDatePIckerText: View {
         }
         .overlay {
             DatePicker(selection: $selectedDate,
-                       in: ...Date(),
                        displayedComponents: [.date]) { }
             .environment(\.locale, Locale(identifier: "ko_KR"))
             .colorMultiply(.clear)

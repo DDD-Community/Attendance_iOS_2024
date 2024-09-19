@@ -107,13 +107,14 @@ extension QRCheckInReactor {
         let attendance: Attendance = .init(
             id: UUID().uuidString,
             memberId: member.uid,
+            memberType: member.memberType,
             name: member.name,
             roleType: member.role,
             eventId: eventId,
             createdAt: .init(),
             updatedAt: .init(),
             status: attendanceType,
-            generation: 11
+            generation: member.generation
         )
         return self.userRepository.checkMemberAttendance(attendance)
             .map { _ in .setCheckInSuccess(true) }

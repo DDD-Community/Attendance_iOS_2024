@@ -67,6 +67,7 @@ public struct ScheduleEventView: View {
         .sheet(item: $store.scope(state: \.destination?.makeEvent, action: \.destination.makeEvent)) { makeStore in
             MakeEventView(store: makeStore) {
                 store.send(.view(.closePresntEventModal))
+                store.send(.async(.fetchEvent))
             }
             .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
             .presentationCornerRadius(20)
@@ -77,6 +78,7 @@ public struct ScheduleEventView: View {
         .sheet(item: $store.scope(state: \.destination?.editEventModal, action: \.destination.editEventModal)) { editEventModalStore in
             EditEventModalView(store: editEventModalStore, completion: {
                 store.send(.view(.closeEditEventModal))
+                store.send(.async(.fetchEvent))
             }, selectMakeEventReason: store.editMakeEventResaon)
             .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
             .presentationCornerRadius(20)
@@ -139,7 +141,8 @@ extension ScheduleEventView {
                                 store.send(.view(.confirmationDialogButtonTapped(
                                     eventName: item.name,
                                     eventID: item.id ?? "",
-                                    eventStartDate: item.startTime)
+                                    eventStartDate: item.startTime,
+                                    eventEndDate: item.endTime)
                                 ))
                             })
                     }

@@ -128,7 +128,12 @@ extension EditEventModalView {
                     .fill(Color.basicBlack.opacity(0.4))
                     .frame(width: UIScreen.main.bounds.width * 0.3, height: 34)
                     .overlay {
-                        CustomDatePickerShortText(selectedDate: $store.editEventStartTime.sending(\.selectMakeEventDate), isTimeDate: false)
+                        if text == "시작" {
+                            CustomDatePickerShortText(selectedDate: $store.editEventStartTime.sending(\.selectMakeEventDate), isTimeDate: false)
+                        } else if text == "종료" {
+                            CustomDatePickerShortText(selectedDate: $store.editEventEndTime.sending(\.selectMakeEventEndDate), isTimeDate: false)
+                        }
+                        
                     }
                 
                 Spacer().frame(width: 6)
@@ -137,7 +142,11 @@ extension EditEventModalView {
                     .fill(Color.basicBlack.opacity(0.4))
                     .frame(width: UIScreen.main.bounds.width * 0.24, height: 34)
                     .overlay {
-                        CustomDatePickerShortText(selectedDate: $store.editEventStartTime.sending(\.selectMakeEventDate), isTimeDate: true)
+                        if text == "시작" {
+                            CustomDatePickerShortText(selectedDate: $store.editEventStartTime.sending(\.selectMakeEventDate), isTimeDate: true)
+                        } else if text == "종료" {
+                            CustomDatePickerShortText(selectedDate: $store.editEventEndTime.sending(\.selectMakeEventEndDate), isTimeDate: true)
+                        }
                     }
                 
                 Spacer()
@@ -165,7 +174,7 @@ extension EditEventModalView {
             .disabled(store.editMakeEventReason == "이벤트 선택")
             .onTapGesture {
                 if store.editMakeEventReason != "이벤트 선택" {
-                    store.send(.async(.saveEvent))
+                    store.send(.async(.editEvent))
                     completion()
                 }
             }

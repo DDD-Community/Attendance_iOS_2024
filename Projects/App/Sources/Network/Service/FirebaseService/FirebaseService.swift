@@ -130,16 +130,18 @@ final class FirebaseService {
     func saveAttendance(_ attendance: Attendance) -> Single<Bool> {
         return Single.create { single in
             let db = Firestore.firestore()
-            let attendanceRef = db.collection("attendance").document(attendance.id)
+            let attendanceRef = db.collection("attendance").document(attendance.id ?? "")
             let data: [String: Any] = [
-                "id": attendance.id,
-                "memberId": attendance.memberId,
+                "id": attendance.id ?? "",
+                "memberId": attendance.memberId ?? "",
                 "eventId": attendance.eventId,
+                "name": attendance.name,
                 "date": Timestamp(date: attendance.createdAt),
                 "updatedAt": Timestamp(date: attendance.updatedAt),
-                "status": attendance.status?.rawValue ?? .none,
+                "status": attendance.status?.rawValue ?? .none ?? "",
                 "generation": attendance.generation,
-                "name": attendance.name
+                "memberType": attendance.memberType?.rawValue ?? .none ?? "",
+                "roleType": attendance.roleType.rawValue
             ]
             attendanceRef.setData(data) { error in
                 guard error == nil else {
@@ -166,17 +168,21 @@ final class FirebaseService {
                 let attendances: [Attendance] = documents.compactMap { document in
                     let data = document.data()
                     let id: String = data["id"] as? String ?? ""
+                    let name: String = data["name"] as? String ?? ""
                     let memberId: String = data["memberId"] as? String ?? ""
                     let eventId: String = data["eventId"] as? String ?? ""
                     let createdAt: Date = (data["date"] as? Timestamp)?.dateValue() ?? Date()
                     let updatedAt: Date = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
                     let status: AttendanceType = AttendanceType(rawValue: data["status"] as? String ?? "") ?? .absent
                     let generation: Int = data["generation"] as? Int ?? 0
+                    let memberType: MemberType = MemberType(rawValue: data["memberType"] as? String ?? "") ?? .member
+                    let roleType : SelectPart = SelectPart(rawValue:  data["roleType"] as? String ?? "") ?? .all
                     return Attendance(
                         id: id,
                         memberId: memberId,
-                        name: data["name"] as? String ?? "",
-                        roleType: .init(rawValue: data["roleType"] as? String ?? "") ?? .all,
+                        memberType: memberType,
+                        name: name,
+                        roleType: roleType,
                         eventId: eventId,
                         createdAt: createdAt,
                         updatedAt: updatedAt,
