@@ -31,7 +31,8 @@ public struct CustomDropdownMenu: View {
                         Text(selectionTitle == "선택해주세요." ? "선택해주세요." : selectionTitle)
                             .pretendardFont(family: selectionTitle == "선택해주세요." ? .Medium : .Bold, size: 16)
                             .foregroundColor(selectionTitle == "선택해주세요." || selectionTitle == "이벤트 선택" ? Color.gray600 : Color.basicWhite)
-                            .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 0))
+                            .padding(.leading, 16)
+                            .offset(y: isSelecting ? -10 : 0)
                             .onTapGesture {
                                 isSelecting.toggle()
                                 if !isSelecting {
@@ -42,8 +43,10 @@ public struct CustomDropdownMenu: View {
                         
                         VStack {
                             Spacer()
-                            Image(systemName: isSelecting ? "arrowtriangle.up.fill" : "arrowtriangle.down.fill")
-                                .frame(width: 8, height: 8)
+                            Image(asset: isSelecting ? .arrow_up : .arrow_down)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 12, height: 8)
                                 .foregroundColor(Color.gray600)
                                 .offset(y: isSelecting ? -10 : 0)
                                 .padding(16)

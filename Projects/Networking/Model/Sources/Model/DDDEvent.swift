@@ -14,7 +14,7 @@ public struct DDDEvent: Codable, Hashable {
     public var startTime: Date
     public var endTime: Date
     /// 기수
-    public var generation: Int
+    public var generation: Int?
     
     public init(
         id: String? = nil,
@@ -22,7 +22,7 @@ public struct DDDEvent: Codable, Hashable {
         description: String? = nil,
         startTime: Date,
         endTime: Date,
-        generation: Int = 11
+        generation: Int? = .zero
     ) {
         self.id = id
         self.name = name
