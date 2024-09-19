@@ -47,13 +47,13 @@ struct CoreMemberMainView: View {
         }
       
         .task {
-//            store.send(.async(.fetchMember))
-//            store.send(.async(.observeAttendance))
-//            store.send(.async(.fetchCurrentUser))
+            store.send(.async(.fetchMember))
+            store.send(.async(.fetchCurrentUser))
         }
+        
         .onAppear {
-//            store.send(.async(.fetchAttenDance))
-//            store.send(.view(.appearSelectPart(selectPart: .all)))
+            store.send(.async(.fetchAttenDance))
+            store.send(.view(.appearSelectPart(selectPart: .all)))
         }
         
         .onChange(of: store.attendaceMemberModel) { oldValue, newValue in

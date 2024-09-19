@@ -60,7 +60,7 @@ public enum SelectPart: String, CaseIterable, Codable {
         return desc == attendanceListDesc
     }
     
-//    public static var allParts: [SelectPart] {
-//        return [.pm, .design, .android, .iOS, .web, .server]
-//    }
+    public static var allParts: [SelectPart] {
+        return [.pm, .design, .android, .iOS, .web, .server]
+    }
 }

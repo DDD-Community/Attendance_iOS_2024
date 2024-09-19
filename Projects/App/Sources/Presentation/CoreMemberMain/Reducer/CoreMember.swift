@@ -26,6 +26,7 @@ public struct CoreMember {
         
         var headerTitle: String = "출석 현황"
         var selectPart: SelectPart? = nil
+        var selectParts: [SelectPart] =  []
         var attendaceMemberModel : [Attendance] = []
         var attendanceCheckInModel: [Attendance] = []
         var disableSelectButton: Bool = false
@@ -201,13 +202,25 @@ public struct CoreMember {
                     state.selectPart = state.selectPart == selectPart ? nil : selectPart
                     state.isActiveBoldText = (state.selectPart != nil)
                     return .none
-                           
+                    
                 case let .updateAttendanceCountWithData(attendances):
-                    let presentCount = attendances
-                        .filter { $0.status == .present || $0.status == .late }
-                        .count
-                    state.attendanceCount = max(0, min(presentCount, attendances.count))
+                    let today = Calendar.current.startOfDay(for: Date())
+                    let selectedDate = state.isDateSelected ? state.selectDate : today
+                    let selectedDay = Calendar.current.startOfDay(for: selectedDate)
+
+                    // 선택된 날짜와 오늘 날짜 모두 updatedAt과 비교하여 출석 상태를 필터링
+                    let filteredAttendances = attendances.filter { attendance in
+                        // 선택된 날짜와 attendance의 updatedAt이 같은 경우만 처리
+                        return Calendar.current.isDate(attendance.updatedAt, inSameDayAs: selectedDay) &&
+                            (attendance.status == .present || attendance.status == .late)
+                    }
+
+                    // 필터링된 출석 상태를 기준으로 카운트 계산
+                    let presentCount = filteredAttendances.count
+                    state.attendanceCount = max(0, presentCount)  // 최소 0 이상으로 설정
+
                     return .none
+
                 }
                 //MARK: - AsyncAction
             case .async(let AsyncAction):
@@ -245,16 +258,10 @@ public struct CoreMember {
                         switch fetchedDataResult {
                         case let .success(fetchedData):
                             await send(.async(.fetchMember))
-//                            await send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
-                            let filteredData = fetchedData.filter { (($0.id?.isEmpty) != nil) && $0.memberType == .member && !$0.name.isEmpty }
+                            await send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
+                            await send(.view(.updateAttendanceCountWithData(attendances: fetchedData)))
                             
-                            let uids = Set(filteredData.map { $0.id })
                             
-                            for uid in uids {
-                                await send(.async(.fetchAttendanceHistory(uid ?? "")))
-                            }
-                            
-                          
                         case let .failure(error):
                             await send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
                         }
@@ -273,6 +280,7 @@ public struct CoreMember {
                         case .success(let attendances):
                             let filteredData = attendances.filter { (($0.id?.isEmpty) != nil) && $0.memberType == .member && !$0.name.isEmpty }
                             await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
+                            await send(.view(.updateAttendanceCountWithData(attendances: filteredData)))
                             
                         case .failure(let error):
                             await send(.async(.fetchAttendanceDataResponse(.failure(CustomError.encodingError(error.localizedDescription)))))
@@ -317,12 +325,15 @@ public struct CoreMember {
                             )
                         }
                         
-                        
                         switch fetchedAttandanceResult {
-                            
                         case let .success(fetchedData):
-                            let filteredData = fetchedData.filter {$0.roleType == selectPart  && $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
-                            await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
+                            if selectPart == .all {
+                                let filteredData = fetchedData.filter { $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
+                                await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
+                            } else {
+                                let filteredData = fetchedData.filter {$0.roleType == selectPart  && $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
+                                await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
+                            }
                             
                         case let .failure(error):
                             await send(.async(.fetchAttendanceDataResponse(.failure(CustomError.map(error)))))
@@ -372,7 +383,7 @@ public struct CoreMember {
                         state.isLoading = true
                     }
                     return .none
-
+                    
                     
                 case let .fetchMemberDataResponse(fetchedData):
                     switch fetchedData {

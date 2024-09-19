@@ -135,11 +135,12 @@ final class FirebaseService {
                 "id": attendance.id ?? "",
                 "memberId": attendance.memberId ?? "",
                 "eventId": attendance.eventId,
+                "name": attendance.name,
                 "date": Timestamp(date: attendance.createdAt),
                 "updatedAt": Timestamp(date: attendance.updatedAt),
-                "status": attendance.status?.rawValue ?? .none,
+                "status": attendance.status?.rawValue ?? .none ?? "",
                 "generation": attendance.generation,
-                "memberType": attendance.memberType?.rawValue,
+                "memberType": attendance.memberType?.rawValue ?? .none ?? "",
                 "roleType": attendance.roleType.rawValue
             ]
             attendanceRef.setData(data) { error in
@@ -167,6 +168,7 @@ final class FirebaseService {
                 let attendances: [Attendance] = documents.compactMap { document in
                     let data = document.data()
                     let id: String = data["id"] as? String ?? ""
+                    let name: String = data["name"] as? String ?? ""
                     let memberId: String = data["memberId"] as? String ?? ""
                     let eventId: String = data["eventId"] as? String ?? ""
                     let createdAt: Date = (data["date"] as? Timestamp)?.dateValue() ?? Date()
@@ -179,7 +181,7 @@ final class FirebaseService {
                         id: id,
                         memberId: memberId,
                         memberType: memberType,
-                        name: data["name"] as? String ?? "",
+                        name: name,
                         roleType: roleType,
                         eventId: eventId,
                         createdAt: createdAt,
