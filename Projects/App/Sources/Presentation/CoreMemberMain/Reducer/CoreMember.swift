@@ -25,8 +25,7 @@ public struct CoreMember {
     public struct State: Equatable {
         
         var headerTitle: String = "출석 현황"
-        var selectPart: SelectPart? = nil
-        var selectParts: [SelectPart] =  []
+        var selectPart: SelectPart? = .all
         var attendaceMemberModel : [Attendance] = []
         var attendanceCheckInModel: [Attendance] = []
         var disableSelectButton: Bool = false
@@ -76,7 +75,8 @@ public struct CoreMember {
     }
     
     //MARK: - View action
-    public enum View {
+    @CasePathable
+    public enum View: Equatable {
         case swipeNext
         case swipePrevious
         case selectPartButton(selectPart: SelectPart)
@@ -199,28 +199,34 @@ public struct CoreMember {
                     return .none
                     
                 case let .selectPartButton(selectPart):
-                    state.selectPart = state.selectPart == selectPart ? nil : selectPart
-                    state.isActiveBoldText = (state.selectPart != nil)
+                    state.selectPart = selectPart
+                    state.isActiveBoldText = (selectPart != nil)  // selectPart가 선택된 경우 bold text 활성화
                     return .none
                     
                 case let .updateAttendanceCountWithData(attendances):
-                    let today = Calendar.current.startOfDay(for: Date())
-                    let selectedDate = state.isDateSelected ? state.selectDate : today
-                    let selectedDay = Calendar.current.startOfDay(for: selectedDate)
+                    let today = Calendar.current.startOfDay(for: Date())  // 현재 날짜
+                    let selectedDay = Calendar.current.startOfDay(for: state.selectDate)  // 선택된 날짜의 시작 시각 (년/월/일 기준으로)
 
-                    // 선택된 날짜와 오늘 날짜 모두 updatedAt과 비교하여 출석 상태를 필터링
+                    // 모든 attendance의 updatedAt과 선택된 날짜를 출력
+                    attendances.forEach { attendance in
+                        print("Attendance ID: \(attendance.id ?? "N/A") - updatedAt: \(attendance.updatedAt), selectedDay: \(selectedDay)")
+                    }
+
+                    // 선택된 날짜와 attendance의 updatedAt의 **년/월/일**이 같은 경우만 처리
                     let filteredAttendances = attendances.filter { attendance in
-                        // 선택된 날짜와 attendance의 updatedAt이 같은 경우만 처리
-                        return Calendar.current.isDate(attendance.updatedAt, inSameDayAs: selectedDay) &&
-                            (attendance.status == .present || attendance.status == .late)
+                        let isSameDay = Calendar.current.isDate(attendance.updatedAt, inSameDayAs: selectedDay)  // 년/월/일 기준 비교
+                        print("Attendance ID: \(attendance.id ?? "N/A") - isSameDay: \(isSameDay) - Status: \(attendance.status ?? .absent)")
+                        return isSameDay && (attendance.status == .present || attendance.status == .late)
                     }
 
                     // 필터링된 출석 상태를 기준으로 카운트 계산
                     let presentCount = filteredAttendances.count
                     state.attendanceCount = max(0, presentCount)  // 최소 0 이상으로 설정
 
+                    // 디버그 로그 추가
+                    print("Filtered Attendance Count: \(presentCount)")
+                    
                     return .none
-
                 }
                 //MARK: - AsyncAction
             case .async(let AsyncAction):
