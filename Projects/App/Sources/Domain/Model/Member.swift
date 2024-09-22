@@ -14,6 +14,8 @@ struct Member: Codable, Hashable {
     var name: String
     var role: SelectPart
     var memberType: MemberType
+    var manging: Managing?
+    var memberTeam: ManagingTeam?
     var snsURL: String?
     var createdAt: Date
     var updatedAt: Date

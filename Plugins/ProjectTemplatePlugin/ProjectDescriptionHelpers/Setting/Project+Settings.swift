@@ -25,6 +25,7 @@ extension Settings {
             .setVersioningSystem()
             .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
             .setDevelopmentTeam(Project.Environment.organizationTeamId)
+            .setExplicitlyBuiltModules(true)
             .setDebugInformationFormat(),
       
         
@@ -36,7 +37,7 @@ extension Settings {
                 .setDebugInformationFormat("non-global")
                 .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
                 .setSkipInstall(false)
-
+                .setExplicitlyBuiltModules(true)
             ),
             .debug(name: "QA", settings: SettingsDictionary()
                 .setProductName(Project.Environment.appDevName)
@@ -45,6 +46,7 @@ extension Settings {
                 .setDebugInformationFormat("non-global")
                 .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
                 .setSkipInstall(false)
+                .setExplicitlyBuiltModules(true)
             ),
             .release(name: .release, settings: SettingsDictionary()
                 .setProductName(Project.Environment.appName)
@@ -53,6 +55,7 @@ extension Settings {
                 .setDebugInformationFormat("non-global")
                 .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
                 .setSkipInstall(false)
+                .setExplicitlyBuiltModules(true)
             )
         ], defaultSettings: .recommended
     )
@@ -64,7 +67,6 @@ extension Settings {
                 .setMarketingVersion(.appVersion())
                 .setCurrentProjectVersion(.appBuildVersion())
                 .setCodeSignIdentity()
-                .setASAuthenticationServicesEnabled()
                 .setArchs()
                 .setVersioningSystem()
                 .setDebugInformationFormat(),
@@ -73,17 +75,20 @@ extension Settings {
                     .setProductName(appName)
                     .setOtherLdFlags("-ObjC -all_load")
                     .setStripStyle()
+                    .setExplicitlyBuiltModules(true)
                 ),
                 .debug(name: "QA", settings: SettingsDictionary()
                     .setProductName("\(appName)-QA")
                     .setOtherLdFlags("-ObjC -all_load")
                     .setStripStyle()
+                    .setExplicitlyBuiltModules(true)
                        
                 ),
                 .release(name: .release, settings: SettingsDictionary()
                     .setProductName(appName)
                     .setOtherLdFlags("-ObjC -all_load")
                     .setStripStyle()
+                    .setExplicitlyBuiltModules(true)
                          
                 )
             ], defaultSettings: .recommended)

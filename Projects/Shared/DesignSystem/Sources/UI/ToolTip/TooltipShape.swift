@@ -20,7 +20,7 @@ public struct TooltipShape: View {
             ZStack {
                 TriangleDownShape()
                     .fill(Color.gray800)
-                    .padding(.leading, 10)
+                    .padding(.leading, 5)
                     .padding(.top, 40)
                 
                 TooltipBody(text: tooltipText)

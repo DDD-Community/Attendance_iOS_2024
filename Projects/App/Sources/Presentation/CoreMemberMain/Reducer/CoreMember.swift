@@ -26,14 +26,14 @@ public struct CoreMember {
         
         var headerTitle: String = "출석 현황"
         var selectPart: SelectPart? = .all
-        var attendaceMemberModel : [Attendance] = []
-        var attendanceCheckInModel: [Attendance] = []
+        var attendaceMemberModel : [MemberDTO] = []
+        var attendanceCheckInModel: [AttendanceDTO] = []
         var disableSelectButton: Bool = false
         var isActiveBoldText: Bool = false
         var isLoading: Bool = false
         var qrcodeImage: ImageAsset = .qrCode
         var eventImage: ImageAsset = .eventGenerate
-        var mangerProfilemage: String = "person"
+        var mangerProfilemage: ImageAsset = .mangeMentProfile
         
         var user: User? =  nil
         var errorMessage: String?
@@ -81,7 +81,7 @@ public struct CoreMember {
         case swipePrevious
         case selectPartButton(selectPart: SelectPart)
         case appearSelectPart(selectPart: SelectPart)
-        case updateAttendanceCountWithData(attendances: [Attendance])
+        case updateAttendanceCountWithData(attendances: [AttendanceDTO])
         
     }
     
@@ -96,8 +96,8 @@ public struct CoreMember {
         
         case observeAttendance
         case fetchUserDataResponse(Result<User, CustomError>)
-        case fetchMemberDataResponse(Result<[Attendance], CustomError>)
-        case fetchAttendanceDataResponse(Result<[Attendance], CustomError>)
+        case fetchMemberDataResponse(Result<[MemberDTO], CustomError>)
+        case fetchAttendanceDataResponse(Result<[AttendanceDTO], CustomError>)
         
         case upDateFetchAttandanceMember(selectPart: SelectPart)
         
@@ -135,11 +135,11 @@ public struct CoreMember {
                 
             case .selectDate(let date):
                 if state.selectDate == date {
-                    state.selectDatePicker.toggle()
+//                    state.selectDatePicker.toggle()
                     state.isDateSelected.toggle()
                 } else {
                     state.selectDate = date
-                    state.selectDatePicker.toggle()
+//                    state.selectDatePicker.toggle()
                     state.isDateSelected.toggle()
                 }
                 return .run { send in
@@ -155,7 +155,9 @@ public struct CoreMember {
                         
                     case let .success(fetchedData):
                         await send(.async(.fetchMember))
-                        let filteredData = fetchedData.filter { $0.updatedAt.formattedDateToString() == date.formattedDateToString()  && (($0.id?.isEmpty) != nil) }
+                        let filteredData = fetchedData
+                            .filter { $0.updatedAt.formattedDateToString() == date.formattedDateToString()  && (($0.id?.isEmpty) != nil) }
+                            .map { $0.toAttendanceDTO() }
                         Log.debug("날짜 홗인", fetchedData.map { $0.updatedAt.formattedDateToString() }, date.formattedDateToString(), filteredData)
                         await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
                         await send(.view(.updateAttendanceCountWithData(attendances: filteredData)))
@@ -243,7 +245,9 @@ public struct CoreMember {
                         
                         switch fetchedDataResult {
                         case let .success(fetchedData):
-                            let filterData = fetchedData.filter { $0.memberType == .member || !$0.name.isEmpty }
+                            let filterData = fetchedData
+                                .filter { $0.memberType == .member || !$0.name.isEmpty }
+                                .map { $0.toMemberDTO() }
                             await send(.async(.fetchMemberDataResponse(.success(filterData))))
                             
                         case let .failure(error):
@@ -264,8 +268,10 @@ public struct CoreMember {
                         switch fetchedDataResult {
                         case let .success(fetchedData):
                             await send(.async(.fetchMember))
-                            await send(.async(.fetchAttendanceDataResponse(.success(fetchedData))))
-                            await send(.view(.updateAttendanceCountWithData(attendances: fetchedData)))
+                            let filterData = fetchedData
+                                .map { $0.toAttendanceDTO() }
+                            await send(.async(.fetchAttendanceDataResponse(.success(filterData))))
+                            await send(.view(.updateAttendanceCountWithData(attendances: filterData)))
                             
                             
                         case let .failure(error):
@@ -284,7 +290,9 @@ public struct CoreMember {
                     return .run { send in
                         switch result {
                         case .success(let attendances):
-                            let filteredData = attendances.filter { (($0.id?.isEmpty) != nil) && $0.memberType == .member && !$0.name.isEmpty }
+                            let filteredData = attendances
+                                .filter { (($0.id?.isEmpty) != nil) && $0.memberType == .member && !$0.name.isEmpty }
+                                .map { $0.toAttendanceDTO() }
                             await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
                             await send(.view(.updateAttendanceCountWithData(attendances: filteredData)))
                             
@@ -312,11 +320,12 @@ public struct CoreMember {
                 case .observeAttendance:
                     return .run { send in
                         for await result in try await fireStoreUseCase.observeFireBaseChanges(
-                            from:  .attendance,
+                            from: .attendance,
                             as: Attendance.self
                         ) {
-                            await send(.async(.fetchAttendanceDataResponse(result)))
-                            
+//                            // Map each Attendance model to AttendanceDTO and send the result
+//                            let dtoResult = result.map { $0.toAttendanceDTO() }
+//                            await send(.async(.fetchAttendanceDataResponse(dtoResult)))
                         }
                     }
                     
@@ -334,10 +343,14 @@ public struct CoreMember {
                         switch fetchedAttandanceResult {
                         case let .success(fetchedData):
                             if selectPart == .all {
-                                let filteredData = fetchedData.filter { $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
+                                let filteredData = fetchedData
+                                    .filter { $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
+                                    .map { $0.toAttendanceDTO() }
                                 await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
                             } else {
-                                let filteredData = fetchedData.filter {$0.roleType == selectPart  && $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
+                                let filteredData = fetchedData
+                                    .filter {$0.roleType == selectPart  && $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
+                                    .map { $0.toAttendanceDTO() }
                                 await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
                             }
                             
@@ -363,14 +376,14 @@ public struct CoreMember {
                     switch fetchedData {
                     case let .success(fetchedAttendanceData):
                         let filteredData = fetchedAttendanceData.filter {
-                            ($0.id?.isEmpty == false) && $0.memberType == .member && !$0.name.isEmpty
+                            ($0.id.isEmpty == false) && $0.memberType == .member && !$0.name.isEmpty
                         }
                         
                         let selectedDate = state.selectDate
                         let selectedDay = Calendar.current.startOfDay(for: selectedDate)
                         let today = Calendar.current.startOfDay(for: Date())
                         
-                        let updatedData = filteredData.map { attendance -> Attendance in
+                        let updatedData = filteredData.map { attendance -> AttendanceDTO in
                             if !Calendar.current.isDate(attendance.updatedAt, inSameDayAs: selectedDay) {
                                 var modifiedAttendance = attendance
                                 modifiedAttendance.status = .notAttendance
@@ -396,7 +409,7 @@ public struct CoreMember {
                     switch fetchedData {
                     case let .success(fetchedData):
                         state.isLoading = false
-                        let filteredData = fetchedData.filter { (($0.id?.isEmpty) != nil) && $0.memberType == .member && !$0.name.isEmpty }
+                        let filteredData = fetchedData.filter { $0.memberType == .member && !$0.name.isEmpty }
                         state.attendaceMemberModel = filteredData
                         
                     case let .failure(error):
@@ -443,7 +456,7 @@ public struct CoreMember {
 //                state.attendaceMemberModel = newValue
 //                return .none
 //            }
-//        }
+//        }        
         .onChange(of: \.attendanceCheckInModel) { oldValue, newValue in
             Reduce { state, action in
                 state.attendanceCheckInModel = newValue

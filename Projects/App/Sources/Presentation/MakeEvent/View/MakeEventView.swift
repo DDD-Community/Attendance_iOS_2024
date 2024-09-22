@@ -36,14 +36,17 @@ public struct MakeEventView: View {
                 
                 if !store.isSelectDropDownMenu {
                     selectDateAndTimeText()
+                        .offset(y: -40)
                     
                     Spacer().frame(height: 20)
                     
                     selectDateAndTime(text: "시작")
+                        .offset(y: -40)
                     
                     Spacer().frame(height: 16)
                     
                     selectDateAndTime(text: "종료")
+                        .offset(y: -40)
                 }
                 
                 Spacer()
@@ -73,7 +76,7 @@ extension MakeEventView {
             HStack {
                 Text(store.makeEventTitle)
                     .pretendardFont(family: .Bold, size: 20)
-                    .foregroundStyle(Color.gray400)
+                    .foregroundStyle(Color.basicWhite)
                 
                 Spacer()
             }
@@ -89,8 +92,8 @@ extension MakeEventView {
         VStack {
             HStack {
                 Text(store.selectMakeEventReasonTitle)
-                    .foregroundStyle(Color.basicWhite)
-                    .pretendardFont(family: .Bold, size: 18)
+                    .foregroundStyle(Color.gray400)
+                    .pretendardFont(family: .Medium, size: 18)
                 
                 Spacer()
             }
@@ -100,7 +103,7 @@ extension MakeEventView {
                 isSelecting: $store.isSelectDropDownMenu,
                 selectionTitle: $store.selectMakeEventReason
             )
-            .offset(y: -16)
+            .offset(y: -24)
         }
     }
     
@@ -108,8 +111,8 @@ extension MakeEventView {
     private func selectDateAndTimeText() -> some View {
         HStack {
             Text(store.selectMakeEventTiltle)
-                .foregroundStyle(Color.basicWhite)
-                .pretendardFont(family: .Bold, size: 18)
+                .foregroundStyle(Color.gray400)
+                .pretendardFont(family: .Medium, size: 18)
             
             Spacer()
         }
@@ -158,7 +161,7 @@ extension MakeEventView {
     
     @ViewBuilder
     private func makeEventButton() -> some View {
-        RoundedRectangle(cornerRadius: 12)
+        Rectangle()
             .fill(store.selectMakeEventReason == "이벤트 선택" ? Color.gray600 : Color.basicWhite)
             .frame(height: 90)
             .overlay {

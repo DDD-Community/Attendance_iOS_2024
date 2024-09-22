@@ -15,6 +15,8 @@ public struct Attendance: Codable, Hashable {
     var id: String?
     var memberId: String?
     var memberType: MemberType?
+    var manging: Managing?
+    var memberTeam: ManagingTeam?
     var name: String
     var roleType: SelectPart
     var eventId: String
@@ -22,11 +24,13 @@ public struct Attendance: Codable, Hashable {
     var updatedAt: Date
     var status: AttendanceType?
     var generation: Int
-    
+
     init(
         id: String,
-        memberId: String,
+        memberId: String? = nil,
         memberType: MemberType? = nil,
+        manging: Managing? = nil,
+        memberTeam: ManagingTeam? = nil,
         name: String,
         roleType: SelectPart,
         eventId: String,
@@ -38,6 +42,8 @@ public struct Attendance: Codable, Hashable {
         self.id = id
         self.memberId = memberId
         self.memberType = memberType
+        self.manging = manging
+        self.memberTeam = memberTeam
         self.name = name
         self.roleType = roleType
         self.eventId = eventId
@@ -46,16 +52,20 @@ public struct Attendance: Codable, Hashable {
         self.status = status
         self.generation = generation
     }
-    
+
     enum CodingKeys: String, CodingKey {
-        case id, memberId, name, roleType, eventId, createdAt, updatedAt, status, generation, memberType
+        case id, memberId, name, roleType, eventId
+        case createdAt, updatedAt, status, generation, memberType
+        case manging, memberTeam
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
         self.memberId = try container.decodeIfPresent(String.self, forKey: .memberId) ?? ""
         self.memberType = try container.decodeIfPresent(MemberType.self, forKey: .memberType) ?? .coreMember
+        self.manging = try container.decodeIfPresent(Managing.self, forKey: .manging) ?? .notManging
+        self.memberTeam = try container.decodeIfPresent(ManagingTeam.self, forKey: .memberTeam) ?? .notTeam
         self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
         self.roleType = try container.decodeIfPresent(SelectPart.self, forKey: .roleType) ?? .all
         self.eventId = try container.decodeIfPresent(String.self, forKey: .eventId) ?? ""
@@ -64,12 +74,14 @@ public struct Attendance: Codable, Hashable {
         self.status = try Attendance.decodeStatus(from: container)
         self.generation = try container.decodeIfPresent(Int.self, forKey: .generation) ?? 0
     }
-    
+
     public init(from document: DocumentSnapshot) throws {
         let data = document.data() ?? [:]
         self.id = document.documentID
         self.memberId = data["memberId"] as? String ?? ""
         self.memberType = MemberType(rawValue: data["memberType"] as? String ?? "") ?? .coreMember
+        self.manging = Managing(rawValue: data["manging"] as? String ?? "") ?? .notManging
+        self.memberTeam = ManagingTeam(rawValue: data["memberTeam"] as? String ?? "") ?? .notTeam
         self.name = data["name"] as? String ?? ""
         self.roleType = SelectPart(rawValue: data["roleType"] as? String ?? "") ?? .all
         self.eventId = data["eventId"] as? String ?? ""
@@ -106,83 +118,6 @@ public struct Attendance: Codable, Hashable {
         self.updatedAt = (self.updatedAt == Date()) ? other.updatedAt : self.updatedAt
         self.status = (self.status == .run) ? other.status : self.status
         self.generation = (self.generation == 0) ? other.generation : self.generation
-    }
-    
-    func backgroundColor(
-        isBackground: Bool = false,
-        isNameColor: Bool = false,
-        isGenerationColor: Bool = false,
-        isRoletTypeColor: Bool = false
-    ) -> Color {
-        switch self.status {
-        case .present:
-            switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
-            case (true, _, _, _):
-                return .basicWhite
-            case (_, true, _, _):
-                return .basicBlack
-            case (_, _, true, _):
-                return .gray600
-            case (_, _, _, true):
-                return .basicBlack
-            default:
-                return .gray800 // Default color if none match
-            }
-        case .late:
-            switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
-            case (true, _, _, _):
-                return .gray800
-            case (_, true, _, _):
-                return .gray600
-            case (_, _, true, _):
-                return .gray600
-            case (_, _, _, true):
-                return .gray600
-            default:
-                return .gray800 
-            }
-        case .run:
-            switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
-            case (true, _, _, _):
-                return .gray800
-            case (_, true, _, _):
-                return .gray600
-            case (_, _, true, _):
-                return .gray600
-            case (_, _, _, true):
-                return .gray600
-            default:
-                return .gray800
-            }
-            
-        case nil:
-            switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
-            case (true, _, _, _):
-                return .gray800
-            case (_, true, _, _):
-                return .gray600
-            case (_, _, true, _):
-                return .gray600
-            case (_, _, _, true):
-                return .gray600
-            default:
-                return .gray800
-            }
-            
-        default:
-            switch (isBackground, isNameColor, isGenerationColor, isRoletTypeColor) {
-            case (true, _, _, _):
-                return .gray800
-            case (_, true, _, _):
-                return .gray600
-            case (_, _, true, _):
-                return .gray600
-            case (_, _, _, true):
-                return .gray600
-            default:
-                return .gray800
-            }
-        }
     }
     
 }
@@ -236,41 +171,33 @@ extension Attendance {
         ]
     }
     
-    static func mockMemberData() -> [Attendance] {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        guard let specificDate = dateFormatter.date(from: "2024-09-16") else {
-            fatalError("Invalid date format")
-        }
-        
-        guard let specificCreateDate = dateFormatter.date(from: "2024-09-15") else {
-            fatalError("Invalid date format")
-        }
-
-        return [
-            Attendance(
-                id: "",
-                memberId: generateCustomMemberId(),
-                memberType: .member,
-                name: "DDD iOS",
-                roleType: .iOS,
-                eventId: "",
-                createdAt: Date(),
-                updatedAt: Date(),
-                generation: 11
-            ),
-            Attendance(
-                id: "",
-                memberId: generateCustomMemberId(),
-                memberType: .member,
-                name: "DDD Android",
-                roleType: .android,
-                eventId: UUID().uuidString,
-                createdAt: specificCreateDate,
-                updatedAt: specificCreateDate,
-                generation: 11
-            )
-        ]
+    
+    func toMemberDTO() -> MemberDTO {
+        return MemberDTO(
+            memberId: self.memberId ?? "",
+            memberType: self.memberType ?? .coreMember,
+            manging: self.manging ?? .notManging,
+            memberTeam: self.memberTeam ?? .notTeam,
+            name: self.name,
+            roleType: self.roleType,
+            createdAt: self.createdAt,
+            updatedAt: self.updatedAt,
+            status: self.status,
+            generation: self.generation
+        )
+    }
+    
+    func toAttendanceDTO() -> AttendanceDTO {
+        return AttendanceDTO(
+            id: self.id ?? "",
+            memberId: self.memberId ?? "",
+            memberType: self.memberType ?? .coreMember,
+            name: self.name,
+            roleType: self.roleType,
+            eventId: self.eventId,
+            updatedAt: self.updatedAt,
+            status: self.status,
+            generation: self.generation
+        )
     }
 }

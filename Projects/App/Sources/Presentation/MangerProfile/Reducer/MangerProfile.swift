@@ -21,7 +21,7 @@ public struct MangerProfile {
     
     @ObservableState
     public struct State: Equatable {
-        var attendaceModel : [Attendance] = []
+        var attendaceModel : [MemberDTO] = []
         var user: User? =  nil
         var isLoading: Bool = false
         var mangeProfileName: String = "의 프로필"
@@ -51,7 +51,7 @@ public struct MangerProfile {
         case fetchMangeProfile
         case fetchUser
         case signOut
-        case fetchDataResponse(Result<[Attendance], CustomError>)
+        case fetchDataResponse(Result<[MemberDTO], CustomError>)
         case fetchUserDataResponse(Result<User, CustomError>)
         
     }
@@ -114,7 +114,10 @@ public struct MangerProfile {
                         
                         switch fetchedDataResult {
                         case let .success(fetchedData):
-                            send(.async(.fetchDataResponse(.success(fetchedData))))
+                            let filteredData = fetchedData
+                                .filter { $0.memberType == .coreMember && !$0.name.isEmpty }
+                                .map { $0.toMemberDTO() }
+                            send(.async(.fetchDataResponse(.success(filteredData))))
                         case let .failure(error):
                             send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))
                         }
@@ -155,9 +158,7 @@ public struct MangerProfile {
                     switch fetchedData {
                     case let .success(fetchedData):
                         state.isLoading = false
-                        let filteredData = fetchedData.filter { $0.memberType == .coreMember && !$0.name.isEmpty }
-                        
-                        state.attendaceModel = filteredData
+                        state.attendaceModel = fetchedData
                     case let .failure(error):
                         Log.error("Error fetching data", error)
                         state.isLoading = true

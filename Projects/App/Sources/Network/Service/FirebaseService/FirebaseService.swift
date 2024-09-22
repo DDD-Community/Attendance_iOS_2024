@@ -84,13 +84,16 @@ final class FirebaseService {
                 let createdAt: Date = data?["createdAt"] as? Date ?? Date()
                 let updatedAt: Date = data?["updatedAt"] as? Date ?? Date()
                 let generation: Int = data?["generation"] as? Int ?? 0
-                
+                let manging: String = data?["manging"] as? String ?? ""
+                let memberTeam: String = data?["memberTeam"] as? String ?? ""
                 let member: Member = .init(
                     uid: uid,
                     memberid: uid,
                     name: name,
                     role: SelectPart(rawValue: roleType) ?? .iOS,
                     memberType: MemberType(rawValue: memberType) ?? .notYet,
+                    manging: Managing(rawValue: manging) ?? .notManging,
+                    memberTeam: ManagingTeam(rawValue: memberTeam) ?? .notTeam,
                     createdAt: createdAt,
                     updatedAt: updatedAt,
                     generation: generation
@@ -109,8 +112,10 @@ final class FirebaseService {
             let data: [String: Any] = [
                 "name": member.name,
                 "memberId" : member.memberid,
-                "roleType": member.role.rawValue,
+                "roleType": member.role.desc,
                 "memberType": member.memberType.rawValue,
+                "manging": member.manging?.rawValue ?? "",
+                "memberTeam": member.memberTeam?.rawValue ?? "",
                 "createdAt": member.createdAt,
                 "updatedAt": member.updatedAt,
                 "generation": member.generation

@@ -136,7 +136,7 @@ final class MemberProfileDetailView: BaseView {
         titleLabel.text = "\(profile.name)님의 프로필"
         sectionValueLabel.text = profile.role.desc
         sectionValueLabel.flex.markDirty()
-        teamValueLabel.text = "iOS 1팀"
+        teamValueLabel.text = "\(profile.memberTeam?.mangingTeamDesc ?? "iOS 1")팀"
         teamValueLabel.flex.markDirty()
         generationValueLabel.text = "\(profile.generation)기"
         generationValueLabel.flex.markDirty()
