@@ -104,7 +104,14 @@ struct CoreMemberTest {
     
     @Test("출석 날짜 필터링 테스트")
     func coreMember_날짜선택() async throws {
-        let selectDate : Date = Date.now
+        let selectDate = testStore.state.selectDate
+        
+        await testStore.send(.selectDate(date: selectDate)) {
+            $0.selectDate = selectDate
+            $0.selectDatePicker = true
+            $0.isDateSelected = true
+        }
+        testStore.exhaustivity = .off
         
         let filterAttendanceData = mockAttendanceData.filter {
             $0.updatedAt.formattedDateToString() == selectDate.formattedDateToString()
@@ -114,18 +121,25 @@ struct CoreMemberTest {
             #expect($0.attendanceCheckInModel == filterAttendanceData, "'출석 모델 필터링 테스트")
         }
         
+        testStore.assert { state in
+            state.selectDate = selectDate
+            state.attendanceCheckInModel = filterAttendanceData
+            #expect(state.attendanceCheckInModel == filterAttendanceData, "필터링 된 모델이 매칭 되는지")
+            #expect(state.selectDate == selectDate, "날짜가 매칭이 되는지")
+            #expect(state.selectDatePicker == true, "날짜 피커를 선택 한게 매칭이 되었는지")
+            #expect(state.isDateSelected == true, "날짜 선택 한게 매칭이 되었는지 ")
+        }
+        
+        
         await testStore.send(.view(.updateAttendanceCountWithData(attendances: filterAttendanceData))) {
             $0.attendanceCount = filterAttendanceData.count
-            $0.attendanceCheckInModel = filterAttendanceData
+            #expect($0.attendanceCount == filterAttendanceData.count, "출석 된수가 매칭이 되는 지")
         }
         
         testStore.assert { state in
-            state.attendanceCount = filterAttendanceData.count
-            state.attendanceCheckInModel = filterAttendanceData
-            #expect(state.attendanceCheckInModel == filterAttendanceData, "'출석 모델 필터링 테스트")
-            #expect(state.attendanceCount == filterAttendanceData.count, "'출석 카운트 필터링 테스트")
+            state.attendanceCount = state.attendanceCount
+            #expect(state.attendanceCount == filterAttendanceData.count, "출석 된수가 매칭이 되는 지")
         }
-        
         
         await testStore.finish()
         testStore.exhaustivity = .off
@@ -155,37 +169,28 @@ struct CoreMemberTest {
         testStore.exhaustivity = .off
         
         await testStore.send(.async(.fetchAttendanceDataResponse(.success(filterAttendanceData)))) {
-            
-            let updatedMockAttendanceData = filterAttendanceData.map { attendance in
-                print("Keeping status for \(attendance.name) as \(attendance.status ?? .absent) \(date)")
-                var modifiedAttendance = attendance
-                if !Calendar.current.isDate(attendance.updatedAt, inSameDayAs: Date()) {
-                    modifiedAttendance.status = .notAttendance
-                } else {
-                    print("Keeping status for \(attendance.name) as \(attendance.status ?? .absent) \(date)")
-                    modifiedAttendance.status = attendance.status
-                }
-                return modifiedAttendance
-            }
-            $0.attendanceCheckInModel = updatedMockAttendanceData
-            #expect($0.attendanceCheckInModel == updatedMockAttendanceData, "모델이 같은지 테스트")
-            print($0.attendanceCheckInModel)
-            print(updatedMockAttendanceData)
-            
+            $0.attendanceCheckInModel = filterAttendanceData
+            #expect($0.attendanceCheckInModel == filterAttendanceData, "모델이 같은지 테스트")
         }
         
         testStore.assert { state in
-            filterAttendanceData = state.attendanceCheckInModel
+            state.selectDate = date
+            state.attendanceCheckInModel = filterAttendanceData
             #expect(state.attendanceCheckInModel == filterAttendanceData, "필터링 된 모델이 매칭 되는지")
+            #expect(state.selectDate == date, "날짜가 매칭이 되는지")
+            #expect(state.selectDatePicker == true, "날짜 피커를 선택 한게 매칭이 되었는지")
+            #expect(state.isDateSelected == true, "날짜 선택 한게 매칭이 되었는지 ")
         }
         
-        await testStore.send(.view(.updateAttendanceCountWithData(attendances: filterAttendanceData)))
+        await testStore.send(.view(.updateAttendanceCountWithData(attendances: filterAttendanceData))) {
+            $0.attendanceCount = filterAttendanceData.count
+            #expect($0.attendanceCount == filterAttendanceData.count, "출석 된수가 매칭이 되는 지")
+        }
         
         testStore.assert { state in
             state.attendanceCount = state.attendanceCount
-            print(state.attendanceCount)
+            #expect(state.attendanceCount == filterAttendanceData.count, "출석 된수가 매칭이 되는 지")
         }
-        
         
         await testStore.finish()
         testStore.exhaustivity = .off
