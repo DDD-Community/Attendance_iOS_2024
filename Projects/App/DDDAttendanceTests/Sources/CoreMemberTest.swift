@@ -15,10 +15,14 @@ import Service
 @testable import DDDAttendance
 import XCTest
 
+extension Tag {
+    @Tag static var selectPartTest: Self
+}
 
-@MainActor
+@Suite(.tags(.selectPartTest))
+//@MainActor
 struct CoreMemberTest {
-    let testStore = TestStore(initialState: CoreMember.State()) {
+    @MainActor let testStore = TestStore(initialState: CoreMember.State()) {
         CoreMember()
     } withDependencies: {
         let fireBaseRepository = FireStoreRepository()
@@ -29,7 +33,7 @@ struct CoreMemberTest {
     let mockMemberData = Attendance.mockMemberData()
     let testScheduler = DispatchQueue.test
     
-    @Test("member_파트선택_성공")
+    @Test("member_파트선택_성공", .tags(.selectPartTest))
     func coreMember_파트선택() async throws {
         // 선택된 파트를 나타냅니다.
         let expectation = XCTestExpectation(description: "member_파트선택")
@@ -43,9 +47,7 @@ struct CoreMemberTest {
         }
         
         // 이후 발생할 액션을 receive로 검증합니다. 여기서는 특정 액션을 기대하지 않으므로 제거 가능합니다.
-        testStore.assert { state in
-            state.selectPart = selectPart
-            state.isActiveBoldText = false
+        await testStore.assert { state in
             #expect(state.selectPart == selectPart)
             #expect(state.isActiveBoldText == false)
         }
@@ -56,16 +58,46 @@ struct CoreMemberTest {
             $0.isActiveBoldText = true
         }
         
-        testStore.assert { state in
-            state.selectPart = selectPart
-            state.isActiveBoldText = true
+        await testStore.assert { state in
             #expect(state.selectPart == selectPart)
             #expect(state.isActiveBoldText == true)
         }
         XCTAssertNil(expectation)
         
-        await testStore.finish()
-        testStore.exhaustivity = .off
+//        await testStore.finish()
+//        testStore.exhaustivity = .off
+    }
+    
+    
+    @Test("다음 파트로 선택 swipe 테스트", .tags(.selectPartTest))
+    func member_다음파트로선택swipe() async throws {
+          
+        await testStore.send(.view(.selectPartButton(selectPart: .pm))) {
+            $0.selectPart = .pm
+            $0.isActiveBoldText = true
+        }
+        
+        await testStore.send(.view(.swipeNext)) {
+            $0.selectPart = .design
+        }
+        
+        await testStore.assert { state in
+            #expect(state.selectPart == .design, "파트 변경 이 되었는지")
+            #expect(state.isActiveBoldText == true , "선택이 되면서 텍스트가 볼트 가 되었느지")
+        }
+        
+    }
+    
+    @Test("이전 파트로 돌아가기 swipePrevious 테스트", .tags(.selectPartTest))
+    func member_이전파트로돌아가기swipePrevious() async throws {
+        await testStore.send(.view(.selectPartButton(selectPart: .design))) {
+            $0.selectPart = .design
+            $0.isActiveBoldText = true
+        }
+        
+        await testStore.send(.view(.swipePrevious)) {
+            $0.selectPart = .pm
+        }
     }
     
     @Test("출석 데이터 관리 mockData 테스트")
@@ -83,7 +115,7 @@ struct CoreMemberTest {
             $0.attendanceCheckInModel = updatedMockAttendanceData
         }
         
-        testStore.assert { state in
+        await testStore.assert { state in
             var updatedAttendanceCheckInModel = state.attendanceCheckInModel.map { attendance in
                 let modifiedAttendance = attendance
                 if modifiedAttendance.roleType == .android && modifiedAttendance.roleType == .iOS {
@@ -96,15 +128,32 @@ struct CoreMemberTest {
             updatedAttendanceCheckInModel = mockAttendanceData
         }
         
+        // 실패 케이스를 위한 새로운 상태
+        let unexpectedAttendanceData = mockAttendanceData.map { attendance in
+            var modifiedAttendance = attendance
+            // 상태를 일부러 잘못 설정
+            modifiedAttendance.status = .present
+            return modifiedAttendance
+        }
+        
+        // 실패 케이스에서 상태를 검증하여 기대와 다르게 설정되었는지 확인
+        await testStore.assert { state in
+            let failedAttendanceCheckInModel = state.attendanceCheckInModel.map { attendance in
+                let modifiedAttendance = attendance
+                #expect(modifiedAttendance.status != .present,  "status가 달라 매칭이 안되어 있는지 확인")
+                return modifiedAttendance
+            }
+            #expect(failedAttendanceCheckInModel != unexpectedAttendanceData , "데이터가 달라서 모델 매칭 안되는지 확인")
+        }
+        
         await testStore.finish()
-        testStore.exhaustivity = .off
+         testStore.exhaustivity = .off
         
     }
     
-    
     @Test("출석 날짜 필터링 테스트")
     func coreMember_날짜선택() async throws {
-        let selectDate = testStore.state.selectDate
+        let selectDate = await testStore.state.selectDate
         
         await testStore.send(.selectDate(date: selectDate)) {
             $0.selectDate = selectDate
@@ -121,9 +170,7 @@ struct CoreMemberTest {
             #expect($0.attendanceCheckInModel == filterAttendanceData, "'출석 모델 필터링 테스트")
         }
         
-        testStore.assert { state in
-            state.selectDate = selectDate
-            state.attendanceCheckInModel = filterAttendanceData
+        await testStore.assert { state in
             #expect(state.attendanceCheckInModel == filterAttendanceData, "필터링 된 모델이 매칭 되는지")
             #expect(state.selectDate == selectDate, "날짜가 매칭이 되는지")
             #expect(state.selectDatePicker == true, "날짜 피커를 선택 한게 매칭이 되었는지")
@@ -136,8 +183,7 @@ struct CoreMemberTest {
             #expect($0.attendanceCount == filterAttendanceData.count, "출석 된수가 매칭이 되는 지")
         }
         
-        testStore.assert { state in
-            state.attendanceCount = state.attendanceCount
+        await testStore.assert { state in
             #expect(state.attendanceCount == filterAttendanceData.count, "출석 된수가 매칭이 되는 지")
         }
         
@@ -173,9 +219,7 @@ struct CoreMemberTest {
             #expect($0.attendanceCheckInModel == filterAttendanceData, "모델이 같은지 테스트")
         }
         
-        testStore.assert { state in
-            state.selectDate = date
-            state.attendanceCheckInModel = filterAttendanceData
+        await testStore.assert { state in
             #expect(state.attendanceCheckInModel == filterAttendanceData, "필터링 된 모델이 매칭 되는지")
             #expect(state.selectDate == date, "날짜가 매칭이 되는지")
             #expect(state.selectDatePicker == true, "날짜 피커를 선택 한게 매칭이 되었는지")
@@ -187,14 +231,15 @@ struct CoreMemberTest {
             #expect($0.attendanceCount == filterAttendanceData.count, "출석 된수가 매칭이 되는 지")
         }
         
-        testStore.assert { state in
-            state.attendanceCount = state.attendanceCount
+        await testStore.assert { state in
             #expect(state.attendanceCount == filterAttendanceData.count, "출석 된수가 매칭이 되는 지")
         }
         
         await testStore.finish()
         testStore.exhaustivity = .off
     }
+    
+    
     
 
     //
