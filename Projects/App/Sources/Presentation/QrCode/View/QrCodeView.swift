@@ -50,6 +50,8 @@ struct QrCodeView: View {
               generateQrImage()
                   
               creatEventButton()
+              
+              Spacer()
           }
           .navigationBarBackButtonHidden()
           .task {
