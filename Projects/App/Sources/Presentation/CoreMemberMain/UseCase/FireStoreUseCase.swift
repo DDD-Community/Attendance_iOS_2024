@@ -88,6 +88,11 @@ extension FireStoreUseCase: DependencyKey {
         let fireStoreRepository = DependencyContainer.live.resolve(FireStoreRepositoryProtocol.self) ?? DefaultFireStoreRepository()
         return FireStoreUseCase(repository: fireStoreRepository)
     }()
+    
+    public static var testValue: FireStoreUseCase = {
+        let fireStoreRepository = DependencyContainer.live.resolve(FireStoreRepositoryProtocol.self) ?? DefaultFireStoreRepository()
+        return FireStoreUseCase(repository: fireStoreRepository)
+    }()
 }
 
 public extension DependencyValues {

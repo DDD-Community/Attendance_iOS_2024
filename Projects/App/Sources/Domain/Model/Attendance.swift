@@ -184,5 +184,93 @@ public struct Attendance: Codable, Hashable {
             }
         }
     }
+    
 }
 
+
+extension Attendance {
+    static func generateCustomMemberId() -> String {
+        let uuidPart = UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(22)
+        return String(uuidPart)
+    }
+    
+    static func mockData() -> [Attendance] {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let specificDate = dateFormatter.date(from: "2024-09-16") else {
+            fatalError("Invalid date format")
+        }
+        
+        guard let specificCreateDate = dateFormatter.date(from: "2024-09-15") else {
+            fatalError("Invalid date format")
+        }
+        
+        
+
+        return [
+            Attendance(
+                id: UUID().uuidString,
+                memberId: generateCustomMemberId(),
+                memberType: .member,
+                name: "DDD iOS",
+                roleType: .iOS,
+                eventId: "",
+                createdAt: Date(),
+                updatedAt: Date(),  
+                status: .late,
+                generation: 11
+            ),
+            Attendance(
+                id: UUID().uuidString,
+                memberId: generateCustomMemberId(),
+                memberType: .member,
+                name: "DDD Android",
+                roleType: .android,
+                eventId: UUID().uuidString,
+                createdAt: specificCreateDate,
+                updatedAt: specificDate,
+                status: .present,
+                generation: 11
+            )
+        ]
+    }
+    
+    static func mockMemberData() -> [Attendance] {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let specificDate = dateFormatter.date(from: "2024-09-16") else {
+            fatalError("Invalid date format")
+        }
+        
+        guard let specificCreateDate = dateFormatter.date(from: "2024-09-15") else {
+            fatalError("Invalid date format")
+        }
+
+        return [
+            Attendance(
+                id: "",
+                memberId: generateCustomMemberId(),
+                memberType: .member,
+                name: "DDD iOS",
+                roleType: .iOS,
+                eventId: "",
+                createdAt: Date(),
+                updatedAt: Date(),
+                generation: 11
+            ),
+            Attendance(
+                id: "",
+                memberId: generateCustomMemberId(),
+                memberType: .member,
+                name: "DDD Android",
+                roleType: .android,
+                eventId: UUID().uuidString,
+                createdAt: specificCreateDate,
+                updatedAt: specificCreateDate,
+                generation: 11
+            )
+        ]
+    }
+}

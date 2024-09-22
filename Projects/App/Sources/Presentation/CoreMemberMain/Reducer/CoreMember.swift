@@ -63,7 +63,7 @@ public struct CoreMember {
         
     }
     
-    public enum Action : BindableAction, ViewAction, FeatureAction {
+    public enum Action : BindableAction, FeatureAction, Equatable {
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
         case selectDate(date: Date)
@@ -459,3 +459,24 @@ public struct CoreMember {
     }
 }
 
+
+extension CoreMember.Action {
+    public static func == (lhs: CoreMember.Action, rhs: CoreMember.Action) -> Bool {
+        switch (lhs, rhs) {
+        case (.binding(let lhsAction), .binding(let rhsAction)):
+            return lhsAction == rhsAction
+        case (.selectDate(let lhsDate), .selectDate(let rhsDate)):
+            return lhsDate == rhsDate
+        case (.view(let lhsViewAction), .view(let rhsViewAction)):
+            return lhsViewAction == rhsViewAction
+        case (.async(let lhsAsyncAction), .async(let rhsAsyncAction)):
+            return lhsAsyncAction == rhsAsyncAction
+        case (.inner(let lhsInnerAction), .inner(let rhsInnerAction)):
+            return lhsInnerAction == rhsInnerAction
+        case (.navigation(let lhsNavigationAction), .navigation(let rhsNavigationAction)):
+            return lhsNavigationAction == rhsNavigationAction
+        default:
+            return false
+        }
+    }
+}
