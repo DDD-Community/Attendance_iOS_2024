@@ -43,13 +43,14 @@ struct QrCodeView: View {
                       .offset(y: UIScreen.screenHeight * 0.2)
               }
               
-              
               Spacer()
                   .frame(height: 24)
               
               generateQrImage()
                   
               creatEventButton()
+              
+              Spacer()
           }
           .navigationBarBackButtonHidden()
           .task {
