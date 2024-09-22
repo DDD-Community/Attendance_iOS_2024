@@ -25,7 +25,6 @@ extension Settings {
             .setVersioningSystem()
             .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
             .setDevelopmentTeam(Project.Environment.organizationTeamId)
-            .setSkipInstall(true)
             .setDebugInformationFormat(),
       
         
@@ -36,6 +35,7 @@ extension Settings {
                 .setOtherLdFlags("-ObjC -all_load")
                 .setDebugInformationFormat("non-global")
                 .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
+                .setSkipInstall(false)
 
             ),
             .debug(name: "QA", settings: SettingsDictionary()
@@ -44,6 +44,7 @@ extension Settings {
                 .setOtherLdFlags("-ObjC -all_load")
                 .setDebugInformationFormat("non-global")
                 .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
+                .setSkipInstall(false)
             ),
             .release(name: .release, settings: SettingsDictionary()
                 .setProductName(Project.Environment.appName)
@@ -51,6 +52,7 @@ extension Settings {
                 .setOtherLdFlags("-ObjC -all_load")
                 .setDebugInformationFormat("non-global")
                 .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
+                .setSkipInstall(false)
             )
         ], defaultSettings: .recommended
     )
