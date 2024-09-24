@@ -325,10 +325,5 @@ struct CoreMemberTest {
             
             await testStore.finish()
         }
-        
-        
-        
     }
-    
-    
 }

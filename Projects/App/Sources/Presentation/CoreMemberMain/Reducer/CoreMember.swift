@@ -343,10 +343,7 @@ public struct CoreMember {
                         switch fetchedAttandanceResult {
                         case let .success(fetchedData):
                             if selectPart == .all {
-                                let filteredData = fetchedData
-                                    .filter { $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
-                                    .map { $0.toAttendanceDTO() }
-                                await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
+                                await send(.async(.fetchMember))
                             } else {
                                 let filteredData = fetchedData
                                     .filter {$0.roleType == selectPart  && $0.updatedAt.formattedDateToString() == selectData.formattedDateToString() }
