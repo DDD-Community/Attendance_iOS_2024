@@ -37,10 +37,10 @@ public struct AttendanceStatusText: View {
     }
     
     public var body: some View {
-        LazyVStack {
+        VStack(spacing: .zero) {
             RoundedRectangle(cornerRadius: 8)
                 .fill(backGroudColor)
-                .frame(height: 58)
+                .frame(height: 56)
                 .overlay {
                     HStack {
                         attendanceStatusName(name: name)
@@ -79,8 +79,8 @@ extension AttendanceStatusText {
     private func attendanceStatusGeneration(
         generataion: String
     ) -> some View {
-        Text("/ \(generataion) 기")
-            .pretendardFont(family: .Bold, size: 16)
+        Text("/ \(generataion)기")
+            .pretendardFont(family: .Medium, size: 16)
             .foregroundStyle(generationColor)
     }
     

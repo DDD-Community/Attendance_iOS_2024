@@ -62,6 +62,7 @@ extension SignupMemberTeamReactor {
             name: self.currentState.member.name ?? "",
             role: self.currentState.member.memberPart ?? .all,
             memberType: .member,
+            memberTeam: self.currentState.member.memberTeam,
             createdAt: Date(),
             updatedAt: Date(),
             generation: 11

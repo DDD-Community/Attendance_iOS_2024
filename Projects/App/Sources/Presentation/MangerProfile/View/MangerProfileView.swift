@@ -55,11 +55,11 @@ extension MangerProfileView {
     @ViewBuilder
     private func mangerProfile() -> some View {
         VStack {
-            ForEach(store.attendaceModel.filter{ $0.memberId == store.user?.uid }, id: \.self) { data in
+            ForEach(store.attendaceModel.filter{ $0.memberId == store.user?.uid }, id: \.memberId) { data in
                 Spacer()
                     .frame(height: 8)
                 
-                managerProfileName(name: data.name, memberType: data.memberType ?? .notYet)
+                managerProfileName(name: data.name, memberType: data.memberType)
                 
                 mangerTextComponent(
                     title: store.mangerProfileRoleType,
@@ -71,7 +71,7 @@ extension MangerProfileView {
                 
                 mangerTextComponent(
                     title: store.mangerProfileManging,
-                    subTitle: Managing.attendanceCheck.mangingDesc,
+                    subTitle: data.manging.mangingDesc,
                     mangingTeam: "",
                     isManging: false,
                     isGeneration: false

@@ -152,6 +152,7 @@ public struct EditEventModal {
                         endTime: endTime,
                         generation: state.generation
                     )
+                    
                     return .run { send in
                         let fetchedEventResult = await Result {
                             try await fireStoreUseCase.editEvent(

@@ -86,7 +86,7 @@ public struct CustomDropdownMenu: View {
             
             .padding(EdgeInsets(top: 12, leading: 20, bottom: 12, trailing: 20))
         }
-        .frame(maxWidth: .infinity)
+//        .frame(maxWidth: .infinity)
         .padding(.vertical)
         .cornerRadius(5)
         .onTapGesture {

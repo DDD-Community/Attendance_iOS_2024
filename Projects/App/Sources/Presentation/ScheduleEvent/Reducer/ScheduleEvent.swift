@@ -29,7 +29,7 @@ public struct ScheduleEvent {
         var offset: CGFloat = 0
         var selectedEvent: DDDEvent?
         var deletedEventModel: DDDEvent? = nil
-        var deleteImage: String = "ellipsis"
+        var deleteImage: ImageAsset = .editEvent
         var editMakeEventResaon: String = ""
         var editEventid: String = ""
         var editEventDate: Date = Date.now
@@ -235,7 +235,11 @@ public struct ScheduleEvent {
                 case let .fetchEventResponse(fetchedData):
                     switch fetchedData {
                     case let .success(fetchedData):
-                        state.eventModel = fetchedData
+                        let sortedData = fetchedData.sorted {
+                            $0.startTime < $1.startTime
+                        }
+                        
+                        state.eventModel = sortedData
                     case let .failure(error):
                         Log.error("Error fetching data", error.localizedDescription)
                     }

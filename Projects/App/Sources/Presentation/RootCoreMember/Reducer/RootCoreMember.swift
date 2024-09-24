@@ -25,8 +25,7 @@ public struct RootCoreMember {
         
         var path: StackState<Path.State> = .init()
         var eventModel: [DDDEvent] = []
-        var attendaceModel : [Attendance] = []
-        var combinedAttendances: [Attendance] = []
+        var attendaceMemberModel : [MemberDTO] = []
         var coreStore = CoreMember.State()
         
     }
@@ -59,11 +58,8 @@ public struct RootCoreMember {
     public enum AsyncAction: Equatable {
         case fetchEvent
         case fetchEventResponse(Result<[DDDEvent], CustomError>)
-        
         case fetchMember
-        case fetchDataResponse(Result<[Attendance], CustomError>)
-      
-        
+        case fetchDataResponse(Result<[MemberDTO], CustomError>)
     }
     
     public enum InnerAction: Equatable {
@@ -95,7 +91,7 @@ public struct RootCoreMember {
                     state.path.append(.qrCode(.init(userID: userID ?? "")))
                     
                 case .element(id: _, action: .coreMember(.navigation(.presentSchedule))):
-                    state.path.append(.scheduleEvent(.init(eventModel: state.eventModel, generation: state.attendaceModel.first?.generation ?? .zero)))
+                    state.path.append(.scheduleEvent(.init(eventModel: state.eventModel, generation: state.attendaceMemberModel.first?.generation ?? .zero)))
                     
                 case .element(id: _, action: .mangeProfile(.navigation(.tapLogOut))):
                     state.path.append(.snsLogin(.init()))
@@ -107,7 +103,7 @@ public struct RootCoreMember {
                     state.path.append(.createByApp(.init()))
                     
                 case .element(id: _, action: .qrCode(.navigation(.presentSchedule))):
-                    state.path.append(.scheduleEvent(.init(eventModel: state.eventModel, generation: state.attendaceModel.first?.generation ?? .zero)))
+                    state.path.append(.scheduleEvent(.init(eventModel: state.eventModel, generation: state.attendaceMemberModel.first?.generation ?? .zero)))
 //                    return .run { send in
 //                        await send(.async(.fetchMember))
 //                    }
@@ -129,10 +125,7 @@ public struct RootCoreMember {
                     return .run { @MainActor  send in
                         send(.coreStoreAction(.async(.fetchAttenDance)))
                         send(.coreStoreAction(.async(.fetchMember)))
-                        
-                        
                     }
-
                 }
                 
                 //MARK: - AsyncAction
@@ -177,7 +170,9 @@ public struct RootCoreMember {
                         
                         switch fetchedDataResult {
                         case let .success(fetchedData):
-                            let filterData = fetchedData.filter { $0.memberType == .member && $0.name != "" }
+                            let filterData = fetchedData
+                                .filter { $0.memberType == .member && $0.name != "" }
+                                .map { $0.toMemberDTO() }
                             send(.async(.fetchDataResponse(.success(filterData))))
                         case let .failure(error):
                             send(.async(.fetchDataResponse(.failure(CustomError.map(error)))))
@@ -188,9 +183,8 @@ public struct RootCoreMember {
                     switch fetchedData {
                     case let .success(fetchedData):
                         let userID = try? Keychain().get("userID")
-                        let filteredData = fetchedData.filter { $0.memberType == .member }
                         
-                        state.attendaceModel = filteredData
+                        state.attendaceMemberModel = fetchedData
                     case let .failure(error):
                         Log.error("Error fetching data", error)
                     }

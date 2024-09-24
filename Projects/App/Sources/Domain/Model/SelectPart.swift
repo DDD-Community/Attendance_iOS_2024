@@ -9,14 +9,12 @@ import Foundation
 
 public enum SelectPart: String, CaseIterable, Codable {
     case all
-    case pm
-    case design
-    case android
+    case pm = "PM"
+    case design = "Designer"
+    case android = "Android"
     case iOS
-    case web
-    case server
-    
-    
+    case web = "FE"
+    case server = "BE"
     
     public var desc: String {
         switch self {

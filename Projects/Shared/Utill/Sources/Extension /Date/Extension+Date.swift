@@ -61,7 +61,7 @@ public extension Date {
         return dateFormatter.string(from: date)
     }
     
-    public func extractDate(date: Date) -> String {
+    func extractDate(date: Date) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ko_KR")
         dateFormatter.dateFormat = "MM월"

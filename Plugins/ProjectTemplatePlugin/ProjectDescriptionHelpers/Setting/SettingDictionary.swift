@@ -80,6 +80,10 @@ public extension SettingsDictionary {
     func setSkipInstall(_ value: Bool = false) -> SettingsDictionary {
         return self.merging(["SKIP_INSTALL": SettingValue(stringLiteral: value ? "YES" : "NO")])
     }
+    
+    func setExplicitlyBuiltModules(_ value: Bool = true) -> SettingsDictionary {
+        return self.merging(["EXPLICITLY_BUILT_MODULES": SettingValue(stringLiteral: value ? "YES" : "NO")])
+    }
 }
 
 

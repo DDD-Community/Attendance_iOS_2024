@@ -8,13 +8,25 @@
 import Foundation
 
 public enum Managing: String, CaseIterable, Codable {
-    case accountiConsulting
-    case photographer
-    case scheduleManagement
-    case instagramManagement
-    case attendanceCheck
-    case projectTeamManging
+    case accountiConsulting = "Accounti_Consulting"
+    case photographer = "PhotoGrapher"
+    case scheduleManagement = "Schedule_Management"
+    case instagramManagement = "Instagram_Management"
+    case attendanceCheck = "Attendance_Check"
+    case projectTeamManging = "Project_TeamManging"
+    case notManging = "NotManging"
     
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        
+        if rawValue.trimmingCharacters(in: .whitespaces).isEmpty {
+            self = .notManging
+        } else {
+            self = Managing(rawValue: rawValue) ?? .notManging
+        }
+    }
+
     var mangingDesc: String {
         switch self {
         case .accountiConsulting:
@@ -29,7 +41,9 @@ public enum Managing: String, CaseIterable, Codable {
             return "출석 체크"
         case .projectTeamManging:
             return "팀매니징"
+        case .notManging:
+            return ""
         }
     }
-
 }
+

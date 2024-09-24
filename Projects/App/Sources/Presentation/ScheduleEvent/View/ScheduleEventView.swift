@@ -69,7 +69,7 @@ public struct ScheduleEventView: View {
                 store.send(.view(.closePresntEventModal))
                 store.send(.async(.fetchEvent))
             }
-            .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
+            .presentationDetents([.height(UIScreen.screenHeight * 0.55)])
             .presentationCornerRadius(20)
             .presentationDragIndicator(.visible)
             
@@ -80,7 +80,7 @@ public struct ScheduleEventView: View {
                 store.send(.view(.closeEditEventModal))
                 store.send(.async(.fetchEvent))
             }, selectMakeEventReason: store.editMakeEventResaon)
-            .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
+            .presentationDetents([.height(UIScreen.screenHeight * 0.55)])
             .presentationCornerRadius(20)
             .presentationDragIndicator(.visible)
         }
@@ -180,17 +180,19 @@ extension ScheduleEventView {
                         
                         Spacer()
                         
-                        Image(systemName: store.deleteImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 10, height: 24)
-                            .foregroundStyle(Color.gray400)
-                            .rotationEffect(.degrees(90))
-                            .onTapGesture {
-                                completion()
-                            }
+                        VStack {
+                            Image(asset: store.deleteImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 3, height: 13)
+                                .onTapGesture {
+                                    completion()
+                                }
+                        }
+                        .frame(height: 24)
                     
                     }
+                    .frame(height: 24)
                    
                     Spacer()
                         .frame(height: 14)

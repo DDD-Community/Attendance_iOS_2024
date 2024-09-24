@@ -62,6 +62,8 @@ extension SignupCoreMemberRoleReactor {
             name: self.currentState.member.name ?? "",
             role: self.currentState.member.memberPart ?? .all,
             memberType: .coreMember,
+            manging: self.currentState.member.coreMemberRole,
+            memberTeam: self.currentState.member.memberTeam,
             createdAt: Date(),
             updatedAt: Date(),
             generation: 11

@@ -91,7 +91,7 @@ extension CoreMemberMainView {
             HStack {
                 Spacer()
                 
-                Image(systemName: store.mangerProfilemage)
+                Image(asset: store.mangerProfilemage)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
@@ -156,14 +156,25 @@ extension CoreMemberMainView {
                 .frame(height: 40)
                 .padding(.horizontal, 20)
                 .overlay {
-                    CustomDatePIckerText(selectedDate: $store.selectDate.sending(\.selectDate))
-                    
+                    VStack {
+                        Spacer()
+                            .frame(height: 12)
+                        
+                        CustomDatePIckerText(
+                            selectedDate: $store.selectDate.sending(\.selectDate)
+                        )
+                        
+                        Spacer()
+                            .frame(height: 12)
+                    }
             }
         }
     }
     
     @ViewBuilder
-    fileprivate func attendanceStatus(selectPart: SelectPart) -> some View {
+    fileprivate func attendanceStatus(
+        selectPart: SelectPart
+    ) -> some View {
         LazyVStack {
             Spacer()
                 .frame(height: 16)
@@ -187,7 +198,7 @@ extension CoreMemberMainView {
                                     if item != .server {
                                         Divider()
                                             .background(Color.gray800)
-                                            .frame(width: 16, height: 20)
+                                            .frame(width: 14, height: 20)
                                     }
                                         
                                 }
@@ -215,7 +226,7 @@ extension CoreMemberMainView {
         LazyVStack {
             switch store.selectPart {
             case .all:
-                if store.attendanceCheckInModel.isEmpty  && store.attendanceCheckInModel ==  [] {
+                if store.attendaceMemberModel.isEmpty  && store.attendaceMemberModel ==  [] {
                    
                     VStack {
                         Spacer()
@@ -276,82 +287,60 @@ extension CoreMemberMainView {
         Spacer()
             .frame(height: 16)
         
-        VStack {
+        VStack(spacing: .zero) {
             attendanceMemberCount(count: store.attendanceCount)
             
             switch roleType {
             case .all:
                 ScrollView(.vertical, showsIndicators: false) {
-                    ForEach(store.attendanceCheckInModel, id: \.self) { item in
+                    ForEach(store.attendaceMemberModel, id: \.memberId) { item in
                         AttendanceStatusText(
                             name: item.name,
                             generataion: "\(item.generation)",
                             roleType: item.roleType.attendanceListDesc,
-                            nameColor: getBackgroundColor(
-                                for: item.id ?? "",
-                                generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceNameColor) ?? Color.gray600,
-                                matchingAttendances: item,
-                                isNameColor: true
-                            ),
-                            roleTypeColor: getBackgroundColor(
-                                for: item.id ?? "",
-                                generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceRoleTypeColor) ?? Color.gray600 ,
-                                matchingAttendances: item,
-                                isRoletTypeColor: true
-                            ),
-                            generationColor: getBackgroundColor(
-                                for: item.id ?? "",
-                                generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceGenerationColor) ?? Color.gray800,
-                                matchingAttendances: item,
-                                isGenerationColor: true
-                            ),
-                            backGroudColor: getBackgroundColor(
-                                for: item.id ?? "",
-                                generationColor: (item.status == .run || item.status == nil ? Color.gray800 : store.attenaceBackGroudColor) ?? Color.gray800,
-                                matchingAttendances: item,
-                                isBackground: true
-                            )
+                            nameColor: Color.basicWhite.opacity(0.4),
+                            roleTypeColor: Color.basicWhite.opacity(0.4),
+                            generationColor: Color.basicWhite.opacity(0.4),
+                            backGroudColor: Color.gray800.opacity(0.4)
                         )
-                        .id(item.id)
-                        Spacer()
+                        .id(item.memberId)
                     }
                 }
 
                 
             default:
-                ForEach(store.attendanceCheckInModel.filter { $0.roleType == roleType}, id: \.self) { item in
+                ForEach(store.attendanceCheckInModel.filter { $0.roleType == roleType}, id: \.id) { item in
                     AttendanceStatusText(
                         name: item.name,
                         generataion: "\(item.generation)",
                         roleType: item.roleType.desc,
                         nameColor: getBackgroundColor(
-                            for: item.id ?? "",
+                            for: item.id,
                             generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceNameColor) ?? Color.gray600,
                             matchingAttendances: item,
                             isNameColor: true
                         ),
                         roleTypeColor: getBackgroundColor(
-                            for: item.id ?? "",
+                            for: item.id,
                             generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceRoleTypeColor) ?? Color.gray600 ,
                             matchingAttendances: item,
                             isRoletTypeColor: true
                         ),
                         generationColor: getBackgroundColor(
-                            for: item.id ?? "",
+                            for: item.id,
                             generationColor: (item.status == .run || item.status == nil ? Color.gray600 : store.attenaceGenerationColor) ?? Color.gray800,
                             matchingAttendances: item,
                             isGenerationColor: true
                         ),
                         backGroudColor: getBackgroundColor(
-                            for: item.id ?? "",
-                            generationColor: (item.status == .run || item.status == nil ? Color.gray800 : store.attenaceBackGroudColor) ?? Color.gray800,
+                            for: item.id,
+                            generationColor: (item.status == .run || item.status == nil ? .gray800 : store.attenaceBackGroudColor) ?? Color.gray800,
                             matchingAttendances: item,
                             isBackground: true
                         )
                     )
                     .id(item.id)
 
-                    Spacer()
                 }
             }
         }
@@ -360,7 +349,7 @@ extension CoreMemberMainView {
     func getBackgroundColor(
             for memberId: String,
             generationColor: Color,
-            matchingAttendances: Attendance,
+            matchingAttendances: AttendanceDTO,
             isBackground: Bool = false,
             isNameColor: Bool = false,
             isGenerationColor: Bool = false,
@@ -386,7 +375,7 @@ extension CoreMemberMainView {
                         return backgroundColor
                     }
                 } else {
-                    return .gray
+                    return Color.gray800
                 }
             } else  if matchingAttendancesList.count != store.attendanceCheckInModel.count {
                 if let backgroundColor = matchingAttendancesList.first?.backgroundColor(
@@ -410,7 +399,7 @@ extension CoreMemberMainView {
                     return generationColor
                 }
             } else {
-                return .gray
+                return Color.gray800
             }
         }
 
