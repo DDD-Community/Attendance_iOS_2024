@@ -211,7 +211,10 @@ import Model
     }
     
     //MARK: - evnet삭제 하기
-    public func deleteEvent(from collection: FireBaseCollection, eventID: String) async throws -> DDDEvent? {
+    public func deleteEvent(
+        from collection: FireBaseCollection,
+        eventID: String
+    ) async throws -> DDDEventDTO? {
         let db = fireStoreDB.collection(collection.desc)
         let eventRef = db.document(eventID)
         do {
@@ -226,7 +229,7 @@ import Model
             
             try await eventRef.delete()
             Log.debug("Document successfully 이벤트 ID 삭제 : \(eventID)")
-            return event
+            return event.toModel()
             
         } catch {
             Log.error("이벤트 ID 삭제 실패: \(error)")

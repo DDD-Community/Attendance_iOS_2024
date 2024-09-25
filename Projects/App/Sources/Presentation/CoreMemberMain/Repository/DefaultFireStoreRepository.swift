@@ -63,7 +63,7 @@ public final class DefaultFireStoreRepository: FireStoreRepositoryProtocol {
     public func deleteEvent(
         from collection: FireBaseCollection,
         eventID: String
-    ) async throws  -> DDDEvent?  {
+    ) async throws  -> DDDEventDTO?  {
         return nil
     }
     

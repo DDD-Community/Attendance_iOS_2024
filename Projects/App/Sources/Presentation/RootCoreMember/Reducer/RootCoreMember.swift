@@ -24,7 +24,7 @@ public struct RootCoreMember {
         public init() {}
         
         var path: StackState<Path.State> = .init()
-        var eventModel: [DDDEvent] = []
+        var eventModel: [DDDEventDTO] = []
         var attendaceMemberModel : [MemberDTO] = []
         var coreStore = CoreMember.State()
         
@@ -57,7 +57,7 @@ public struct RootCoreMember {
     
     public enum AsyncAction: Equatable {
         case fetchEvent
-        case fetchEventResponse(Result<[DDDEvent], CustomError>)
+        case fetchEventResponse(Result<[DDDEventDTO], CustomError>)
         case fetchMember
         case fetchDataResponse(Result<[MemberDTO], CustomError>)
     }
@@ -143,7 +143,8 @@ public struct RootCoreMember {
                         
                         switch fetchedDataResult {
                         case let .success(fetchedData):
-                            send(.async(.fetchEventResponse(.success(fetchedData))))
+                            let filterData = fetchedData.map { $0.toModel()}
+                            send(.async(.fetchEventResponse(.success(filterData))))
                             await Task.sleep(seconds: 1)
                         case let .failure(error):
                             send(.async(.fetchEventResponse(.failure(CustomError.map(error)))))

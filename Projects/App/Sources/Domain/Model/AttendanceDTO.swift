@@ -44,7 +44,6 @@ public struct AttendanceDTO: Codable, Equatable {
     }
 }
 
-
 extension AttendanceDTO {
     func backgroundColor(
         isBackground: Bool = false,

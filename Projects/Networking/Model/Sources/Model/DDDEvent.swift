@@ -68,3 +68,16 @@ public struct DDDEvent: Codable, Hashable {
         ]
     }
 }
+
+
+public extension DDDEvent {
+    func toModel() -> DDDEventDTO {
+        return DDDEventDTO(
+            id: self.id ?? "",
+            name: self.name,
+            startTime: self.startTime ,
+            endTime: self.endTime,
+            generation: self.generation ?? .zero
+        )
+    }
+}

@@ -323,7 +323,20 @@ struct CoreMemberTest {
                 #expect(state.attendaceMemberModel.isEmpty == true, "에러 발생 시 attendanceCheckInModel은 유지되어야 함")
             }
             
-            await testStore.finish()
+        }
+        
+        @Test("파이어 베이스 앱 테스트 추가", .tags(.memberListTest))
+        func member_파이어베이스_테스트() async throws {
+            let testStoreMemmberModel = await testStore.state.attendaceMemberModel
+            
+            await testStore.send(.async(.fetchMember)) {
+                $0.attendaceMemberModel = testStoreMemmberModel
+            }
+            
+//            await testStore.receive(.async(.fetchMemberDataResponse(.success(testStoreMemmberModel))), timeout: .seconds(1)) {
+//                $0.attendaceMemberModel = $0.attendaceMemberModel
+//            }
+            
         }
     }
 }

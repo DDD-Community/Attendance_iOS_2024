@@ -59,7 +59,7 @@ public struct FireStoreUseCase: FireStoreUseCaseProtocol {
     public func deleteEvent(
         from collection: FireBaseCollection,
         eventID: String
-    ) async throws -> DDDEvent? {
+    ) async throws -> DDDEventDTO? {
         try await repository.deleteEvent(from: collection, eventID: eventID)
     }
     

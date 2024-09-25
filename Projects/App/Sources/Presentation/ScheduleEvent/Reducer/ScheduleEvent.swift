@@ -23,12 +23,12 @@ public struct ScheduleEvent {
     
     @ObservableState
     public struct State: Equatable {
-        var eventModel: [DDDEvent] = []
+        var eventModel: [DDDEventDTO] = []
         var naivgationTitle: String = "기 일정"
         var presentActionSheet: Bool = false
         var offset: CGFloat = 0
         var selectedEvent: DDDEvent?
-        var deletedEventModel: DDDEvent? = nil
+        var deletedEventModel: DDDEventDTO? = nil
         var deleteImage: ImageAsset = .editEvent
         var editMakeEventResaon: String = ""
         var editEventid: String = ""
@@ -44,7 +44,7 @@ public struct ScheduleEvent {
         @Presents var alert: AlertState<Action.Alert>?
         
         public init(
-            eventModel: [DDDEvent] = [],
+            eventModel: [DDDEventDTO] = [],
             generation: Int = .zero
             
         ) {
@@ -79,6 +79,7 @@ public struct ScheduleEvent {
     
     //MARK: - 뷰 처리 액션
     public enum View {
+        case appear
         case presntEventModal
         case closePresntEventModal
         case closeEditEventModal
@@ -90,12 +91,12 @@ public struct ScheduleEvent {
     public enum AsyncAction: Equatable {
         case fetchEvent
         case observeEvent
-        case fetchEventResponse(Result<[DDDEvent], CustomError>)
-        case updateEventModel([DDDEvent])
+        case fetchEventResponse(Result<[DDDEventDTO], CustomError>)
+        case updateEventModel([DDDEventDTO])
         case deleteEvent(eventID: String)
         case eventDeletedSuccessfully(eventID: String)
         case eventDeletionFailed(CustomError)
-        case deleteEventResponse(Result<DDDEvent?, CustomError>)
+        case deleteEventResponse(Result<DDDEventDTO?, CustomError>)
     }
     
     //MARK: - 앱내에서 사용하는 액선
@@ -179,6 +180,12 @@ public struct ScheduleEvent {
                     state.destination = nil
                     return .none
                     
+                case .appear:
+                    return .concatenate (
+                        Effect.run { send in  await send(.async(.fetchEvent))},
+                        Effect.run { send in await send(.async(.observeEvent)) }
+                    )
+                    
                 case .confirmationDialogButtonTapped(let eventName, let eventID,  let eventStartDate, let eventEndDate):
                     state.confirmationDialog = ConfirmationDialogState {
                         TextState("")
@@ -219,7 +226,8 @@ public struct ScheduleEvent {
                         
                         switch fetchedDataResult {
                         case let .success(fetchedData):
-                            send(.async(.fetchEventResponse(.success(fetchedData))))
+                            let fetchedDataToDTO = fetchedData.map { $0.toModel() }
+                            send(.async(.fetchEventResponse(.success(fetchedDataToDTO))))
                         case let .failure(error):
                             send(.async(.fetchEventResponse(.failure(CustomError.map(error)))))
                         }
@@ -227,7 +235,7 @@ public struct ScheduleEvent {
                
                 case .observeEvent:
                     return .run { @MainActor  send in
-                        for await result in try await fireStoreUseCase.observeFireBaseChanges(from: .event, as: DDDEvent.self) {
+                        for await result in try await fireStoreUseCase.observeFireBaseChanges(from: .event, as: DDDEventDTO.self) {
                             send(.async(.fetchEventResponse(result)))
                         }
                     }

@@ -54,9 +54,7 @@ public struct ScheduleEventView: View {
             }
         }
         .task {
-            store.send(.async(.fetchEvent))
-            await Task.sleep(seconds: 1)
-            store.send(.async(.observeEvent))
+            store.send(.view(.appear))
         }
         
         .onChange(of: store.eventModel) { oldValue , newValue in
@@ -133,14 +131,14 @@ extension ScheduleEventView {
                         .frame(height: 16)
                         
                     
-                    ForEach(groupedEvents[month] ?? [], id: \.self) { item in
+                    ForEach(groupedEvents[month] ?? [], id: \.id) { item in
                         scheduleEventList(
                             eventName: item.name,
                             startTime: "\(item.startTime.formattedDateTimeToString(date: item.startTime)) \(item.startTime.formattedTime(date: item.startTime))",
                             endTime: "\(item.endTime.formattedDateTimeToString(date: item.endTime)) \(item.endTime.formattedTime(date: item.endTime))", completion: {
                                 store.send(.view(.confirmationDialogButtonTapped(
                                     eventName: item.name,
-                                    eventID: item.id ?? "",
+                                    eventID: item.id,
                                     eventStartDate: item.startTime,
                                     eventEndDate: item.endTime)
                                 ))

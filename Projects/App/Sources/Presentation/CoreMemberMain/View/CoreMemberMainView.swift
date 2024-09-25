@@ -257,8 +257,13 @@ extension CoreMemberMainView {
                    
                     VStack {
                         Spacer()
-                            .frame(height: UIScreen.screenHeight * 0.2)
+                            .frame(height: 16)
                         
+                        
+                        attendanceMemberCount(count: store.attendanceCount)
+                        
+                        Spacer()
+                            .frame(height: UIScreen.screenHeight * 0.15)
                        
                         Image(asset: .logo)
                             .resizable()
