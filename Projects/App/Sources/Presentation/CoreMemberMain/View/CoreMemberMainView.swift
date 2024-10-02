@@ -45,7 +45,6 @@ struct CoreMemberMainView: View {
                 .onAppear {
                     UIScrollView.appearance().bounces = false
                 }
-                
             }
         }
       
@@ -106,7 +105,7 @@ extension CoreMemberMainView {
                 Image(asset: store.qrcodeImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 40, height: 40)
+                    .frame(width: 20, height: 20)
                     .foregroundStyle(Color.gray400)
                     .onTapGesture {
                         store.send(.navigation(.presentQrcode))
@@ -118,11 +117,14 @@ extension CoreMemberMainView {
                 Image(asset: store.eventImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 40, height: 40)
+                    .frame(width: 20, height: 20)
                     .foregroundStyle(Color.gray400)
                     .onTapGesture {
                         store.send(.navigation(.presentSchedule))
                     }
+                
+                Spacer()
+                    .frame(width: 8)
             }
             
             Spacer()
@@ -220,7 +222,6 @@ extension CoreMemberMainView {
         }
     }
     
-   
     @ViewBuilder
     fileprivate func selctAttendance(selectPart: SelectPart) -> some View {
         LazyVStack {
@@ -311,6 +312,9 @@ extension CoreMemberMainView {
                         .id(item.memberId)
                     }
                 }
+                .onAppear {
+                    UIScrollView.appearance().bounces = false
+                }
 
                 
             default:
@@ -346,6 +350,9 @@ extension CoreMemberMainView {
                     )
                     .id(item.id)
 
+                }
+                .onAppear {
+                    UIScrollView.appearance().bounces = false
                 }
             }
         }
@@ -408,7 +415,6 @@ extension CoreMemberMainView {
             }
         }
 
-    
     @ViewBuilder
     private func attendanceMemberCount(count:  Int) -> some View {
         VStack {
@@ -418,7 +424,7 @@ extension CoreMemberMainView {
                     .foregroundStyle(Color.basicWhite)
                 
                 Spacer()
-                
+
             }
             
             Spacer()

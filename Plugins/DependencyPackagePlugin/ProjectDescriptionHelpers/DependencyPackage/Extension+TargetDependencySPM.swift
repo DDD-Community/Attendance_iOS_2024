@@ -31,6 +31,7 @@ public extension TargetDependency.SPM {
     static let keychainAccess = TargetDependency.external(name: "KeychainAccess", condition: .none)
     static let popupView = TargetDependency.external(name: "PopupView", condition: .none)
     static let collections = TargetDependency.external(name: "Collections", condition: .none)
+    static let tcaCoordinator = TargetDependency.external(name: "TCACoordinators", condition: .none)
 }
   
 

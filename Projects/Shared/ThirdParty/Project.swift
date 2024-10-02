@@ -31,7 +31,8 @@ let project = Project.makeAppModule(
         .SPM.firebaseDatabase,
         .SPM.keychainAccess,
         .SPM.popupView,
-        .SPM.collections
+        .SPM.collections,
+        .SPM.tcaCoordinator
             
     ],
     sources: ["Sources/**"]
