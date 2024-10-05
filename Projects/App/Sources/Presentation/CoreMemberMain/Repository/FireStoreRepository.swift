@@ -16,6 +16,7 @@ import Service
 import ConcurrencyExtras
 
 import Model
+import LogMacro
 
 @Observable public class FireStoreRepository: FireStoreRepositoryProtocol {
     
@@ -70,7 +71,7 @@ import Model
             Task {
                 do {
                     let querySnapshot = try await fireStoreDB.collection(collection.desc).getDocuments()
-                    Log.debug("firebase 데이터 실시간 가져오기 성공", collection, querySnapshot.documents.map { $0.data() })
+                    #logDebug("firebase 데이터 실시간 가져오기 성공", collection, querySnapshot.documents.map { $0.data() })
                     
                     var decodedData: [T] = []
                     var uniqueKeys: Set<String> = Set()
@@ -86,11 +87,11 @@ import Model
                             } else {
                                 if shouldSave {
                                     try await fireStoreDB.collection(collection.desc).document(document.documentID).delete()
-                                    Log.debug("Duplicate document removed with ID: ", "\(#function)", "\(document.documentID)")
+                                    #logDebug("Duplicate document removed with ID: ", "\(#function)", "\(document.documentID)")
                                 }
                             }
                         } catch {
-                            Log.error("Failed to decode document to \(T.self): \(error)")
+                            #logError("Failed to decode document to \(T.self): \(error)")
                             continuation.yield(.failure(CustomError.firestoreError(error.localizedDescription)))
                         }
                     }
@@ -107,18 +108,18 @@ import Model
     
     //MARK: - firebase 유저 정보가져오기
     public func getCurrentUser() async throws -> User? {
-        Log.debug("유저가져오기", Auth.auth().currentUser)
+        #logDebug("유저가져오기", Auth.auth().currentUser ?? .none)
         return Auth.auth().currentUser
     }
     
     public func getUserLogOut() async throws -> User? {
         do {
             try Auth.auth().signOut()
-            Log.debug("User successfully signed out")
+            #logDebug("User successfully signed out")
             try? Keychain().removeAll()
             return nil
         } catch let signOutError as NSError {
-            Log.error("로그아웃 에러: \(signOutError)")
+            #logError("로그아웃 에러: \(signOutError)")
             throw CustomError.unknownError(signOutError.localizedDescription)
         }
     }
@@ -142,7 +143,7 @@ import Model
                         let records = try snapshot.documents.compactMap { document in
                             try document.data(as: T.self)
                         }
-                        Log.debug("firebase 데이터 실시간 변경", records.map { $0 }, #function)
+                        #logDebug("firebase 데이터 실시간 변경", records.map { $0 }, #function)
                         return .success(records)
                     } catch {
                         return .failure(.decodeFailed)
@@ -182,10 +183,10 @@ import Model
 
         do {
             try await documentReference.setData(data)
-            Log.debug("이벤트 생성 ID: \(documentReference.documentID)")
+            #logDebug("이벤트 생성 ID: \(documentReference.documentID)")
             return newEvent
         } catch {
-            Log.error("이벤트 생성 실패 \(error)")
+            #logError("이벤트 생성 실패 \(error)")
             throw CustomError.unknownError("Error adding document: \(error.localizedDescription)")
         }
     }
@@ -202,10 +203,10 @@ import Model
 
         do {
             try await eventRef.updateData(data)
-            Log.debug("event 수정 ID: \(eventID)")
+            #logDebug("event 수정 ID: \(eventID)")
             return event
         } catch {
-            Log.error("이벤트 수정 실패: \(error)")
+            #logError("이벤트 수정 실패: \(error)")
             throw CustomError.unknownError("이벤트 수정 실패: \(error.localizedDescription)")
         }
     }
@@ -221,18 +222,18 @@ import Model
             let document = try await eventRef.getDocument()
             
             guard let eventData = document.data(), document.exists else {
-                Log.error("이벤트 삭제 아이디를 찾을수 없어요: \(eventID)")
+                #logError("이벤트 삭제 아이디를 찾을수 없어요: \(eventID)")
                 throw CustomError.unknownError("이벤트를 찾을 수 없습니다: \(eventID)")
             }
             
             let event = try Firestore.Decoder().decode(DDDEvent.self, from: eventData)
             
             try await eventRef.delete()
-            Log.debug("Document successfully 이벤트 ID 삭제 : \(eventID)")
+            #logDebug("Document successfully 이벤트 ID 삭제 : \(eventID)")
             return event.toModel()
             
         } catch {
-            Log.error("이벤트 ID 삭제 실패: \(error)")
+            #logError("이벤트 ID 삭제 실패: \(error)")
             throw CustomError.unknownError("이벤트 ID 삭제 실패: \(error.localizedDescription)")
         }
     }
@@ -288,7 +289,7 @@ import Model
                 }
                 
                 continuation.yield(.success(attendances))
-                Log.debug("출석현황", attendances)
+                #logDebug("출석현황", attendances)
             }
             
             continuation.onTermination = { @Sendable _ in

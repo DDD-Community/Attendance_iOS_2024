@@ -15,7 +15,7 @@ import Service
 import Utill
 import DesignSystem
 import Model
-
+import LogMacro
 
 @Reducer
 public struct ScheduleEvent {
@@ -249,7 +249,7 @@ public struct ScheduleEvent {
                         
                         state.eventModel = sortedData
                     case let .failure(error):
-                        Log.error("Error fetching data", error.localizedDescription)
+                        #logError("Error fetching data", error.localizedDescription)
                     }
                     return .none
                     
@@ -285,7 +285,7 @@ public struct ScheduleEvent {
                     case .success(let deleteResult):
                         state.deletedEventModel = deleteResult
                     case .failure(let error):
-                        Log.error("이벤트 삭제 실패", error.localizedDescription)
+                        #logError("이벤트 삭제 실패", error.localizedDescription)
                     }
                     return .none
                     
@@ -294,7 +294,7 @@ public struct ScheduleEvent {
                     return .none
                     
                 case let .eventDeletionFailed(error):
-                    Log.error("Error DeletingEvent", error)
+                    #logError("Error DeletingEvent", error)
                     return .none
 
                 }

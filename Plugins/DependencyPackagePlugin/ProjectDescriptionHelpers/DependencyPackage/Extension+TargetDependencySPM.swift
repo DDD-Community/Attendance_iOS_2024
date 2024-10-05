@@ -8,9 +8,12 @@
 import ProjectDescription
 
 public extension TargetDependency.SPM {
-    static let moya = TargetDependency.external(name: "Moya", condition: .none)
-    static let combineMoya = TargetDependency.external(name: "CombineMoya", condition: .none)
+    static let asyncMoya = TargetDependency.external(name: "AsyncMoya", condition: .none)
+    static let logMarco = TargetDependency.external(name: "LogMarco", condition: .none)
+    
     static let composableArchitecture = TargetDependency.external(name: "ComposableArchitecture", condition: .none)
+    static let tcaCoordinator = TargetDependency.external(name: "TCACoordinators", condition: .none)
+    
     static let concurrencyExtras = TargetDependency.external(name: "ConcurrencyExtras", condition: .none)
     static let sdwebImage = TargetDependency.external(name: "SDWebImageSwiftUI", condition: .none)
     static let gifu = TargetDependency.external(name: "Gifu", condition: .none)
@@ -21,6 +24,12 @@ public extension TargetDependency.SPM {
     static let rxCocoa = TargetDependency.external(name: "RxCocoa", condition: .none)
     static let snapKit = TargetDependency.external(name: "SnapKit", condition: .none)
     static let qrCodeSwift = TargetDependency.external(name: "QRCodeSwift", condition: .none)
+    
+    static let keychainAccess = TargetDependency.external(name: "KeychainAccess", condition: .none)
+    static let popupView = TargetDependency.external(name: "PopupView", condition: .none)
+    static let collections = TargetDependency.external(name: "Collections", condition: .none)
+    
+    
     static let googleSignIn = TargetDependency.external(name: "GoogleSignIn", condition: .none)
     static let firebaseAuth = TargetDependency.external(name: "FirebaseAuth", condition: .none)
     static let firebaseFirestore = TargetDependency.external(name: "FirebaseFirestore", condition: .none)
@@ -28,10 +37,6 @@ public extension TargetDependency.SPM {
     static let firebaseCrashlytics = TargetDependency.external(name: "FirebaseCrashlytics", condition: .none)
     static let firebaseRemoteConfig = TargetDependency.external(name: "FirebaseRemoteConfig", condition: .none)
     static let firebaseDatabase = TargetDependency.external(name: "FirebaseDatabase", condition: .none)
-    static let keychainAccess = TargetDependency.external(name: "KeychainAccess", condition: .none)
-    static let popupView = TargetDependency.external(name: "PopupView", condition: .none)
-    static let collections = TargetDependency.external(name: "Collections", condition: .none)
-    static let tcaCoordinator = TargetDependency.external(name: "TCACoordinators", condition: .none)
 }
   
 

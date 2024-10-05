@@ -14,6 +14,7 @@ import Service
 import Utill
 
 import Model
+import LogMacro
 
 @Reducer
 public struct EditEventModal {
@@ -128,21 +129,21 @@ public struct EditEventModal {
                     if state.editEventStartTime == .now {
                         let convertStartDate = state.editEventStartTime.formattedFireBaseDate(date: state.editEventStartTime)
                         startTime = state.editEventStartTime.formattedFireBaseStringToDate(dateString: convertStartDate)
-                        print("시작 날짜가 선택되지 않음. 현재 시간으로 설정.")
+                        #logDebug("시작 날짜가 선택되지 않음. 현재 시간으로 설정.")
                     } else {
                         let convertStartDate = state.editEventStartTime.formattedFireBaseDate(date: state.editEventStartTime)
                         startTime = state.editEventStartTime.formattedFireBaseStringToDate(dateString: convertStartDate)
-                        print("선택된 시작 날짜: \(startTime)")
+                        #logDebug("선택된 시작 날짜: \(startTime)")
                     }
 
                     var endTime: Date
                     if state.editEventStartTime == .now  || state.editEventStartTime == state.editEventEndTime{
                         endTime = startTime.addingTimeInterval(1800)
-                        print("마침 날짜가 선택되지 않음. 30분 추가됨.")
+                        #logDebug("마침 날짜가 선택되지 않음. 30분 추가됨.")
                     } else  {
                         let convertEndDate = state.editEventEndTime.formattedFireBaseDate(date: state.editEventEndTime)
                         endTime = state.editEventEndTime.formattedFireBaseStringToDate(dateString: convertEndDate)
-                        print("선택된 마침 날짜: \(endTime)")
+                        #logDebug("선택된 마침 날짜: \(endTime)")
                     }
                     
                     let event = DDDEvent(
@@ -177,7 +178,7 @@ public struct EditEventModal {
                     case .success(let editEventData):
                         state.updateEventData = editEventData
                     case .failure(let error):
-                        Log.error("이벤트 업데이트 실패", error.localizedDescription)
+                        #logError("이벤트 업데이트 실패", error.localizedDescription)
                     }
                     return .none
                 }

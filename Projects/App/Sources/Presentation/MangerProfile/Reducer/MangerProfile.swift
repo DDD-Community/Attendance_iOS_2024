@@ -15,6 +15,8 @@ import Model
 import DesignSystem
 import Service
 
+import LogMacro
+
 @Reducer
 public struct MangerProfile {
     public init() {}
@@ -146,9 +148,9 @@ public struct MangerProfile {
                     switch fetchUser {
                     case let .success(fetchUser):
                         state.user = fetchUser
-                        Log.error("fetching data", fetchUser.uid)
+                        #logDebug("fetching data", fetchUser.uid)
                     case let .failure(error):
-                        Log.error("Error fetching User", error)
+                        #logError("Error fetching User", error)
                         state.user = nil
                     }
                     return .none
@@ -160,7 +162,7 @@ public struct MangerProfile {
                         state.isLoading = false
                         state.attendaceModel = fetchedData
                     case let .failure(error):
-                        Log.error("Error fetching data", error)
+                        #logError("Error fetching data", error)
                         state.isLoading = true
                     }
                     return .none

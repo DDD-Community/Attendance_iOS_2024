@@ -14,6 +14,7 @@ import KeychainAccess
 
 import Utill
 import Model
+import LogMacro
 
 @Reducer
 public struct RootCoreMember {
@@ -87,7 +88,7 @@ public struct RootCoreMember {
                 case .element(id: _, action: .coreMember(.navigation(.presentQrcode))):
                     let userID = try? Keychain().get("userID")
                     let eventID = try? Keychain().getData("deleteEventIDs")
-                    Log.debug("키체인", userID, eventID)
+                    #logDebug("키체인", userID, eventID)
                     state.path.append(.qrCode(.init(userID: userID ?? "")))
                     
                 case .element(id: _, action: .coreMember(.navigation(.presentSchedule))):
@@ -156,7 +157,7 @@ public struct RootCoreMember {
                     case let .success(fetchedData):
                         state.eventModel = fetchedData
                     case let .failure(error):
-                        Log.error("Error fetching data", error)
+                        #logError("Error fetching data", error)
                     }
                     return .none
                     

@@ -16,6 +16,7 @@ import SwiftUI
 import Utill
 import Model
 import DesignSystem
+import LogMacro
 
 @Reducer
 public struct CoreMember {
@@ -158,7 +159,7 @@ public struct CoreMember {
                         let filteredData = fetchedData
                             .filter { $0.updatedAt.formattedDateToString() == date.formattedDateToString()  && (($0.id?.isEmpty) != nil) }
                             .map { $0.toAttendanceDTO() }
-                        Log.debug("날짜 홗인", fetchedData.map { $0.updatedAt.formattedDateToString() }, date.formattedDateToString(), filteredData)
+                        #logDebug("날짜 홗인", fetchedData.map { $0.updatedAt.formattedDateToString() }, date.formattedDateToString(), filteredData)
                         await send(.async(.fetchAttendanceDataResponse(.success(filteredData))))
                         await send(.view(.updateAttendanceCountWithData(attendances: filteredData)))
                         
@@ -211,13 +212,13 @@ public struct CoreMember {
 
                     // 모든 attendance의 updatedAt과 선택된 날짜를 출력
                     attendances.forEach { attendance in
-                        print("Attendance ID: \(attendance.id ?? "N/A") - updatedAt: \(attendance.updatedAt), selectedDay: \(selectedDay)")
+                        #logDebug("Attendance ID: \(attendance.id ?? "N/A") - updatedAt: \(attendance.updatedAt), selectedDay: \(selectedDay)")
                     }
 
                     // 선택된 날짜와 attendance의 updatedAt의 **년/월/일**이 같은 경우만 처리
                     let filteredAttendances = attendances.filter { attendance in
                         let isSameDay = Calendar.current.isDate(attendance.updatedAt, inSameDayAs: selectedDay)  // 년/월/일 기준 비교
-                        print("Attendance ID: \(attendance.id ?? "N/A") - isSameDay: \(isSameDay) - Status: \(attendance.status ?? .absent)")
+                        #logDebug("Attendance ID: \(attendance.id ?? "N/A") - isSameDay: \(isSameDay) - Status: \(attendance.status ?? .absent)")
                         return isSameDay && (attendance.status == .present || attendance.status == .late)
                     }
 
@@ -226,7 +227,7 @@ public struct CoreMember {
                     state.attendanceCount = max(0, presentCount)  // 최소 0 이상으로 설정
 
                     // 디버그 로그 추가
-                    print("Filtered Attendance Count: \(presentCount)")
+                    #logDebug("Filtered Attendance Count: \(presentCount)")
                     
                     return .none
                 }
@@ -362,9 +363,9 @@ public struct CoreMember {
                     switch fetchUser {
                     case let .success(fetchUser):
                         state.user = fetchUser
-                        Log.error("fetching data", fetchUser.uid)
+                        #logDebug("fetching data", fetchUser.uid)
                     case let .failure(error):
-                        Log.error("Error fetching User", error)
+                        #logError("Error fetching User", error)
                         state.user = nil
                     }
                     return .none
@@ -396,7 +397,7 @@ public struct CoreMember {
                         }
                         
                     case let .failure(error):
-                        Log.error("출석  정보 데이터 에러", error.localizedDescription)
+                        #logError("출석  정보 데이터 에러", error.localizedDescription)
                         state.isLoading = true
                     }
                     return .none
@@ -410,7 +411,7 @@ public struct CoreMember {
                         state.attendaceMemberModel = filteredData
                         
                     case let .failure(error):
-                        Log.error("Error fetching data", error)
+                        #logError("Error fetching data", error)
                         state.isLoading = true
                     }
                     return .none

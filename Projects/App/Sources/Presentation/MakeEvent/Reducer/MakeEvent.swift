@@ -12,6 +12,7 @@ import KeychainAccess
 import Service
 import Utill
 import Model
+import LogMacro
 
 @Reducer
 public struct MakeEvent {
@@ -122,21 +123,21 @@ public struct MakeEvent {
                     if state.selectMakeEventDate == .now {
                            let convertStartDate = state.selectMakeEventDate.formattedFireBaseDate(date: state.selectMakeEventDate)
                            startTime = state.selectMakeEventDate.formattedFireBaseStringToDate(dateString: convertStartDate)
-                           print("시작 날짜가 선택되지 않음. 현재 시간으로 설정.")
+                        #logDebug("시작 날짜가 선택되지 않음. 현재 시간으로 설정.")
                        } else {
                            let convertStartDate = state.selectMakeEventDate.formattedFireBaseDate(date: state.selectMakeEventDate)
                            startTime = state.selectMakeEventDate.formattedFireBaseStringToDate(dateString: convertStartDate)
-                           print("선택된 시작 날짜: \(startTime)")
+                           #logDebug("선택된 시작 날짜: \(startTime)")
                        }
 
                        var endTime: Date
                     if state.selectMakeEventEndDate != state.selectMakeEventDate || state.selectMakeEventEndDate == .now  {
                            endTime = startTime.addingTimeInterval(1800)
-                           print("마침 날짜가 선택되지 않음. 30분 추가됨.")
+                        #logDebug("마침 날짜가 선택되지 않음. 30분 추가됨.")
                        } else {
                            let convertEndDate = state.selectMakeEventEndDate.formattedFireBaseDate(date: state.selectMakeEventEndDate)
                            endTime = state.selectMakeEventEndDate.formattedFireBaseStringToDate(dateString: convertEndDate)
-                           print("선택된 마침 날짜: \(endTime)")
+                           #logDebug("선택된 마침 날짜: \(endTime)")
                        }
 
                        let event = DDDEvent(
@@ -151,7 +152,7 @@ public struct MakeEvent {
                     
                     return .run { @MainActor send in
                         let events = try await fireStoreUseCase.createEvent(event: event, from: .event, uuid: event.id ?? "")
-                        Log.debug("event 생성", events)
+                        #logDebug("event 생성", events)
                     }
                 }
 
@@ -174,7 +175,7 @@ public struct MakeEvent {
                     case let .success(fetchedData):
                         state.eventModel = fetchedData
                     case let .failure(error):
-                        Log.error("Error fetching data", error)
+                        #logError("Error fetching data", error)
                     }
                     return .none
                     
@@ -191,7 +192,7 @@ public struct MakeEvent {
                     state.eventModel = [event]
                     return .run  { @MainActor  send in
                         let events = try await fireStoreUseCase.createEvent(event: event, from: .event, uuid: UUID().uuidString)
-                        Log.debug("event 생성", events)
+                        #logDebug("event 생성", events)
                     }
                 }
                 

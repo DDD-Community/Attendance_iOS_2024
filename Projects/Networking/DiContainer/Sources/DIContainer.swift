@@ -7,7 +7,7 @@
 
 import Foundation
 import Service
-import OSLog
+import LogMacro
 
 public final class DependencyContainer {
     private var registry = [String: Any]()

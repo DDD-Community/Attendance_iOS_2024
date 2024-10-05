@@ -15,6 +15,7 @@ import KeychainAccess
 
 import Utill
 import Model
+import LogMacro
 
 @Reducer
 public struct QrCode {
@@ -168,7 +169,7 @@ public struct QrCode {
                             state.startTime = todayEvent.startTime
                             state.eventID = todayEvent.id
                             state.endTime = todayEvent.endTime
-                            Log.debug("Today's event found: \(todayEvent.id)")
+                            #logDebug("Today's event found: \(todayEvent.id)")
                             if todayEvent.id != "" {
                                 if state.loadingQRImage == true {
                                     state.qrCodeReaderText = "QR스캔으로 출석하세요!"
@@ -176,10 +177,10 @@ public struct QrCode {
                             }
                         } else {
                             state.qrCodeReaderText = "오늘은 일정이 없습니다!"
-                            Log.debug("No event for today.")
+                            #logDebug("No event for today.")
                         }
                     case let .failure(error):
-                        Log.error("Error fetching data", error)
+                        #logError("Error fetching data", error)
                     }
                     return .none
                     
@@ -217,7 +218,7 @@ public struct QrCode {
                                 endTime: convertEndStringToDate ?? Date()
                             )
                             let qrCodeImage = await qrCodeUseCase.generateQRCode(from: qrCodeGenerateString)
-                            Log.debug(qrCodeGenerateString)
+                            #logDebug(qrCodeGenerateString)
                             await send(.view(.qrCodeGenerated(image: qrCodeImage)))
                         }
                     }

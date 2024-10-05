@@ -34,7 +34,10 @@ let package = Package(
         .package(url: "https://github.com/exyte/PopupView.git", from: "2.10.4"),
         .package(url: "https://github.com/pointfreeco/swift-concurrency-extras.git", from: "1.1.0"),
         .package(url: "https://github.com/apple/swift-collections.git", branch: "main"),
-        .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators.git", from: "0.10.0")
+        .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators.git", from: "0.10.0"),
+//        .package(url: "https://github.com/Roy-wonji/LogMacro", from: "1.0.1"),
+        .package(url: "https://github.com/Roy-wonji/AsyncMoya", from: "1.0.5")
+        
       
         
     ]

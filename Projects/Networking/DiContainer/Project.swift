@@ -2,6 +2,7 @@ import Foundation
 import ProjectDescription
 import DependencyPlugin
 import ProjectTemplatePlugin
+import DependencyPackagePlugin
 
 let project = Project.makeAppModule(
     name: "DiContainer",
@@ -9,7 +10,8 @@ let project = Project.makeAppModule(
     product: .staticFramework,
     settings:  .settings(),
     dependencies: [
-        .Networking(implements: .Service)
+        .Networking(implements: .Service),
+        .SPM.asyncMoya
     ],
     sources: ["Sources/**"]
 )

@@ -8,7 +8,7 @@ import Foundation
 import KeychainAccess
 
 import Service
-
+import LogMacro
 
 extension Keychain {
     //MARK: -  키체인에 배열에 값 추가 하기
