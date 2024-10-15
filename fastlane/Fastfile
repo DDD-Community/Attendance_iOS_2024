@@ -13,11 +13,60 @@
 # Uncomment the line if you want fastlane to automatically update itself
 update_fastlane
 
+
 default_platform(:ios)
+
+ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "600"
+default_platform(:ios)
+
+APP_NAME = "DDDAttendance"
+SCHEME = "DDDAttendance-QA"
 
 platform :ios do
   desc "Description of what the lane does"
   lane :custom_lane do
     # add actions here: https://docs.fastlane.tools/actions
   end
+
+desc "Install Profiles and Build My App"
+  lane :build_ipa do
+    clear_derived_data
+
+   build_app(
+      workspace: "#{APP_NAME}.xcworkspace",
+      scheme: "#{SCHEME}",
+    silent: true,
+    clean: true,
+    output_directory: "./fastlane/output/",
+    output_name: "DDDAttendance.ipa",
+      export_method: "app-store",
+      export_options: {
+      signingStyle: "manual",
+          uploadBitcode: false,
+            provisioningProfiles: {
+            "io.DDD.Attendance" => "match AppStore io.DDD.Attendance",
+           
+             }
+        }
+    )
+ 
+   end
+
+
+#  ✅ 테스트 플라이트 업로드
+  desc "Push to TestFlight"
+  lane :QA do |options|
+app_store_connect_api_key(is_key_content_base64: true, in_house: false)
+match(type: "appstore")
+	build_ipa
+	upload_to_testflight(
+       demo_account_required: true,
+       beta_app_description:"DDDAttendance",
+       ipa:"./fastlane/output/DDDAttendance.ipa",
+       changelog:"변경사항",
+       groups: ["DDD"],
+       skip_waiting_for_build_processing: true)
+
+    end
+
 end

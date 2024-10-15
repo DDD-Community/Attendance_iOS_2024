@@ -144,12 +144,12 @@ public struct InfoPlistValues {
         infoPlist.merge(setCFBundleURLTypes([
             [
                 "CFBundleURLSchemes": [
-                    "com.googleusercontent.apps.882277748169-ouegejt3kc6jo5enbfjmmre2nnbthj82"
+                    "com.googleusercontent.apps.882277748169-glpolfiecue4lqqps6hmgj9t8lm1g5qp"
                 ]
             ]
         ])) { (_, new) in new }
         infoPlist.merge(setCFBundleVersion(.appBuildVersion())) { (_, new) in new }
-        infoPlist.merge(setGIDClientID("882277748169-ouegejt3kc6jo5enbfjmmre2nnbthj82.apps.googleusercontent.com")) { (_, new) in new }
+        infoPlist.merge(setGIDClientID("882277748169-glpolfiecue4lqqps6hmgj9t8lm1g5qp.apps.googleusercontent.com")) { (_, new) in new }
         infoPlist.merge(setLSRequiresIPhoneOS(true)) { (_, new) in new }
         infoPlist.merge(setUIAppFonts(["PretendardVariable.ttf"])) { (_, new) in new }
         infoPlist.merge(setUIApplicationSceneManifest([

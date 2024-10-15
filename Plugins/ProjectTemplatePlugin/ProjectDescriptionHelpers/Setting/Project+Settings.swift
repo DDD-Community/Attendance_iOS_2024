@@ -23,7 +23,7 @@ extension Settings {
             .setCodeSignIdentity()
             .setCodeSignStyle()
             .setVersioningSystem()
-            .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
+            .setProvisioningProfileSpecifier("match Development io.DDD.Attendance")
             .setDevelopmentTeam(Project.Environment.organizationTeamId)
             .setExplicitlyBuiltModules(true)
             .setDebugInformationFormat(),
@@ -35,7 +35,7 @@ extension Settings {
                 .setCFBundleDisplayName(Project.Environment.appName)
                 .setOtherLdFlags("-ObjC -all_load")
                 .setDebugInformationFormat("non-global")
-                .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
+                .setProvisioningProfileSpecifier("match Development io.DDD.Attendance")
                 .setSkipInstall(false)
                 .setExplicitlyBuiltModules(true)
             ),
@@ -44,7 +44,7 @@ extension Settings {
                 .setCFBundleDisplayName(Project.Environment.appDevName)
                 .setOtherLdFlags("-ObjC -all_load")
                 .setDebugInformationFormat("non-global")
-                .setProvisioningProfileSpecifier("match Development io.DDD.DDDAttendance")
+                .setProvisioningProfileSpecifier("match AppStore io.DDD.Attendance")
                 .setSkipInstall(false)
                 .setExplicitlyBuiltModules(true)
             ),
