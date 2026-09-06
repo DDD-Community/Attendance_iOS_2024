@@ -5,8 +5,9 @@
 //  Created by DDD on 1/11/26.
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 public struct Attendance: Equatable, Identifiable {
   public let id: Int?

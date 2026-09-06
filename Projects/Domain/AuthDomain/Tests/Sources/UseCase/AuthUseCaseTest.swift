@@ -5,11 +5,13 @@
 //  Created by DDD on 2026-01-31
 //
 
-import Testing
 import Foundation
-import ComposableArchitecture
+import Testing
+
 @testable import AuthDomain
 @testable import AuthDomainInterface
+
+import ComposableArchitecture
 
 @Suite("Auth UseCase Tests - Complete TDD Implementation")
 @MainActor

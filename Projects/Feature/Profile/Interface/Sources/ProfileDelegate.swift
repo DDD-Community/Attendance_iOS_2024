@@ -7,8 +7,9 @@
 //  Profile 이 바깥에 알리는 위임 계약.
 //
 
-import ComposableArchitecture
 import Foundation
+
+import ComposableArchitecture
 
 @CasePathable
 public enum ProfileDelegate: Equatable, Sendable {

@@ -5,11 +5,11 @@
 //  Created by DDD on 10/29/24.
 //
 
-import DDDCoreLogger
 import Foundation
-import FeatureAssembly
 
+import DDDCoreLogger
 import DDDSharedUI
+import FeatureAssembly
 
 @Reducer
 public struct SplashFeature: Sendable {

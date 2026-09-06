@@ -5,12 +5,14 @@
 //  Created by DDD on 11/3/24.
 //
 
-import ComposableArchitecture
+import SwiftUI
+
 import DDDAccessibility
 import DDDCoreUI
 import DDDDesignKit
 import DDDSharedUI
-import SwiftUI
+
+import ComposableArchitecture
 
 @ViewAction(for: SelectManagingFeature.self)
 public struct SelectManagingView: View {

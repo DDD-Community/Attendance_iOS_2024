@@ -5,17 +5,17 @@
 //  Created by DDD on 1/16/25.
 //
 
+import Foundation
+
 import AttendanceDomainInterface
 import AuthDomainInterface
 import DDDCoreLogger
-import Foundation
+import DDDSharedUI
 import OnBoardingDomainInterface
 import ProfileDomainInterface
-
-import DDDSharedUI
+import ScheduleDomainInterface
 
 import ComposableArchitecture
-import ScheduleDomainInterface
 
 @Reducer
 public struct AttendanceCheckFeature {

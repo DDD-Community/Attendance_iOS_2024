@@ -5,8 +5,9 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
 import Foundation
+
+import Alamofire
 
 /// 일반(비-멀티파트) 요청. 엔드포인트 메타는 `DDDEndpoint`, 바디는 `parameters` 로 표현한다.
 /// (Alamofire 의 DataRequest / UploadRequest 분류와 결을 맞춘 이름)

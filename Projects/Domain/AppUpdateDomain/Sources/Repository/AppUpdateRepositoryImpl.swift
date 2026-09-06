@@ -5,9 +5,10 @@
 //  Created by DDD on 3/9/26.
 //
 
-import DDDCoreLogger
 import Foundation
+
 import AppUpdateDomainInterface
+import DDDCoreLogger
 
 public final class AppUpdateRepositoryImpl: AppUpdateInterface {
     private let urlSession: URLSession

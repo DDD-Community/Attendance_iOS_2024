@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+
+import AttendanceDomainInterface
 import DDDAccessibility
 import DDDDesignKit
-import AttendanceDomainInterface
 
 public struct AttendanceStatusModal: View {
   @State private var selectedStatus: AttendanceStatus

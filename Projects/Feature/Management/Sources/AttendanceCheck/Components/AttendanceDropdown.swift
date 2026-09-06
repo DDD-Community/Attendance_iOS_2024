@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+
+import AttendanceDomainInterface
 import DDDAccessibility
 import DDDDesignKit
-import AttendanceDomainInterface
 
 struct AttendanceDropdown: View {
   @State private var isExpanded = false

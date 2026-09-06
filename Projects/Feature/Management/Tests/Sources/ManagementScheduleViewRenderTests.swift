@@ -8,11 +8,12 @@
 //  ScheduleView 는 loading 값으로 스켈레톤과 목록 두 갈래를 갖는다.
 //
 
-import ComposableArchitecture
 import SwiftUI
 import Testing
 
 @testable import Management
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("ManagementScheduleViewRender")

@@ -6,9 +6,10 @@
 //  Moved from Repository module
 //
 
+import Foundation
+
 import AuthDomainInterface
 import ProfileDomainInterface
-import Foundation
 
 /// SignUp Repository의 기본 구현체 (테스트/프리뷰용)
 final public class MockSignUpRepository: SignUpInterface, @unchecked Sendable {

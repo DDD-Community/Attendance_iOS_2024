@@ -5,8 +5,9 @@
 //  Created by DDD on 12/30/25.
 //
 
-import Dependencies
 import OnBoardingDomainInterface
+
+import Dependencies
 
 
 public struct OnBoardingUseCaseImpl: OnBoardingUseCaseInterface {

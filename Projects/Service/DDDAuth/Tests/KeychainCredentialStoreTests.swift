@@ -6,10 +6,11 @@
 //
 
 import Foundation
+import Testing
+
 @testable import DDDAuth
 import DDDNetworkInterface
 import DDDStorageInterface
-import Testing
 
 struct KeychainCredentialStoreTests {
   @Test

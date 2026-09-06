@@ -5,11 +5,12 @@
 //  Created by DDD on 2026-09-02
 //
 
-import Dependencies
 import Testing
+
 import AppUpdateDomain
 import AttendanceDomain
 import AuthDomain
+@testable import DomainAssembly
 import MyPageDomain
 import OnBoardingDomain
 import ProfileDomain
@@ -18,7 +19,7 @@ import ScheduleDomain
 import ServiceAssembly
 import VoteDomain
 
-@testable import DomainAssembly
+import Dependencies
 
 @Suite("DomainAssembly")
 struct DomainAssemblyTests {

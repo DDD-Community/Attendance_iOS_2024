@@ -5,8 +5,9 @@
 //  Created by DDD on 7/23/25.
 //
 
-import AttendanceDomainInterface
 import SwiftUI
+
+import AttendanceDomainInterface
 
 
 final public class MockQRCodeRepository: QRCodeInterface {

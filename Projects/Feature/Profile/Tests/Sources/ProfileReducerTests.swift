@@ -6,12 +6,13 @@
 //  Copyright © 2026 DDD , Ltd. All rights reserved.
 //
 
-import ComposableArchitecture
 import Testing
+
 import AuthDomainInterface
+@testable import Profile
 import ProfileDomainInterface
 
-@testable import Profile
+import ComposableArchitecture
 
 @MainActor
 @Suite("ProfileFeature")

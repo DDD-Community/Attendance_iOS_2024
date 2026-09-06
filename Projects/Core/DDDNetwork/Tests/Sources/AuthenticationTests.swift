@@ -5,12 +5,13 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
 import Foundation
 import Testing
 
 @testable import DDDNetwork
 import DDDNetworkInterface
+
+import Alamofire
 
 @Suite("DDD 인증 파이프라인")
 struct AuthenticationTests {

@@ -5,16 +5,16 @@
 //  Created by DDD on 7/17/24.
 //
 
-import DDDCoreLogger
 import Foundation
 
 import AuthDomainInterface
+import DDDCoreLogger
+import DDDDesignKit
 import DDDSharedUI
 import ProfileDomainInterface
+import ProfileInterface
 
 import ComposableArchitecture
-import DDDDesignKit
-import ProfileInterface
 
 @Reducer
 public struct ProfileFeature: Sendable {

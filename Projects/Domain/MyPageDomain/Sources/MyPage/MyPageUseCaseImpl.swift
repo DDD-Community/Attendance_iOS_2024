@@ -4,6 +4,7 @@
 //
 
 import MyPageDomainInterface
+
 import Dependencies
 
 public struct MyPageUseCaseImpl: MyPageUseCaseInterface {

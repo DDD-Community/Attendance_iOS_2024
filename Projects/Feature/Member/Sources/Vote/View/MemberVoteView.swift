@@ -6,8 +6,8 @@
 //
 
 import SwiftUI
-import DDDAccessibility
 
+import DDDAccessibility
 import DDDDesignKit
 
 import ComposableArchitecture

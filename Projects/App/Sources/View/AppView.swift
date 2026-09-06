@@ -7,10 +7,10 @@
 
 import SwiftUI
 
+import DDDDesignKit
 import FeatureAssembly
 
 import ComposableArchitecture
-import DDDDesignKit
 
 struct AppView: View {
   @Bindable var store: StoreOf<AppReducer>

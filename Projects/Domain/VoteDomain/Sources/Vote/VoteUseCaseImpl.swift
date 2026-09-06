@@ -5,8 +5,9 @@
 //  Created by DDD on 6/11/26.
 //
 
-import Dependencies
 import VoteDomainInterface
+
+import Dependencies
 
 public struct VoteUseCaseImpl: VoteUseCaseInterface {
   @Dependency(\.voteRepository) var repository

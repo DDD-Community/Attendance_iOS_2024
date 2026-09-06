@@ -6,8 +6,10 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+
 import AttendanceDomainInterface
+
+import ComposableArchitecture
 
 // MARK: - AttendanceModalState
 

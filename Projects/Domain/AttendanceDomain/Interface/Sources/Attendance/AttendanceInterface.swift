@@ -5,9 +5,10 @@
 //  Created by DDD on 7/23/25.
 //
 
+import Foundation
+
 import OnBoardingDomainInterface
 import ProfileDomainInterface
-import Foundation
 
 import Dependencies
 

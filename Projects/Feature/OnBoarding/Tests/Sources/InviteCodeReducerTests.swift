@@ -5,12 +5,13 @@
 //  InviteCodeFeature 의 포커스 이동, 코드 검증 성공/실패, 알럿 분기를 검증한다.
 //
 
-import ComposableArchitecture
-import OnBoardingDomainInterface
-import ProfileDomainInterface
 import Testing
 
 @testable import OnBoarding
+import OnBoardingDomainInterface
+import ProfileDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("InviteCodeFeature")

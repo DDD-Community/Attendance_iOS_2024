@@ -7,10 +7,11 @@
 
 import Foundation
 
-import DDDNetworkInterface
-import Dependencies
-import OnBoardingDomainInterface
 import APIEndpoint
+import DDDNetworkInterface
+import OnBoardingDomainInterface
+
+import Dependencies
 
 final public class OnBoardingRepositoryImpl: OnBoardingInterface {
 

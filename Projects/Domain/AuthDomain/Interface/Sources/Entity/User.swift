@@ -5,8 +5,9 @@
 //  Created by DDD on 5/12/26.
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 public enum UserRole: String, Equatable {
   case member

@@ -5,11 +5,12 @@
 //  Created by DDD on 2026-09-02
 //
 
-import ComposableArchitecture
-import AuthDomainInterface
 import Testing
 
 @testable import Auth
+import AuthDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("LoginReducer")

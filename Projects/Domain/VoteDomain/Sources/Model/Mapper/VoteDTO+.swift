@@ -5,8 +5,9 @@
 //  Created by DDD on 6/11/26.
 //
 
-import VoteDomainInterface
 import Foundation
+
+import VoteDomainInterface
 
 public extension VoteListItemDTO {
   func toDomain() -> Vote {

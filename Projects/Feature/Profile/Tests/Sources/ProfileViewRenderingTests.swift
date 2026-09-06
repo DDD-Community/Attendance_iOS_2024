@@ -10,11 +10,12 @@
 //  userSession 은 전역 공유 상태라 직렬 실행하고 매번 원복한다.
 //
 
-import ComposableArchitecture
 import SwiftUI
 import Testing
 
 @testable import Profile
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("Profile 화면 렌더링", .serialized)

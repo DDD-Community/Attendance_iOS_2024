@@ -5,18 +5,18 @@
 //  Created by DDD on 1/2/25.
 //
 
-import DDDCoreLogger
 import Foundation
 
 import AttendanceDomainInterface
+import DDDCoreLogger
 import DDDSharedUI
+import MemberInterface
 import MyPageDomainInterface
 import ProfileDomainInterface
+import ScheduleDomainInterface
 import VoteDomainInterface
 
 import ComposableArchitecture
-import MemberInterface
-import ScheduleDomainInterface
 
 @Reducer
 public struct MemberMainFeature {

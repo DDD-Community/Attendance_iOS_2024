@@ -5,12 +5,13 @@
 //  Created by DDD on 4/17/26.
 //
 
-import Testing
 import Foundation
-import AuthDomainInterface
+import Testing
+
 @testable import AppUpdateDomain
 @testable import AttendanceDomain
 @testable import AuthDomain
+import AuthDomainInterface
 @testable import MyPageDomain
 @testable import OnBoardingDomain
 @testable import ProfileDomain

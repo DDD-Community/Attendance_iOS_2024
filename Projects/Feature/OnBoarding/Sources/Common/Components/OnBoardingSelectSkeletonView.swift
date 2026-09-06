@@ -5,9 +5,9 @@
 //  Created by DDD on 9/4/26.
 //
 
-import DDDCoreUI
 import SwiftUI
 
+import DDDCoreUI
 import DDDDesignKit
 
 /// 온보딩 선택 화면들이 목록을 불러오는 동안 제목과 목록 자리를 대신 채운다.

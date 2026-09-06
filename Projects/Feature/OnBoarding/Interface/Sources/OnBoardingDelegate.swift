@@ -8,8 +8,9 @@
 //  온보딩은 단계별 리듀서가 여러 개라 계약도 단계마다 둔다.
 //
 
-import ComposableArchitecture
 import Foundation
+
+import ComposableArchitecture
 
 @CasePathable
 public enum SelectTeamDelegate: Equatable, Sendable {

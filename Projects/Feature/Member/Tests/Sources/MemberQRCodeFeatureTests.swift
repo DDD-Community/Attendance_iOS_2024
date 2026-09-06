@@ -5,10 +5,11 @@
 //  Created by DDD on 9/4/26.
 //
 
-import ComposableArchitecture
 import Testing
 
 @testable import Member
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("MemberQRCodeFeature")

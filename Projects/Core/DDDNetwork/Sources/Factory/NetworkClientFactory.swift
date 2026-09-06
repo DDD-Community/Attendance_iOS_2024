@@ -5,8 +5,9 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import DDDNetworkInterface
 import Foundation
+
+import DDDNetworkInterface
 
 /// `DDDNetworkClient` 조립 진입점. 호출부는 이 팩토리만 알면 된다.
 public enum NetworkClientFactory {

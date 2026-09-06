@@ -8,12 +8,13 @@
 import Foundation
 import SwiftUI
 
-import ComposableArchitecture
 import AttendanceDomainInterface
 import OnBoardingDomainInterface
 import QRCodeDomainInterface
 import ScheduleDomainInterface
 import VoteDomainInterface
+
+import ComposableArchitecture
 
 // MARK: - Fixture
 

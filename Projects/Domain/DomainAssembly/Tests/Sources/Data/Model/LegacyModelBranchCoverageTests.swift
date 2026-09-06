@@ -7,11 +7,11 @@
 
 import Foundation
 import Testing
-import DDDNetworkInterface
 
 @testable import AppUpdateDomain
 @testable import AttendanceDomain
 @testable import AuthDomain
+import DDDNetworkInterface
 @testable import MyPageDomain
 @testable import OnBoardingDomain
 @testable import ProfileDomain

@@ -6,9 +6,11 @@
 //
 
 import Foundation
-import SQLiteData
 import Testing
+
 @testable import DDDStorage
+
+import SQLiteData
 
 @Suite("SQLiteSharedValueStorage")
 struct SQLiteSharedValueStorageTests {

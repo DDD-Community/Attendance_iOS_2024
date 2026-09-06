@@ -5,9 +5,11 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
-import DDDNetworkInterface
 import Foundation
+
+import DDDNetworkInterface
+
+import Alamofire
 
 extension DDDDataRequest {
   func asURLRequest(baseURL: URL) throws -> URLRequest {

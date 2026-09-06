@@ -5,11 +5,13 @@
 //  Created by DDD on 12/29/25.
 //
 
-import Foundation
-import Dependencies
-import DDDCoreLogger
 import AuthenticationServices
+import Foundation
+
 import AuthDomainInterface
+import DDDCoreLogger
+
+import Dependencies
 import Sharing
 
 public final class AppleOAuthProvider: AppleOAuthProviderInterface, @unchecked Sendable {

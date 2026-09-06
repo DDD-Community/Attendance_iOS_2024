@@ -5,11 +5,11 @@
 //  Created by DDD on 12/26/25.
 //
 
-import ProfileDomainInterface
-import Foundation
-
 import AuthenticationServices
 import CryptoKit
+import Foundation
+
+import ProfileDomainInterface
 
 
 /// Default fallback implementation of AppleAuthRequestInterface

@@ -5,12 +5,13 @@
 //  Created by DDD on 9/4/26.
 //
 
-import ComposableArchitecture
-import AuthDomainInterface
-import OnBoardingDomainInterface
 import Testing
 
+import AuthDomainInterface
 @testable import OnBoardingDomain
+import OnBoardingDomainInterface
+
+import ComposableArchitecture
 
 @Suite("SignUp UseCase", .serialized)
 @MainActor

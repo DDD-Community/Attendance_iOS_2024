@@ -8,13 +8,12 @@
 import Combine
 import Foundation
 
-import ComposableArchitecture
-
-// 프로젝트 모듈
-import DDDNetworkInterface
-import Dependencies
-import ProfileDomainInterface
 import APIEndpoint
+import DDDNetworkInterface
+import ProfileDomainInterface
+
+import ComposableArchitecture
+import Dependencies
 
 public final class ProfileRepositoryImpl: ProfileInterface, @unchecked Sendable {
   @Shared(.staffRole) var staffRole

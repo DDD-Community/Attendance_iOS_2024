@@ -5,13 +5,14 @@
 //  Created by DDD on 7/23/25.
 //
 
-import DDDNetworkInterface
-import Dependencies
-import AttendanceDomainInterface
-import OnBoardingDomainInterface
 import Foundation
 
 import APIEndpoint
+import AttendanceDomainInterface
+import DDDNetworkInterface
+import OnBoardingDomainInterface
+
+import Dependencies
 
 final public class AttendanceRepositoryImpl: AttendanceInterface, Sendable {
   @Dependency(\.networkClient) private var client

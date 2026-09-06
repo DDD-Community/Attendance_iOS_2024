@@ -5,8 +5,9 @@
 //  Created by DDD on 2026-09-03.
 //
 
-import ComposableArchitecture
 import ScheduleDomainInterface
+
+import ComposableArchitecture
 
 @CasePathable
 public enum ScheduleModalDelegate: Equatable, Sendable {

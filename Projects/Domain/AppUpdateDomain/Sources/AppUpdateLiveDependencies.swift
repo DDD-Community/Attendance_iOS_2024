@@ -6,8 +6,9 @@
 //  조립 모듈의 목록에 등록하지 않아도 `@Dependency`가 live context에서 바로 해석한다.
 //
 
-import Dependencies
 import AppUpdateDomainInterface
+
+import Dependencies
 
 
 extension AppUpdateRepositoryDependency: DependencyKey {

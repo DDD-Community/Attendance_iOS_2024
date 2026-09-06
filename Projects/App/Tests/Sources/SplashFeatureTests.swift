@@ -6,11 +6,11 @@
 //  Copyright © 2026 DDD , Ltd. All rights reserved.
 //
 
-import DDDAuthInterface
-import FeatureAssembly
 import Testing
 
 @testable import DDDAttendance
+import DDDAuthInterface
+import FeatureAssembly
 
 @MainActor
 @Suite("SplashFeature")

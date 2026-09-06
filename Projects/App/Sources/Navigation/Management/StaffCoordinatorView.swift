@@ -5,13 +5,14 @@
 //  Created by DDD on 11/4/24.
 //
 
-import Management
-import DDDCoreUI
 import SwiftUI
+
+import DDDCoreUI
+import Management
+import Profile
 
 import ComposableArchitecture
 import TCAFlow
-import Profile
 
 public struct StaffCoordinatorView: View {
   @Bindable private var store: StoreOf<StaffCoordinator>

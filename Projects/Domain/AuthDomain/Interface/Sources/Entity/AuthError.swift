@@ -5,8 +5,9 @@
 //  Created by DDD on 12/29/25.
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 public enum AuthError: Error, Equatable, LocalizedError, Hashable {
   /// 설정 누락 (Google/Supabase 키 등)

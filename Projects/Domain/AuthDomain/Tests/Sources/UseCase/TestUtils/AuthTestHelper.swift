@@ -7,9 +7,11 @@
 
 import Foundation
 import Testing
-import AuthDomainInterface
-import ComposableArchitecture
+
 @testable import AuthDomain
+import AuthDomainInterface
+
+import ComposableArchitecture
 
 // MARK: - Auth Test Helper
 @MainActor

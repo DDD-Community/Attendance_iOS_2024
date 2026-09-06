@@ -6,10 +6,12 @@
 //  구현 코드는 건드리지 않고, 도메인 의존성만 결정적인 값으로 대체한다.
 //
 
-import ComposableArchitecture
+import Foundation
+
 import OnBoardingDomainInterface
 import ProfileDomainInterface
-import Foundation
+
+import ComposableArchitecture
 
 // MARK: - UseCase Stub
 

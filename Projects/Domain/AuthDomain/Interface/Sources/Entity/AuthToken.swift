@@ -5,8 +5,9 @@
 //  Created by DDD on 12/29/25.
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 public struct AuthTokens: Equatable, Hashable {
   public let accessToken: String

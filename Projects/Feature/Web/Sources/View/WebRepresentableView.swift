@@ -8,9 +8,8 @@
 import SwiftUI
 import WebKit
 
-import DDDDesignKit
-
 import DDDAnimation
+import DDDDesignKit
 
 
 public struct WebRepresentableView: UIViewRepresentable {

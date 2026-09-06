@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 import AttendanceDomainInterface
 
 public extension EditAttendanceDTO {

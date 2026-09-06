@@ -5,11 +5,12 @@
 //  Created by DDD on 9/4/26.
 //
 
-import ComposableArchitecture
-import AppUpdateDomainInterface
 import Testing
 
 @testable import AppUpdateDomain
+import AppUpdateDomainInterface
+
+import ComposableArchitecture
 
 @Suite("AppUpdate UseCase")
 struct AppUpdateUseCaseTest {

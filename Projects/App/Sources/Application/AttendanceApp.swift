@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-import ComposableArchitecture
 import FeatureAssembly
+
+import ComposableArchitecture
 
 @main
 struct AttendanceApp: App {

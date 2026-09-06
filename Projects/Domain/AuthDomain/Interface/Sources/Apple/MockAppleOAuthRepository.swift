@@ -5,9 +5,10 @@
 //  Created by DDD on 12/29/25.
 //
 
-import ProfileDomainInterface
-import Foundation
 import AuthenticationServices
+import Foundation
+
+import ProfileDomainInterface
 
 public actor MockAppleOAuthRepository: AppleOAuthInterface {
   public init() {}

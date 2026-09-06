@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 import OnBoardingDomainInterface
 
 public struct MemberDTOSignUp: Codable, Sendable, Equatable {

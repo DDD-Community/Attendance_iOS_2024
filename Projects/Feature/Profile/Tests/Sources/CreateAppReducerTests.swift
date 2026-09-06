@@ -9,11 +9,12 @@
 //  실제로 도달 가능한 분기는 delegate 와 body 조립뿐이다.
 //
 
-import ComposableArchitecture
-import ProfileInterface
 import Testing
 
 @testable import Profile
+import ProfileInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("CreateAppFeature 리듀서")

@@ -9,10 +9,12 @@
 //  화면 레이아웃과 컴포넌트 확인이 목적이다.
 //
 
-import ComposableArchitecture
+import SwiftUI
+
 import DDDDesignKit
 import Web
-import SwiftUI
+
+import ComposableArchitecture
 
 @main
 struct WebDemoApp: App {

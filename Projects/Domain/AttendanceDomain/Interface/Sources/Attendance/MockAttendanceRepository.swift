@@ -5,9 +5,10 @@
 //  Created by DDD on 2026-04-16
 //
 
+import Foundation
+
 import OnBoardingDomainInterface
 import ProfileDomainInterface
-import Foundation
 
 public actor MockAttendanceRepository: AttendanceInterface {
     // MARK: - Configuration

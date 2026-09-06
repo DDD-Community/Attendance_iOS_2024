@@ -5,14 +5,15 @@
 //  Created by DDD on 1/4/26.
 //
 
-import Profile
-import DDDCoreUI
 import SwiftUI
+
+import DDDCoreUI
+import OnBoarding
+import Profile
+import Web
 
 import ComposableArchitecture
 import TCAFlow
-import OnBoarding
-import Web
 
 public struct ProfileCoordinatorView: View {
   @Bindable var store: StoreOf<ProfileCoordinator>

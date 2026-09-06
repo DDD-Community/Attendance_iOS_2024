@@ -5,8 +5,9 @@
 //  Created by DDD on 1/12/26.
 //
 
-import AttendanceDomainInterface
 import Foundation
+
+import AttendanceDomainInterface
 
 public struct QRValidateEntity: Equatable {
   public let isSuccess: Bool

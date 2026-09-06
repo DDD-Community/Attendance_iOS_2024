@@ -5,11 +5,12 @@
 //  Created by DDD on 2026-09-02
 //
 
-import ComposableArchitecture
-import MyPageDomainInterface
 import Testing
 
 @testable import Member
+import MyPageDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("MemberMainFeature")

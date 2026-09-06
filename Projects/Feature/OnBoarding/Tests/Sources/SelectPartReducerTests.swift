@@ -5,12 +5,13 @@
 //  SelectPartFeature 의 선택/해제, 직무 목록 조회, 다음 단계 분기를 검증한다.
 //
 
-import ComposableArchitecture
-import OnBoardingDomainInterface
-import ProfileDomainInterface
 import Testing
 
 @testable import OnBoarding
+import OnBoardingDomainInterface
+import ProfileDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("SelectPartFeature")

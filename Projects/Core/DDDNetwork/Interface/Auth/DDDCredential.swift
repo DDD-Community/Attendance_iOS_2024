@@ -5,8 +5,9 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
 import Foundation
+
+import Alamofire
 
 /// 인증 토큰 묶음.
 public struct DDDCredential: AuthenticationCredential, Sendable, Equatable {

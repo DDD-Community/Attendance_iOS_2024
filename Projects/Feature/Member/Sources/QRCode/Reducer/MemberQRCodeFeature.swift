@@ -5,16 +5,16 @@
 //  Created by DDD on 5/18/25.
 //
 
-import AuthDomainInterface
-import DDDCoreLogger
 import Foundation
 import SwiftUI
 
+import AuthDomainInterface
+import DDDCoreLogger
 import DDDSharedUI
+import MemberInterface
 import QRCodeDomainInterface
 
 import ComposableArchitecture
-import MemberInterface
 
 @Reducer
 public struct MemberQRCodeFeature {

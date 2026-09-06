@@ -5,11 +5,12 @@
 //  Created by DDD on 7/23/25.
 //
 
-import AttendanceDomainInterface
 import Foundation
+import SwiftUI
+
+import AttendanceDomainInterface
 
 import Dependencies
-import SwiftUI
 
 /// QRCode 관련 비즈니스 로직을 위한 Interface 프로토콜
 public protocol QRCodeInterface: Sendable {

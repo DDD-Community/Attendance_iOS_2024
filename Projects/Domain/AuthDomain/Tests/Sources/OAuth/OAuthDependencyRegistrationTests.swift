@@ -5,11 +5,13 @@
 //  Created by DDD on 9/1/26.
 //
 
-import Dependencies
-import AuthDomainInterface
-import Sharing
 import Testing
+
 @testable import AuthDomain
+import AuthDomainInterface
+
+import Dependencies
+import Sharing
 
 @Suite("OAuth 라이브 의존성 등록", .serialized)
 struct OAuthDependencyRegistrationTests {

@@ -6,10 +6,11 @@
 //
 
 import Foundation
-import ComposableArchitecture
-import ProfileInterface
 
 import DDDSharedUI
+import ProfileInterface
+
+import ComposableArchitecture
 
 @Reducer
 public struct CreateAppFeature {

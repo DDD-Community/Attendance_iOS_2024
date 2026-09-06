@@ -5,8 +5,9 @@
 //  Created by DDD on 1/27/25.
 //
 
-import DDDDesignKit
 import SwiftUI
+
+import DDDDesignKit
 import ProfileDomainInterface
 
 public struct TextWidthPreferenceKey: PreferenceKey {

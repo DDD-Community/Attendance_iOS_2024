@@ -5,8 +5,9 @@
 //  Created by DDD on 5/12/26.
 //
 
-import AttendanceDomainInterface
 import Foundation
+
+import AttendanceDomainInterface
 
 public enum QRCodeError: Error, LocalizedError, Equatable {
   // MARK: - QR Code Generation Errors

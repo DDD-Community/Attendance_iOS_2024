@@ -5,11 +5,12 @@
 //  Created by DDD on 2026-09-02
 //
 
-import ComposableArchitecture
-import ScheduleDomainInterface
 import Testing
 
 @testable import Management
+import ScheduleDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("ScheduleModalFeature")

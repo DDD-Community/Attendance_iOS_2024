@@ -5,8 +5,9 @@
 //  Created by DDD on 7/23/25.
 //
 
-import Dependencies
 import ScheduleDomainInterface
+
+import Dependencies
 
 public struct ScheduleUseCaseImpl: ScheduleUseCaseInterface {
   @Dependency(\.scheduleRepository) var repository

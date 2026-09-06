@@ -6,6 +6,7 @@
 //
 
 import AuthDomainInterface
+
 import Dependencies
 
 public protocol SignUpUseCaseInterface: Sendable {

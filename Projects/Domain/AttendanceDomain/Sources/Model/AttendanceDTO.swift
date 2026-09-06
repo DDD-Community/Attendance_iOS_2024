@@ -5,8 +5,9 @@
 //  Created by DDD on 9/23/24.
 //
 
-import AttendanceDomainInterface
 import Foundation
+
+import AttendanceDomainInterface
 import OnBoardingDomainInterface
 
 public struct AttendanceDTO: Codable, Sendable, Equatable {

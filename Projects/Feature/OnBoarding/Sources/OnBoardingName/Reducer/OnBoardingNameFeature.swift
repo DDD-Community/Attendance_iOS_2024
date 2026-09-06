@@ -7,11 +7,11 @@
 
 import Foundation
 
+import AuthDomainInterface
 import DDDCoreUtility
+import OnBoardingInterface
 
 import ComposableArchitecture
-import OnBoardingInterface
-import AuthDomainInterface
 
 @Reducer
 public struct OnBoardingNameFeature {

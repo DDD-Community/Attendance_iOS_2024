@@ -7,11 +7,12 @@
 //  StaffFeatureTests 가 다루지 않는 StaffFeature 의 나머지 분기(위임·바인딩·자식 스코프)를 훑는다.
 //
 
-import ComposableArchitecture
-import DDDDesignKit
 import Testing
 
+import DDDDesignKit
 @testable import Management
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("ManagementStaffFeatureCoverage")

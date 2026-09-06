@@ -7,10 +7,10 @@
 
 import SwiftUI
 
+import AttendanceDomainInterface
 import DDDAccessibility
 import DDDDesignKit
 
-import AttendanceDomainInterface
 import ComposableArchitecture
 
 struct QRScannerView: View {

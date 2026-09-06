@@ -9,9 +9,9 @@ import Foundation
 import SwiftUI
 
 import DDDSharedUI
+import ManagementInterface
 
 import ComposableArchitecture
-import ManagementInterface
 
 @Reducer
 public struct StaffFeature {

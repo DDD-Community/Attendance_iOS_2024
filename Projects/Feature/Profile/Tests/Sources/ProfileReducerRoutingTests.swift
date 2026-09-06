@@ -9,12 +9,13 @@
 //  이펙트가 없는 액션만 다루므로 의존성 주입 없이 검증한다.
 //
 
-import ComposableArchitecture
 import Testing
+
 import AuthDomainInterface
+@testable import Profile
 import ProfileDomainInterface
 
-@testable import Profile
+import ComposableArchitecture
 
 @MainActor
 @Suite("ProfileFeature 액션 라우팅")

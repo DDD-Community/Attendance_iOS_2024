@@ -8,12 +8,12 @@
 import Foundation
 
 import AuthDomainInterface
-import OnBoardingDomainInterface
-import ProfileDomainInterface
 import DDDCoreUtility
+import OnBoardingDomainInterface
+import OnBoardingInterface
+import ProfileDomainInterface
 
 import ComposableArchitecture
-import OnBoardingInterface
 
 @Reducer
 public struct SelectManagingFeature {

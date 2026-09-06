@@ -7,10 +7,11 @@
 //  QRCodeFeature 의 view / binding / async / inner / scope 분기를 TestStore 로 훑는다.
 //
 
-import ComposableArchitecture
 import Testing
 
 @testable import Management
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("ManagementQRCode")

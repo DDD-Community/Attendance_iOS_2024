@@ -8,12 +8,13 @@
 //  기존 VoteFeatureReducerTests 가 다루지 않는 성공·경계·실패 경로를 채운다.
 //
 
-import ComposableArchitecture
-import DDDDesignKit
 import Testing
+
+import DDDDesignKit
+@testable import Management
 import VoteDomainInterface
 
-@testable import Management
+import ComposableArchitecture
 
 /// presentError 가 만드는 알럿과 동일한 값. AlertState 의 Equatable 은 id 를 비교하지 않는다.
 private func voteRetryAlert(

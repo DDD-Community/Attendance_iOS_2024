@@ -5,8 +5,9 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
 import Foundation
+
+import Alamofire
 
 /// 일반 요청(`DDDDataRequest`)·멀티파트 업로드(`DDDUploadRequest`)가 공유하는 엔드포인트 메타.
 /// 바디 표현(parameters / parts)만 각 프로토콜이 따로 더한다.

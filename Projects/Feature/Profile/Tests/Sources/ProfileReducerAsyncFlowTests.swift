@@ -9,13 +9,14 @@
 //  destination 이 만들어내는 액션 흐름을 검증한다.
 //
 
-import ComposableArchitecture
 import Foundation
 import Testing
+
 import AuthDomainInterface
+@testable import Profile
 import ProfileDomainInterface
 
-@testable import Profile
+import ComposableArchitecture
 
 @MainActor
 @Suite("ProfileFeature 비동기 흐름")

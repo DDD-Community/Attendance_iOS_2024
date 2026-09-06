@@ -8,9 +8,10 @@
 //  네트워크를 타지 않으면서 성공/실패/스트림 경로를 모두 지정할 수 있게 값 타입으로 둔다.
 //
 
+import Foundation
+
 import ScheduleDomainInterface
 import VoteDomainInterface
-import Foundation
 
 // MARK: - VoteUseCaseInterface 스텁
 

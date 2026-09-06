@@ -10,8 +10,9 @@
 //  여기서는 계약과 테스트값만 둔다.
 //
 
-import Dependencies
 import Foundation
+
+import Dependencies
 
 public enum AuthServiceDependency: TestDependencyKey {
   public static var testValue: any AuthService {

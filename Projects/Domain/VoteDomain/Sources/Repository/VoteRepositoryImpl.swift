@@ -5,12 +5,13 @@
 //  Created by DDD on 6/11/26.
 //
 
-import DDDNetworkInterface
-import Dependencies
-import VoteDomainInterface
 import Foundation
 
 import APIEndpoint
+import DDDNetworkInterface
+import VoteDomainInterface
+
+import Dependencies
 
 public final class VoteRepositoryImpl: VoteRepositoryInterface, @unchecked Sendable {
   @Dependency(\.networkClient) private var client

@@ -9,8 +9,9 @@
 //  Management 밖으로 전달하거나 상위 Feature가 소비하는 이동 계약을 여기에 둔다.
 //
 
-import ComposableArchitecture
 import Foundation
+
+import ComposableArchitecture
 
 @CasePathable
 public enum StaffDelegate: Equatable, Sendable {

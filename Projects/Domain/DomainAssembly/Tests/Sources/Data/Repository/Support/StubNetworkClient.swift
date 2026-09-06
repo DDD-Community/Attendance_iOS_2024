@@ -5,8 +5,9 @@
 //  Created by DDD on 9/4/26.
 //
 
-import DDDNetworkInterface
 import Foundation
+
+import DDDNetworkInterface
 
 actor StubNetworkClient: DDDNetworkClient {
   private var results: [Result<DDDHTTPResponse, DDDNetworkError>]

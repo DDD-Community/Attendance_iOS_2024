@@ -5,10 +5,12 @@
 //  Created by DDD on 9/1/26.
 //
 
-import API
-import Alamofire
-import DDDNetworkInterface
 import Foundation
+
+import API
+import DDDNetworkInterface
+
+import Alamofire
 
 public enum AttendanceRequest: DDDDataRequest, Sendable {
   case adminAttendanceCount(scheduleId: Int)

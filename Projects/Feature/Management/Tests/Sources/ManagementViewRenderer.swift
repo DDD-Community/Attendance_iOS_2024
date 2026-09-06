@@ -8,9 +8,10 @@
 //  UIHostingController 에 올려 레이아웃을 강제하면 body 와 하위 @ViewBuilder 분기가 모두 실행된다.
 //
 
-import ComposableArchitecture
 import SwiftUI
 import UIKit
+
+import ComposableArchitecture
 
 @MainActor
 enum ManagementViewRenderer {

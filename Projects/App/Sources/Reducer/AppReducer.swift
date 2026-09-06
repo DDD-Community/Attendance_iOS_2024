@@ -5,11 +5,13 @@
 //  Created by DDD on 10/29/24.
 //
 
+import Foundation
+
+import DDDAuthInterface
 import DDDCoreUtility
 import FeatureAssembly
+
 import ComposableArchitecture
-import DDDAuthInterface
-import Foundation
 
 @Reducer
 public struct AppReducer: Sendable {
@@ -241,5 +243,4 @@ public struct AppReducer: Sendable {
     }
     .cancellable(id: CancelID.refreshTokenListener, cancelInFlight: true)
   }
-
 }

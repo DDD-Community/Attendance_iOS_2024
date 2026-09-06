@@ -5,14 +5,15 @@
 //  Created by DDD on 7/23/25.
 //
 
+import CoreImage.CIFilterBuiltins
 import SwiftUI
 import UIKit
-import CoreImage.CIFilterBuiltins
 
-import DDDNetworkInterface
-import Dependencies
-import QRCodeDomainInterface
 import APIEndpoint
+import DDDNetworkInterface
+import QRCodeDomainInterface
+
+import Dependencies
 
 final public class QRCodeRepositoryImpl: QRCodeInterface {
   

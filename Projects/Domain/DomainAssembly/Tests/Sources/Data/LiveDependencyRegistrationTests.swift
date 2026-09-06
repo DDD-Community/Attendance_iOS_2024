@@ -5,10 +5,12 @@
 //  Created by DDD on 9/2/26.
 //
 
-import Dependencies
+import Testing
+
 import AppUpdateDomainInterface
 import AttendanceDomainInterface
 import AuthDomainInterface
+@testable import DomainAssembly
 import MyPageDomainInterface
 import OnBoardingDomainInterface
 import ProfileDomainInterface
@@ -16,9 +18,8 @@ import QRCodeDomainInterface
 import ScheduleDomainInterface
 import ServiceAssembly
 import VoteDomainInterface
-import Testing
 
-@testable import DomainAssembly
+import Dependencies
 
 @Suite("DomainAssembly 라이브 의존성")
 struct LiveDependencyRegistrationTests {

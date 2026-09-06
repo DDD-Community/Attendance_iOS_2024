@@ -5,12 +5,14 @@
 //  Created by DDD on 2026-04-16
 //
 
-import Testing
 import Foundation
-import ComposableArchitecture
-import OnBoardingDomainInterface
+import Testing
+
 @testable import AttendanceDomain
 @testable import AttendanceDomainInterface
+import OnBoardingDomainInterface
+
+import ComposableArchitecture
 
 @Suite("Attendance UseCase Tests - Complete TDD Implementation")
 @MainActor

@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-import ComposableArchitecture
 import DDDAccessibility
 import DDDDesignKit
 import ProfileDomainInterface
+
+import ComposableArchitecture
 
 struct CreateAppView: View {
   @Bindable private var store: StoreOf<CreateAppFeature>

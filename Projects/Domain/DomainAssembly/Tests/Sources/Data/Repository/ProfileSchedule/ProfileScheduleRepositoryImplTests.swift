@@ -5,16 +5,14 @@
 //  Created by DDD on 9/4/26.
 //
 
-import APIEndpoint
-import Dependencies
-import DDDNetworkInterface
 import Foundation
-import SQLiteData
 import Testing
 
+import APIEndpoint
 @testable import AppUpdateDomain
 @testable import AttendanceDomain
 @testable import AuthDomain
+import DDDNetworkInterface
 @testable import DDDStorage
 @testable import MyPageDomain
 @testable import OnBoardingDomain
@@ -22,6 +20,9 @@ import Testing
 @testable import QRCodeDomain
 @testable import ScheduleDomain
 @testable import VoteDomain
+
+import Dependencies
+import SQLiteData
 
 @Suite("ProfileRepositoryImpl")
 struct ProfileRepositoryImplTests {

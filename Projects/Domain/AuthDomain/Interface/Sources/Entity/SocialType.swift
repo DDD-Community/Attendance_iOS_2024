@@ -5,8 +5,9 @@
 //  Created by DDD on 12/29/25.
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 public enum SocialType: String, CaseIterable, Identifiable, Hashable, Equatable {
   case apple

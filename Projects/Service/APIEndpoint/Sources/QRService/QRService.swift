@@ -7,9 +7,10 @@
 
 import Foundation
 
-import Alamofire
 import API
 import DDDNetworkInterface
+
+import Alamofire
 
 public enum QRService: DDDDataRequest, Sendable {
   case qrAttendanceCheck(qrCode: String)

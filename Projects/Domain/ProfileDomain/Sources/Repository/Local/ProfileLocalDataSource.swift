@@ -6,8 +6,10 @@
 //
 
 import Foundation
-import ProfileDomainInterface
+
 import DDDStorageInterface
+import ProfileDomainInterface
+
 import Dependencies
 import SQLiteData
 

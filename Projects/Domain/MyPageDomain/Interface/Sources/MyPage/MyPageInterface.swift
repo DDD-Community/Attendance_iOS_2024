@@ -5,8 +5,9 @@
 //  Created by DDD on 1/12/26.
 //
 
-import Dependencies
 import Foundation
+
+import Dependencies
 
 public protocol MyPageInterface: Sendable {
   func fetchAttendances() async throws(MyPageError) -> AttendanceSummaryResponse
