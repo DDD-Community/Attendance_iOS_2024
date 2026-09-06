@@ -5,11 +5,11 @@
 //  Created by DDD on 1/2/25.
 //
 
-import DDDAccessibility
-import DDDSharedUI
 import SwiftUI
 
+import DDDAccessibility
 import DDDDesignKit
+import DDDSharedUI
 
 import ComposableArchitecture
 
@@ -44,6 +44,8 @@ public struct MemberMainView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     .background(.backGroundPrimary)
+    // 컨테이너로 표시하지 않으면 root ID 가 하위 Button 들의 ID 를 덮어쓴다.
+    .accessibilityElement(children: .contain)
     .dddAccessibilityID(MemberAccessibilityID.root)
     .overlay {
       dropDownOverlay()

@@ -5,13 +5,14 @@
 //  Created by DDD on 7/17/24.
 //
 
-import DDDCoreUI
-import DDDAccessibility
 import Foundation
 import SwiftUI
 
-import ComposableArchitecture
+import DDDAccessibility
+import DDDCoreUI
 import DDDDesignKit
+
+import ComposableArchitecture
 
 @ViewAction(for: ProfileFeature.self)
 public struct ProfileView: View {
@@ -45,9 +46,9 @@ public struct ProfileView: View {
 
     .sheet(item: $store.scope(\.$destination, action: \.destination).createApp) { crateAppStore in
       CreateAppView(store: crateAppStore)
-      .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
-      .presentationCornerRadius(20)
-      .presentationDragIndicator(.visible)
+        .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
+        .presentationCornerRadius(20)
+        .presentationDragIndicator(.visible)
     }
   }
 }
@@ -70,12 +71,14 @@ extension ProfileView {
         CustomNavigationBar(backAction: { store.send(.delegate(.presentBack)) }, addAction: {
           send(.appearModal)
         }, image: .info)
-        .backButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.backButton)
-        .actionButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.infoButton)
+          .backButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.backButton)
+          .actionButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.infoButton)
 
         ProfileSkeletonView()
           .dddAccessibilityID(ProfileAccessibilityID.Main.skeleton)
       }
+      // 컨테이너로 표시하지 않으면 root ID 가 하위 Button 들의 ID 를 덮어쓴다.
+      .accessibilityElement(children: .contain)
       .dddAccessibilityID(ProfileAccessibilityID.Main.root)
     } else {
       mangerProfileData()
@@ -91,8 +94,8 @@ extension ProfileView {
       CustomNavigationBar(backAction: { store.send(.delegate(.presentBack)) }, addAction: {
         send(.appearModal)
       }, image: .info)
-      .backButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.backButton)
-      .actionButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.infoButton)
+        .backButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.backButton)
+        .actionButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.infoButton)
 
       mangerCardImage()
         .dddAccessibilityID(ProfileAccessibilityID.Main.card)
@@ -103,6 +106,8 @@ extension ProfileView {
 
       Spacer()
     }
+    // 컨테이너로 표시하지 않으면 root ID 가 하위 Button 들의 ID 를 덮어쓴다.
+    .accessibilityElement(children: .contain)
     .dddAccessibilityID(ProfileAccessibilityID.Main.root)
   }
 
@@ -365,7 +370,6 @@ extension ProfileView {
     }
   }
 
-
   @ViewBuilder
   private func logoutButton() -> some View {
     VStack {
@@ -373,7 +377,6 @@ extension ProfileView {
         .frame(height: 36)
 
       HStack(alignment: .center) {
-
         DDDUnderlinedTextButton(
           title: "탈퇴하기",
           font: .body2NormalMedium,
@@ -381,9 +384,9 @@ extension ProfileView {
           underlineColor: .mediumGray,
           action: { send(.showWithdrawAlert) }
         )
-          .dddAccessibilityID(ProfileAccessibilityID.Main.withdrawButton)
+        .dddAccessibilityID(ProfileAccessibilityID.Main.withdrawButton)
 
-      Spacer()
+        Spacer()
           .frame(width: 64)
 
         DDDUnderlinedTextButton(
@@ -404,7 +407,6 @@ extension ProfileView {
       Spacer()
         .frame(height: 12)
 
-
       Text("Version \(appVersion)")
         .dddFont(.body3NormalRegular)
         .foregroundStyle(.mediumGray100)
@@ -420,7 +422,7 @@ extension ProfileView {
         underlineColor: .mediumGray,
         action: { store.send(.delegate(.presentPrivacyPolicy)) }
       )
-        .dddAccessibilityID(ProfileAccessibilityID.Main.privacyPolicyButton)
+      .dddAccessibilityID(ProfileAccessibilityID.Main.privacyPolicyButton)
 
       Spacer()
         .frame(height: 20)
