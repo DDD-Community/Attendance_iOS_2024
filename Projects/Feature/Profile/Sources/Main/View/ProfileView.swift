@@ -43,7 +43,7 @@ public struct ProfileView: View {
       }
     }
 
-    .sheet(item: $store.scope(\.destination?.createApp, action: \.destination.createApp)) { crateAppStore in
+    .sheet(item: $store.scope(\.$destination, action: \.destination).createApp) { crateAppStore in
       CreateAppView(store: crateAppStore)
       .presentationDetents([.height(UIScreen.screenHeight * 0.65)])
       .presentationCornerRadius(20)
