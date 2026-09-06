@@ -128,7 +128,7 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/swift-structured-queries", exact: "0.36.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", exact: "1.7.3"),
     .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "1.1.0"),
-    .package(url: "https://github.com/Roy-wonji/TCAFlow.git", branch: "main"),
+    .package(url: "https://github.com/Roy-wonji/TCAFlow.git", exact: "1.1.4"),
     .package(url: "https://github.com/openid/AppAuth-iOS.git", exact: "2.1.0"),
     .package(url: "https://github.com/Alamofire/Alamofire", exact: "5.12.0"),
   ]

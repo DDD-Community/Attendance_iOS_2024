@@ -50,7 +50,7 @@ public struct SelectManagingView: View {
           signUpSelectManageButton()
         }
       }
-      .alert($store.scope(state: \.alert, action: \.scope.alert))
+      .alert($store.scope(\.alert, action: \.scope.alert))
       .onAppear {
         store.userSession.managing = []
         send(.onAppear)

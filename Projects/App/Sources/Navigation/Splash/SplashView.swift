@@ -41,7 +41,7 @@ public struct SplashView: View {
     .onDisappear {
       isAnimating = false // 화면 종료시 애니메이션 중지 (메모리 절약)
     }
-    .dddAlert($store.scope(state: \.customAlert, action: \.scope.customAlert))
+    .dddAlert($store.scope(\.customAlert, action: \.scope.customAlert))
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier("splash_root")
   }

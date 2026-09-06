@@ -39,7 +39,7 @@ public struct MemberMainView: View {
         .scrollIndicators(.hidden)
 
       case .vote:
-        MemberVoteView(store: store.scope(state: \.vote, action: \.vote))
+        MemberVoteView(store: store.scope(\.vote, action: \.vote))
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -68,7 +68,7 @@ public struct MemberMainView: View {
         send(.didTapDismissAlertButton)
       }
     )
-    .dddAlert($store.scope(state: \.vote.exitAlert, action: \.vote.scope.exitAlert))
+    .dddAlert($store.scope(\.vote.exitAlert, action: \.vote.scope.exitAlert))
     .onAppear {
       send(.onAppear)
     }

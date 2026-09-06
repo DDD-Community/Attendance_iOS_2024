@@ -128,7 +128,7 @@ public struct MemberMainFeature {
   public var body: some Reducer<State, Action> {
     BindingReducer()
 
-    Scope(state: \.vote, action: \.vote) {
+    Scope(\.vote, action: \.vote) {
       MemberVoteFeature()
     }
 

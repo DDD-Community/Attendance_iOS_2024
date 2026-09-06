@@ -40,7 +40,6 @@ public struct WebView: View {
         WebRepresentableView(urlToLoad: store.url)
           .edgesIgnoringSafeArea(.bottom)
       }
-      .dddNavigationBarBackButtonHidden()
     }
     .accessibilityElement(children: .contain)
     .dddAccessibilityID(WebAccessibilityID.root)

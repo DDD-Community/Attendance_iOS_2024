@@ -23,7 +23,7 @@ public struct StaffCoordinatorView: View {
   }
   
   public var body: some View {
-    TCAFlowRouter(store.scope(state: \.routes, action: \.router)) { screens in
+    TCAFlowRouter(store.scope(\.routes, action: \.router)) { screens in
       switch screens.case {
       case .coreMember(let coreMember):
         StaffView(store: coreMember)
@@ -31,7 +31,7 @@ public struct StaffCoordinatorView: View {
 
       case .profile(let profileStore):
        ProfileCoordinatorView(store: profileStore)
-          .dddNavigationBarBackButtonHidden()
+          .swipeBackButtonHidden()
       }
     }
   }

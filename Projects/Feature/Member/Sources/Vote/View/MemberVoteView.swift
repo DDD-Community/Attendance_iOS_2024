@@ -25,7 +25,7 @@ struct MemberVoteView: View {
     content()
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .background(Color.backGroundPrimary)
-      .alert($store.scope(state: \.alert, action: \.scope.alert))
+      .alert($store.scope(\.alert, action: \.scope.alert))
       .dddToast()
       .onAppear {
         send(.onAppear)

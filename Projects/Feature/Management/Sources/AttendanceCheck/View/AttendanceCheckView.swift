@@ -46,8 +46,8 @@ struct AttendanceCheckView: View {
         .presentationCornerRadius(20)
         .presentationDragIndicator(.visible)
     }
-    .alert($store.scope(state: \.alert, action: \.scope.alert))
-    .attendanceModal($store.scope(state: \.attendanceModal, action: \.scope.attendanceModal))
+    .alert($store.scope(\.alert, action: \.scope.alert))
+    .attendanceModal($store.scope(\.attendanceModal, action: \.scope.attendanceModal))
   }
 }
 

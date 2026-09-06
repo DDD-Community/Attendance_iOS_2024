@@ -70,7 +70,7 @@ public struct InviteCodeView : View {
           guard focusedField != newValue else { return }
           focusedField = newValue
         }
-        .alert($store.scope(state: \.alert, action: \.scope.alert))
+        .alert($store.scope(\.alert, action: \.scope.alert))
       }
       
     }

@@ -129,13 +129,13 @@ public struct StaffFeature {
       }
     }
     .ifLet(\.$destination, action: \.destination)
-    Scope(state: \.attendance, action: \.attendance) {
+    Scope(\.attendance, action: \.attendance) {
       AttendanceCheckFeature()
     }
-    Scope(state: \.schedule, action: \.schedule) {
+    Scope(\.schedule, action: \.schedule) {
       ScheduleFeature()
     }
-    Scope(state: \.vote, action: \.vote) {
+    Scope(\.vote, action: \.vote) {
       VoteFeature()
     }
   }

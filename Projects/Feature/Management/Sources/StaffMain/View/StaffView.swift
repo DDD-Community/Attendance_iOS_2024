@@ -58,15 +58,15 @@ public struct StaffView: View {
         closeDropDown()
       }
     }
-    .sheet(item: $store.scope(state: \.destination?.qrcode, action: \.destination.qrcode)) { qrCodeStore in
+    .sheet(item: $store.scope(\.destination?.qrcode, action: \.destination.qrcode)) { qrCodeStore in
       QRScannerView(store: qrCodeStore)
         .presentationDetents([.height(UIScreen.screenHeight * 0.85)])
         .presentationCornerRadius(20)
         .presentationDragIndicator(.hidden)
     }
     // 투표 모달 — 전체 화면(상단바 포함)을 덮도록 루트에 부착
-    .dddAlert($store.scope(state: \.vote.customAlert, action: \.vote.scope.customAlert))
-    .alert($store.scope(state: \.vote.alert, action: \.vote.scope.alert))
+    .dddAlert($store.scope(\.vote.customAlert, action: \.vote.scope.customAlert))
+    .alert($store.scope(\.vote.alert, action: \.vote.scope.alert))
     .nonParticipantsModal(
       isPresented: store.vote.isNonParticipantsPresented,
       isLoading: store.vote.isNonParticipantsLoading,
@@ -144,13 +144,13 @@ private extension StaffView {
   func switchSelectDropDownView() -> some View {
     switch store.selectedItem {
     case .attendance:
-      AttendanceCheckView(store: store.scope(state: \.attendance, action: \.attendance))
+      AttendanceCheckView(store: store.scope(\.attendance, action: \.attendance))
 
     case .schedule:
-      ScheduleView(store: store.scope(state: \.schedule, action: \.schedule))
+      ScheduleView(store: store.scope(\.schedule, action: \.schedule))
 
     case .vote:
-      VoteView(store: store.scope(state: \.vote, action: \.vote))
+      VoteView(store: store.scope(\.vote, action: \.vote))
     }
   }
 

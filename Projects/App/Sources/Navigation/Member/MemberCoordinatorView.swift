@@ -23,7 +23,7 @@ public struct MemberCoordinatorView: View {
   }
   
   public var body: some View {
-    TCAFlowRouter(store.scope(state: \.routes, action: \.router)) { screens in
+    TCAFlowRouter(store.scope(\.routes, action: \.router)) { screens in
       switch screens.case {
       case .member(let store):
         MemberMainView(store: store)
@@ -31,11 +31,11 @@ public struct MemberCoordinatorView: View {
 
       case .profile(let profileStore):
        ProfileCoordinatorView(store: profileStore)
-          .dddNavigationBarBackButtonHidden()
+          .swipeBackButtonHidden()
 
       case .qrCode(let qrCodeStore):
         MemberQRCodeView(store: qrCodeStore)
-          .dddNavigationBarBackButtonHidden()
+          .swipeBackButtonHidden()
       }
     }
   }

@@ -40,7 +40,7 @@ public struct LoginView: View {
     .accessibilityElement(children: .contain)
     .dddAccessibilityID(AuthAccessibilityID.Login.root)
     .dddToast()
-    .dddAlert($store.scope(state: \.customAlert, action: \.scope.customAlert))
+    .dddAlert($store.scope(\.customAlert, action: \.scope.customAlert))
   }
 }
 

@@ -56,7 +56,7 @@ public struct SelectTeamView: View {
         store.userSession.selectTeam = .unknown
         send(.onAppear)
       }
-      .alert($store.scope(state: \.alert, action: \.scope.alert))
+      .alert($store.scope(\.alert, action: \.scope.alert))
     }
     .accessibilityElement(children: .contain)
     .dddAccessibilityID(OnBoardingAccessibilityID.SelectTeam.root)
