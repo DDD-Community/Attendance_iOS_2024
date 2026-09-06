@@ -197,8 +197,8 @@ TuistSpider에서 주요 조립 모듈을 기준으로 내부 의존성을 확�
 |---|---|
 | 언어 | Swift 6, Swift Concurrency |
 | UI | SwiftUI |
-| 상태 관리 | The Composable Architecture 1.25.5 |
-| 내비게이션 | TCAFlow 1.1.3 |
+| 상태 관리 | The Composable Architecture 1.26.2 |
+| 내비게이션 | TCAFlow main |
 | 프로젝트 | Tuist 4.206.0, Mise |
 | 의존성 주입 | Point-Free Dependencies |
 | 네트워크 | DDDNetwork, Alamofire 5.12.0 |

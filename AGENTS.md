@@ -50,8 +50,8 @@ Projects/
 
 ```swift
 // Core Architecture
-ComposableArchitecture: 1.25.5+   // TCA (자동 최신 버전)
-TCAFlow: 1.1.1+                    // 네비게이션 관리 (자동 최신 버전)
+ComposableArchitecture: 1.26.2    // TCA
+TCAFlow: main                      // 네비게이션 관리
 WeaveDI: 3.4.1                     // 의존성 주입
 
 // Networking  
