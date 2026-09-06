@@ -18,13 +18,13 @@ import Testing
 @Suite("ManagementScheduleViewRender")
 struct ManagementScheduleViewRenderTests {
   private func makeScheduleStore(
-    state: ScheduleReducer.State
-  ) -> StoreOf<ScheduleReducer> {
+    state: ScheduleFeature.State
+  ) -> StoreOf<ScheduleFeature> {
     var stub = ManagementScheduleUseCaseStub()
     stub.schedules = ManagementScheduleFixture.all
 
     return Store(initialState: state) {
-      ScheduleReducer()
+      ScheduleFeature()
     } withDependencies: {
       $0.scheduleUseCase = stub
     }
@@ -50,7 +50,7 @@ struct ManagementScheduleViewRenderTests {
   /// 로딩 분기: ScheduleSkeletonView 로 대체되는 경로.
   @Test("로딩 중 ScheduleView 는 스켈레톤 경로를 렌더링한다")
   func rendersScheduleViewLoading() {
-    var state = ScheduleReducer.State()
+    var state = ScheduleFeature.State()
     state.viewState = .loading
 
     ManagementViewRenderer.render(ScheduleView(store: makeScheduleStore(state: state)))
@@ -59,10 +59,10 @@ struct ManagementScheduleViewRenderTests {
   /// 목록 분기: ForEach 로 카드가 그려지는 경로.
   @Test("목록이 있는 ScheduleView 를 렌더링한다")
   func rendersScheduleViewWithItems() {
-    var state = ScheduleReducer.State()
+    var state = ScheduleFeature.State()
     state.hasFetchedSchedule = true
     state.viewState = .loaded
-    state.scheduleModel = .init(uniqueElements: ManagementScheduleFixture.all)
+    state.schedules = .init(uniqueElements: ManagementScheduleFixture.all)
 
     ManagementViewRenderer.render(ScheduleView(store: makeScheduleStore(state: state)))
   }
@@ -70,7 +70,7 @@ struct ManagementScheduleViewRenderTests {
   /// 빈 목록 경계값.
   @Test("빈 목록의 ScheduleView 를 렌더링한다")
   func rendersScheduleViewEmpty() {
-    var state = ScheduleReducer.State()
+    var state = ScheduleFeature.State()
     state.hasFetchedSchedule = true
     state.viewState = .loaded
 
@@ -116,9 +116,8 @@ struct ManagementScheduleViewRenderTests {
   func rendersScheduleModalWithSelection() {
     var state = ScheduleModalFeature.State()
     state.viewState = .loaded
-    state.scheduleModel = .init(uniqueElements: ManagementScheduleFixture.all)
+    state.schedules = .init(uniqueElements: ManagementScheduleFixture.all)
     state.selectedSchedule = ManagementScheduleFixture.midterm
-    state.enableButton = true
 
     ManagementViewRenderer.render(ScheduleModalView(store: makeModalStore(state: state)))
   }
@@ -128,7 +127,7 @@ struct ManagementScheduleViewRenderTests {
   func rendersScheduleModalWithoutSelection() {
     var state = ScheduleModalFeature.State()
     state.viewState = .loaded
-    state.scheduleModel = .init(uniqueElements: ManagementScheduleFixture.all)
+    state.schedules = .init(uniqueElements: ManagementScheduleFixture.all)
 
     ManagementViewRenderer.render(ScheduleModalView(store: makeModalStore(state: state)))
   }

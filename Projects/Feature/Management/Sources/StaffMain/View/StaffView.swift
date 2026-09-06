@@ -5,6 +5,7 @@
 //  Created by DDD on 6/6/24.
 //
 
+import DDDAccessibility
 import DDDCoreUI
 import SwiftUI
 
@@ -14,7 +15,6 @@ import ComposableArchitecture
 
 public struct StaffView: View {
   @Bindable var store: StoreOf<StaffFeature>
-  @State var isExpanded: Bool = false
   @State private var isDropDownClosing = false
 
   public init(store: StoreOf<StaffFeature>) {
@@ -37,6 +37,8 @@ public struct StaffView: View {
         Spacer()
       }
     }
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(ManagementAccessibilityID.Staff.root)
     .overlay {
       dropDownView()
     }
@@ -58,9 +60,9 @@ public struct StaffView: View {
     }
     .sheet(item: $store.scope(state: \.destination?.qrcode, action: \.destination.qrcode)) { qrCodeStore in
       QRScannerView(store: qrCodeStore)
-      .presentationDetents([.height(UIScreen.screenHeight * 0.85)])
-      .presentationCornerRadius(20)
-      .presentationDragIndicator(.hidden)
+        .presentationDetents([.height(UIScreen.screenHeight * 0.85)])
+        .presentationCornerRadius(20)
+        .presentationDragIndicator(.hidden)
     }
     // 투표 모달 — 전체 화면(상단바 포함)을 덮도록 루트에 부착
     .dddAlert($store.scope(state: \.vote.customAlert, action: \.vote.scope.customAlert))
@@ -92,7 +94,7 @@ private extension StaffView {
           }
         } label: {
           HStack {
-            Text(store.selectDropDownItem.desc)
+            Text(store.selectedItem.desc)
               .dddFont(.title2NormalBold)
               .foregroundColor(.staticWhite)
 
@@ -107,39 +109,32 @@ private extension StaffView {
           }
           .padding(.leading, 24)
         }
+        .dddAccessibilityID(ManagementAccessibilityID.Staff.sectionButton)
 
         Spacer()
 
-        Circle()
-          .fill(.blue70)
-          .frame(width: 36, height: 36)
-          .overlay {
-            Image(asset: store.qrcodeImage)
-              .resizable()
-              .scaledToFit()
-              .frame(width: 20, height: 20)
-              .foregroundStyle(.staticWhite)
-          }
-          .onTapGesture {
+        DDDHomeIconButton(
+          image: .qrCode,
+          foregroundColor: .staticWhite,
+          backgroundColor: .blue70,
+          action: {
             store.send(.view(.presentQrcode))
           }
+        )
+        .dddAccessibilityID(ManagementAccessibilityID.Staff.qrButton)
 
         Spacer()
           .frame(width: 12)
 
-        Circle()
-          .fill(.gray80)
-          .frame(width: 36, height: 36)
-          .overlay {
-            Image(asset: .user)
-              .resizable()
-              .scaledToFit()
-              .frame(width: 20, height: 20)
-              .foregroundStyle(.staticWhite)
-          }
-          .onTapGesture {
+        DDDHomeIconButton(
+          image: .user,
+          foregroundColor: .staticWhite,
+          backgroundColor: .gray80,
+          action: {
             store.send(.delegate(.presentManagerProfile))
           }
+        )
+        .dddAccessibilityID(ManagementAccessibilityID.Staff.profileButton)
       }
     }
     .padding(.trailing, 24)
@@ -147,9 +142,9 @@ private extension StaffView {
 
   @ViewBuilder
   func switchSelectDropDownView() -> some View {
-    switch store.selectDropDownItem {
-    case .attandance:
-      AttendanceCheckView(store: store.scope(state: \.attendanceCheck, action: \.attendanceCheck))
+    switch store.selectedItem {
+    case .attendance:
+      AttendanceCheckView(store: store.scope(state: \.attendance, action: \.attendance))
 
     case .schedule:
       ScheduleView(store: store.scope(state: \.schedule, action: \.schedule))
@@ -175,18 +170,24 @@ private extension StaffView {
             HomeDropdownMenu.Entry(
               id: item.rawValue,
               title: item.desc,
-              isSelected: item == store.selectDropDownItem,
+              isSelected: item == store.selectedItem,
               showsNewBadge: item == .vote
             )
           },
           onSelect: { entry in
             if let matched = SelectDropDownItem.allCases.first(where: { $0.rawValue == entry.id }) {
-              closeDropDown(.selectDropDownItem(matched))
+              closeDropDown(.selectItem(matched))
             }
           }
         )
+        .accessibilityIdentifier { entry in
+          guard let item = SelectDropDownItem(rawValue: entry.id) else { return nil }
+          return ManagementAccessibilityID.Staff.dropdownItem(item)
+        }
         .padding(.leading, 24)
         .padding(.top, 52)
+        .accessibilityElement(children: .contain)
+        .dddAccessibilityID(ManagementAccessibilityID.Staff.dropdown)
       }
       .transition(.opacity)
       .zIndex(1)
@@ -229,13 +230,16 @@ private extension StaffView {
 
   @ViewBuilder
   var skeletonView: some View {
-    switch store.selectDropDownItem {
-    case .attandance:
+    switch store.selectedItem {
+    case .attendance:
       StaffSkeletonView()
+        .dddAccessibilityID(ManagementAccessibilityID.Staff.skeleton)
     case .schedule:
       ScheduleSkeletonView()
+        .dddAccessibilityID(ManagementAccessibilityID.Staff.skeleton)
     case .vote:
       VoteSkeletonView()
+        .dddAccessibilityID(ManagementAccessibilityID.Staff.skeleton)
     }
   }
 }

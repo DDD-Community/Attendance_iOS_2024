@@ -1,0 +1,45 @@
+# 운영진 홈에서 일정 탭으로 전환해 목록을 확인한 뒤 출석 탭으로 돌아온다.
+appId: io.DDD.Attendance
+name: 운영진 일정 탭 조회
+tags:
+  - e2e
+  - management
+  - schedule
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "management.staff.root"
+    timeout: 30000
+
+- runFlow:
+    file: ../_shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "management.staff.sectionbutton"
+      SECTION_ITEM_ID: "management.staff.dropdown.item.schedule"
+
+- extendedWaitUntil:
+    visible:
+      id: "management.schedule.root"
+    timeout: 30000
+- extendedWaitUntil:
+    notVisible:
+      id: "management.schedule.skeleton"
+    timeout: 30000
+- assertVisible:
+    id: "management.schedule.header"
+- assertVisible:
+    id: "management.schedule.list"
+
+- takeScreenshot: .maestro/artifacts/management/schedule-tab
+
+# 홈 계약: 출석 탭으로 복귀한다.
+- runFlow:
+    file: ../_shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "management.staff.sectionbutton"
+      SECTION_ITEM_ID: "management.staff.dropdown.item.attendance"
+- extendedWaitUntil:
+    visible:
+      id: "management.attendance.root"
+    timeout: 30000

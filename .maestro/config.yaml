@@ -1,0 +1,5 @@
+# Maestro 워크스페이스 설정. 이 디렉토리(.maestro)를 워크스페이스로 연다.
+# ** 는 중간 디렉토리가 있어야 매칭되므로 flows 바로 아래 파일용 패턴을 함께 둔다.
+flows:
+  - "flows/*.yaml"
+  - "flows/**/*.yaml"

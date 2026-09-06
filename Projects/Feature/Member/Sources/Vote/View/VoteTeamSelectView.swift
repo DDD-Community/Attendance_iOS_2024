@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import DDDAccessibility
 import DDDDesignKit
 import VoteDomainInterface
 
@@ -77,6 +78,8 @@ struct VoteTeamSelectView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color.backGroundPrimary)
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(MemberAccessibilityID.Vote.TeamSelect.root)
     .overlay(alignment: .leading) {
       edgeSwipeArea(gesture: edgeExitGesture)
     }
@@ -172,6 +175,7 @@ struct VoteTeamSelectView: View {
     }
     .buttonStyle(.plain)
     .disabled(!isNextEnabled)
+    .dddAccessibilityID(MemberAccessibilityID.Vote.TeamSelect.nextButton)
   }
 }
 

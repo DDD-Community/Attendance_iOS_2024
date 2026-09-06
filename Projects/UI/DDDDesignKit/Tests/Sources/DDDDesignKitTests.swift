@@ -94,8 +94,11 @@ struct DDDDesignKitTests {
 
     build(CustomDropdownMenu(isSelecting: .constant(true), selectionTitle: .constant("선택해주세요.")))
     build(CustomDropdownMenu(isSelecting: .constant(false), selectionTitle: .constant("이벤트 선택")))
-    build(DropdownList(items: SelectDropDownItem.item, selectedItem: .constant(.attandance), isExpanded: .constant(true)).items(SelectDropDownItem.item))
-    build(HomeDropdownMenu(entries: entries, onSelect: { _ in }).entries(entries).onSelect({ _ in }))
+    build(DropdownList(items: SelectDropDownItem.item, selectedItem: .constant(.attendance), isExpanded: .constant(true)).items(SelectDropDownItem.item))
+    build(
+      HomeDropdownMenu(entries: entries, onSelect: { _ in })
+        .accessibilityIdentifier { "home.dropdown.\($0.id)" }
+    )
 
     for item in SelectDropDownItem.allCases {
       #expect(!item.desc.isEmpty)

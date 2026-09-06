@@ -20,3 +20,8 @@ public enum MemberMainDelegate: Equatable, Sendable {
 public enum MemberQRCodeDelegate: Equatable, Sendable {
   case presentBack
 }
+
+@CasePathable
+public enum MemberVoteDelegate: Equatable, Sendable {
+  case exitVote
+}

@@ -6,6 +6,7 @@ on:
 jobs:
   add-reviews:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: kentaro-m/auto-assign-action@v2.0.0
         with:

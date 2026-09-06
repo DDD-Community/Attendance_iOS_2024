@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import DDDAccessibility
 import DDDDesignKit
 import VoteDomainInterface
 
@@ -28,6 +29,8 @@ struct TeamVoteCategoryView: View {
       teamList
       reasonEditor
     }
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(MemberAccessibilityID.Vote.TeamSelect.category(category.id))
   }
 
   private var teamList: some View {
@@ -40,11 +43,10 @@ struct TeamVoteCategoryView: View {
           isSelected: selectedTeamIds.contains(team.id),
           onTap: { toggle(team) }
         )
+        .dddAccessibilityID(MemberAccessibilityID.Vote.TeamSelect.teamRow(team.id))
 
         if idx < teams.count - 1 {
-          Rectangle()
-            .fill(Color.gray90)
-            .frame(height: 1)
+          DDDDivider(color: .gray90)
         }
       }
     }
@@ -58,6 +60,7 @@ struct TeamVoteCategoryView: View {
     .description(reasonDescription)
     .minLength(category.reasonRequired ? category.reasonMinLength : 0)
     .maxLength(category.reasonMaxLength)
+    .dddAccessibilityID(MemberAccessibilityID.Vote.TeamSelect.reasonField(category.id))
   }
 
   private var reasonDescription: String {

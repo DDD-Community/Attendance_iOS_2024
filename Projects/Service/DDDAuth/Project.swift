@@ -14,7 +14,7 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "DDDAuth",
   bundleId: .appBundleID(name: ".DDDAuth"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [
     .core(.logger),

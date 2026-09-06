@@ -1,0 +1,15 @@
+appId: io.DDD.Attendance
+name: 로그인 전체 테스트
+tags:
+  - full
+  - login
+---
+# splash부터 로그인 역할별 홈 진입까지 순서대로 검증한다.
+- runFlow:
+    file: ../splash/launch_to_login.yaml
+- runFlow:
+    file: relaunch_keeps_login.yaml
+- runFlow:
+    file: ../management/login_to_home.yaml
+- runFlow:
+    file: ../member/login_to_home.yaml

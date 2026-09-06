@@ -13,7 +13,7 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "QRCodeDomain",
   bundleId: .appBundleID(name: ".QRCodeDomain"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [
     .serviceAssembly,

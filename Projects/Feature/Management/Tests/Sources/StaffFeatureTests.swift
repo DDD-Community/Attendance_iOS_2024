@@ -25,16 +25,16 @@ struct StaffFeatureTests {
     }
   }
 
-  @Test("selectDropDownItem은 선택 값을 저장하고 드롭다운을 닫는다")
-  func selectDropDownItemStoresSelectionAndClosesDropdown() async {
+  @Test("selectItem은 선택 값을 저장하고 드롭다운을 닫는다")
+  func selectItemStoresSelectionAndClosesDropdown() async {
     var state = StaffFeature.State()
     state.isExpandedDropDown = true
     let store = TestStore(initialState: state) {
       StaffFeature()
     }
 
-    await store.send(.view(.selectDropDownItem(.vote))) {
-      $0.selectDropDownItem = .vote
+    await store.send(.view(.selectItem(.vote))) {
+      $0.selectedItem = .vote
       $0.isExpandedDropDown = false
     }
   }

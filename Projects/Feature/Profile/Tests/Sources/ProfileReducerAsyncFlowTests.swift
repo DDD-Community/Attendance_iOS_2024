@@ -5,7 +5,7 @@
 //  Created by DDD on 2026-09-03
 //  Copyright © 2026 DDD , Ltd. All rights reserved.
 //
-//  ProfileReducer 의 비동기 이펙트(fetchUser / deleteUser / logout)와
+//  ProfileFeature 의 비동기 이펙트(fetchUser / deleteUser / logout)와
 //  destination 이 만들어내는 액션 흐름을 검증한다.
 //
 
@@ -18,7 +18,7 @@ import ProfileDomainInterface
 @testable import Profile
 
 @MainActor
-@Suite("ProfileReducer 비동기 흐름")
+@Suite("ProfileFeature 비동기 흐름")
 struct ProfileReducerAsyncFlowTests {
   // MARK: - fetchUser
 
@@ -27,8 +27,8 @@ struct ProfileReducerAsyncFlowTests {
     let cached = ProfileTestSupport.memberProfile
     let refreshed = ProfileTestSupport.managerProfile
 
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     } withDependencies: {
       $0.profileUseCase = StubProfileUseCase(
         cachedProfile: cached,
@@ -41,11 +41,11 @@ struct ProfileReducerAsyncFlowTests {
 
     await store.receive(\.inner.fetchUserResponse) {
       $0.viewState = .loaded
-      $0.profileModel = cached
+      $0.profile = cached
     }
 
     await store.receive(\.inner.fetchUserResponse) {
-      $0.profileModel = refreshed
+      $0.profile = refreshed
     }
   }
 
@@ -53,8 +53,8 @@ struct ProfileReducerAsyncFlowTests {
   func fetchUserWithCacheKeepsCachedWhenRefreshFails() async {
     let cached = ProfileTestSupport.memberProfile
 
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     } withDependencies: {
       $0.profileUseCase = StubProfileUseCase(
         cachedProfile: cached,
@@ -67,20 +67,20 @@ struct ProfileReducerAsyncFlowTests {
 
     await store.receive(\.inner.fetchUserResponse) {
       $0.viewState = .loaded
-      $0.profileModel = cached
+      $0.profile = cached
     }
 
     await store.receive(\.inner.fetchUserResponse)
 
-    #expect(store.state.profileModel == cached)
+    #expect(store.state.profile == cached)
   }
 
   @Test("캐시가 없으면 로딩을 켠 뒤 서버 조회 결과를 저장한다")
   func fetchUserWithoutCacheTurnsOnLoadingThenStoresProfile() async {
     let fetched = ProfileTestSupport.managerProfile
 
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     } withDependencies: {
       $0.profileUseCase = StubProfileUseCase(
         cachedProfile: nil,
@@ -91,20 +91,18 @@ struct ProfileReducerAsyncFlowTests {
 
     await store.send(.async(.fetchUser))
 
-    await store.receive(\.inner.setLoading) {
-      $0.viewState = .loading
-    }
+    await store.receive(\.inner.setLoading)
 
     await store.receive(\.inner.fetchUserResponse) {
       $0.viewState = .loaded
-      $0.profileModel = fetched
+      $0.profile = fetched
     }
   }
 
   @Test("캐시도 없고 서버 조회도 실패하면 로딩만 꺼지고 프로필은 비어 있다")
   func fetchUserFailureTurnsOffLoadingAndKeepsProfileNil() async {
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     } withDependencies: {
       $0.profileUseCase = StubProfileUseCase(
         cachedProfile: nil,
@@ -115,15 +113,13 @@ struct ProfileReducerAsyncFlowTests {
 
     await store.send(.async(.fetchUser))
 
-    await store.receive(\.inner.setLoading) {
-      $0.viewState = .loading
-    }
+    await store.receive(\.inner.setLoading)
 
     await store.receive(\.inner.fetchUserResponse) {
       $0.viewState = .loaded
     }
 
-    #expect(store.state.profileModel == nil)
+    #expect(store.state.profile == nil)
   }
 
   @Test("기수 변경 중에는 기존 프로필을 다시 조회하지 않는다")
@@ -135,13 +131,13 @@ struct ProfileReducerAsyncFlowTests {
     let initialState = withDependencies {
       $0.defaultAppStorage = appStorage
     } operation: {
-      var state = ProfileReducer.State()
+      var state = ProfileFeature.State()
       state.$editGeneration.withLock { $0 = true }
       return state
     }
 
     let store = TestStore(initialState: initialState) {
-      ProfileReducer()
+      ProfileFeature()
     } withDependencies: {
       $0.defaultAppStorage = appStorage
       $0.profileUseCase = StubProfileUseCase(
@@ -158,11 +154,11 @@ struct ProfileReducerAsyncFlowTests {
 
   @Test("탈퇴 확인 팝업의 확인은 탈퇴 요청을 태우고 로그아웃 화면 이동을 요청한다")
   func withdrawConfirmRunsDeleteUserAndRequestsLogoutNavigation() async {
-    var initialState = ProfileReducer.State()
+    var initialState = ProfileFeature.State()
     initialState.customAlert = .withdrawAccount()
 
     let store = TestStore(initialState: initialState) {
-      ProfileReducer()
+      ProfileFeature()
     } withDependencies: {
       $0.authUseCase = StubAuthRepository()
     }
@@ -173,17 +169,15 @@ struct ProfileReducerAsyncFlowTests {
 
     await store.receive(\.async.deleteUser)
 
-    await store.receive(\.inner.deleteUserResponse) {
-      $0.deleteUser = ProfileTestSupport.withdrawSuccess
-    }
+    await store.receive(\.inner.deleteUserResponse)
 
     await store.receive(\.delegate.presentLogOut)
   }
 
-  @Test("탈퇴 응답이 isSuccess=false 면 결과만 저장하고 화면 이동을 요청하지 않는다")
-  func deleteUserRejectedStoresResultOnly() async {
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+  @Test("탈퇴 응답이 isSuccess=false 면 화면 이동을 요청하지 않는다")
+  func deleteUserRejectedDoesNotNavigate() async {
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     } withDependencies: {
       $0.authUseCase = StubAuthRepository(
         withdrawResult: .success(ProfileTestSupport.withdrawRejected)
@@ -192,17 +186,15 @@ struct ProfileReducerAsyncFlowTests {
 
     await store.send(.async(.deleteUser))
 
-    await store.receive(\.inner.deleteUserResponse) {
-      $0.deleteUser = ProfileTestSupport.withdrawRejected
-    }
+    await store.receive(\.inner.deleteUserResponse)
   }
 
   @Test("탈퇴 요청이 실패하면 탈퇴 실패 알럿을 띄운다")
   func deleteUserFailurePresentsWithdrawFailureAlert() async {
     let error = AuthError.accountDeletionFailed
 
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     } withDependencies: {
       $0.authUseCase = StubAuthRepository(withdrawResult: .failure(error))
     }
@@ -226,11 +218,11 @@ struct ProfileReducerAsyncFlowTests {
 
   @Test("로그아웃 확인 팝업의 확인은 로그아웃 요청을 태우고 로그아웃 화면 이동을 요청한다")
   func logoutConfirmRunsLogoutAndRequestsLogoutNavigation() async {
-    var initialState = ProfileReducer.State()
+    var initialState = ProfileFeature.State()
     initialState.customAlert = .logout()
 
     let store = TestStore(initialState: initialState) {
-      ProfileReducer()
+      ProfileFeature()
     } withDependencies: {
       $0.authUseCase = StubAuthRepository()
     }
@@ -241,9 +233,7 @@ struct ProfileReducerAsyncFlowTests {
 
     await store.receive(\.async.logout)
 
-    await store.receive(\.inner.logoutResponses) {
-      $0.authExit = ProfileTestSupport.authExitSuccess
-    }
+    await store.receive(\.inner.logoutResponses)
 
     await store.receive(\.delegate.presentLogOut)
   }
@@ -252,8 +242,8 @@ struct ProfileReducerAsyncFlowTests {
   func logoutFailurePresentsLogoutFailureAlert() async {
     let error = AuthError.logoutFailed
 
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     } withDependencies: {
       $0.authUseCase = StubAuthRepository(logoutResult: .failure(error))
     }
@@ -279,11 +269,11 @@ struct ProfileReducerAsyncFlowTests {
   func createAppPresentWebClosesModalThenRequestsFeedbackWeb() async {
     let clock = TestClock()
 
-    var initialState = ProfileReducer.State()
+    var initialState = ProfileFeature.State()
     initialState.destination = .createApp(.init())
 
     let store = TestStore(initialState: initialState) {
-      ProfileReducer()
+      ProfileFeature()
     } withDependencies: {
       $0.continuousClock = clock
     }

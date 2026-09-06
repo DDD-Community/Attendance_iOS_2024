@@ -5,6 +5,7 @@
 //  Created by DDD on 11/4/24.
 //
 
+import DDDAccessibility
 import DDDCoreUI
 import DDDSharedUI
 import SwiftUI
@@ -41,6 +42,7 @@ public struct SelectTeamView: View {
             content: "팀을 선택해주세요",
             title: "프로젝트 참여하시는 팀을 선택해 주세요."
           )
+          .dddAccessibilityID(OnBoardingAccessibilityID.SelectTeam.skeleton)
 
         case .loaded:
           signUpSelectTeamText()
@@ -56,6 +58,8 @@ public struct SelectTeamView: View {
       }
       .alert($store.scope(state: \.alert, action: \.scope.alert))
     }
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(OnBoardingAccessibilityID.SelectTeam.root)
   }
 }
 
@@ -84,8 +88,11 @@ extension SelectTeamView {
             ) {
               send(.selectTeamButton(selectTeam: item))
             }
+            .dddAccessibilityID(OnBoardingAccessibilityID.SelectTeam.item(item.teamId))
           }
         }
+        .accessibilityElement(children: .contain)
+        .dddAccessibilityID(OnBoardingAccessibilityID.SelectTeam.list)
       }
       .scrollIndicators(.hidden)
       .frame(height: UIScreen.screenHeight * 0.6)
@@ -105,6 +112,7 @@ extension SelectTeamView {
         config: CustomButtonConfig.create()
       )
       .isEnable(store.activeButton)
+      .dddAccessibilityID(OnBoardingAccessibilityID.SelectTeam.nextButton)
 
       Spacer()
     }

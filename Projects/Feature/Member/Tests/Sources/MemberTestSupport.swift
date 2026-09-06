@@ -234,7 +234,7 @@ enum MemberTestFixture {
     )
   )
 
-  static let templates = MemberVote.Templates(
+  static let templates = MemberVoteFeature.Templates(
     team: teamTemplate,
     feedback: feedbackTemplate
   )

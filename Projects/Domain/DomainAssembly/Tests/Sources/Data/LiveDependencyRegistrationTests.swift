@@ -14,6 +14,7 @@ import OnBoardingDomainInterface
 import ProfileDomainInterface
 import QRCodeDomainInterface
 import ScheduleDomainInterface
+import ServiceAssembly
 import VoteDomainInterface
 import Testing
 
@@ -28,7 +29,7 @@ struct LiveDependencyRegistrationTests {
   func resolvesAllLiveDependencies() {
     withDependencies {
       $0.context = .live
-      DomainDependencyAssembly.register(into: &$0)
+      ServiceDependencyAssembly.register(into: &$0)
     } operation: {
       @Dependency(\.attendanceRepository) var attendanceRepository
       @Dependency(\.scheduleRepository) var scheduleRepository

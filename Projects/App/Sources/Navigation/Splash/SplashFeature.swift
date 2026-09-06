@@ -18,13 +18,12 @@ public struct SplashFeature: Sendable {
   @ObservableState
   public struct State: Equatable {
     @Shared(.staffRole) var staffRole
-    var profileModel: ProfileEntity?
     
     // 앱 업데이트 관련
     @Presents var customAlert: CustomAlertState<CustomAlertAction>?
-    var appStoreUrl: String = ""
+    var appStoreURL: String = ""
     var isUpdateCheckCompleted: Bool = false
-    var profileFetchCompleted: Bool = false
+    var isProfileFetchCompleted: Bool = false
     
     public init() {}
   }
@@ -111,8 +110,8 @@ public struct SplashFeature: Sendable {
         
       case .scope(.customAlert(.presented(.confirmTapped))):
         // 앱스토어로 이동
-        return .run { [appStoreUrl = state.appStoreUrl] _ in
-          if let url = URL(string: appStoreUrl) {
+        return .run { [appStoreURL = state.appStoreURL] _ in
+          if let url = URL(string: appStoreURL) {
             await openURL(url)
           }
         }
@@ -120,7 +119,7 @@ public struct SplashFeature: Sendable {
       case .scope(.customAlert(.presented(.cancelTapped))):
         // "나중에 할게요" 선택 시 팝업을 닫고 화면 이동
         state.customAlert = nil
-        if state.profileFetchCompleted {
+        if state.isProfileFetchCompleted {
           return navigateToNextScreen(state: &state)
         }
         return .none
@@ -200,10 +199,9 @@ extension SplashFeature {
     switch action {
     case let .fetchUserResponse(result):
       switch result {
-      case let .success(profileDTOData):
+      case .success:
         DDDLogger.debug("[Splash] User profile fetched successfully", category: .app)
-        state.profileModel = profileDTOData
-        state.profileFetchCompleted = true
+        state.isProfileFetchCompleted = true
         
         // 업데이트 체크가 완료되고 팝업이 없는 경우에만 화면 이동
         if state.isUpdateCheckCompleted && state.customAlert == nil {
@@ -231,7 +229,7 @@ extension SplashFeature {
         // 업데이트가 필요한 경우에만 Alert 표시
         if let updateInfo = updateInfo {
           DDDLogger.debug("[Splash] App update available: \(updateInfo.latestVersion)", category: .app)
-          state.appStoreUrl = updateInfo.appStoreUrl
+          state.appStoreURL = updateInfo.appStoreUrl
           
 
           
@@ -248,7 +246,7 @@ extension SplashFeature {
           DDDLogger.debug("[Splash] App is up to date", category: .app)
           
           // 업데이트가 없고 프로필 fetch가 완료되었다면 화면 이동
-          if state.profileFetchCompleted {
+          if state.isProfileFetchCompleted {
             return navigateToNextScreen(state: &state)
           }
         }
@@ -258,7 +256,7 @@ extension SplashFeature {
         DDDLogger.error("[Splash] Failed to check app update: \(error.localizedDescription)", category: .app)
         
         // 에러가 발생해도 프로필 fetch가 완료되었다면 화면 이동
-        if state.profileFetchCompleted {
+        if state.isProfileFetchCompleted {
           return navigateToNextScreen(state: &state)
         }
         return .none

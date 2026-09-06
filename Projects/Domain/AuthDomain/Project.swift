@@ -13,7 +13,7 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "AuthDomain",
   bundleId: .appBundleID(name: ".AuthDomain"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [
     .core(.logger),

@@ -1,0 +1,24 @@
+# 멤버 홈의 일정 목록이 스켈레톤 없이 실제 항목까지 렌더링되는지 확인한다.
+appId: io.DDD.Attendance
+name: 멤버 일정 목록 렌더링
+tags:
+  - e2e
+  - member
+  - schedule
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 30000
+- extendedWaitUntil:
+    notVisible:
+      id: "member.home.skeleton"
+    timeout: 30000
+
+- assertVisible:
+    id: "member.schedule.list"
+- assertVisible:
+    id: "member.schedule.[0-9]+"
+
+- takeScreenshot: .maestro/artifacts/member/schedule-list

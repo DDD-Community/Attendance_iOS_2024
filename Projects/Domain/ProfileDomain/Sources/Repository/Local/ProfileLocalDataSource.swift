@@ -7,6 +7,7 @@
 
 import Foundation
 import ProfileDomainInterface
+import DDDStorageInterface
 import Dependencies
 import SQLiteData
 
@@ -66,7 +67,10 @@ public actor ProfileLocalDataSource: ProfileLocalDataSourceProtocol {
 /// ProfileLocalDataSource의 DependencyKey 구조체
 public enum ProfileLocalDataSourceDependency: DependencyKey {
   public static var liveValue: ProfileLocalDataSourceProtocol {
-    @Dependency(\.defaultDatabase) var database
+    @Dependency(\.appDatabase) var database
+    guard let database else {
+      return InMemoryProfileLocalDataSource()
+    }
     return ProfileLocalDataSource(database: database)
   }
 

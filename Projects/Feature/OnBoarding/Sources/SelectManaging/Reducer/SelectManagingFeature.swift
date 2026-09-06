@@ -31,12 +31,8 @@ public struct SelectManagingFeature {
 
     /// 첫 진입은 항상 fetch 로 시작한다. 빈 화면이 한 프레임 스쳐 지나가지 않도록 스켈레톤부터 그린다.
 
-    var viewState: ViewState = .loading
-    var activeButton: Bool = false
-    var errorMessage: String?
-    var selectMangers: IdentifiedArrayOf<SelectManaging> = .init(uniqueElements: [])
-    var signUpUser: SignUpUser?
-    var editProfile: ProfileEntity?
+    var viewState = ViewState.loading
+    var managers: IdentifiedArrayOf<SelectManaging> = []
 
     @Shared(.userSession) var userSession
     @Shared(.appStorage("editGeneration")) var editGeneration: Bool = false
@@ -142,14 +138,13 @@ extension SelectManagingFeature {
     switch action {
     case .onAppear:
       // 이미 데이터가 있다면 다시 fetch하지 않음
-      if !state.selectMangers.isEmpty {
+      if !state.managers.isEmpty {
         return .none
       }
       return .send(.async(.fetchMangerList))
 
     case let .selectManagingButton(selectManaging):
       let selectedManaging = selectManaging.managing
-      var updatedManaging: [StaffManaging] = []
 
       state.$userSession.withLock {
         var current = $0.managing
@@ -159,10 +154,8 @@ extension SelectManagingFeature {
           current.append(selectedManaging)
         }
         $0.managing = current
-        updatedManaging = current
       }
 
-      state.activeButton = !updatedManaging.isEmpty
       return .none
 
     case .signUp:
@@ -268,24 +261,21 @@ extension SelectManagingFeature {
       switch result {
       case let .success(data):
         state.viewState = .loaded
-        state.selectMangers = .init(uniqueElements: data)
+        state.managers = .init(uniqueElements: data)
 
-      case let .failure(error):
+      case .failure:
         state.viewState = .loaded
-        state.errorMessage = error.errorDescription
       }
       return .none
 
     case let .signUpUserResponse(result):
       switch result {
-      case let .success(data):
-        state.signUpUser = data
+      case .success:
         state.$staffRole.withLock { $0 = state.userSession.userRole }
 
         return .send(.delegate(.presentManager))
 
       case let .failure(error):
-        state.errorMessage = error.errorDescription
         state.alert = AlertState {
           TextState("회원가입 실패")
         } actions: {
@@ -310,7 +300,6 @@ extension SelectManagingFeature {
         }
 
       case let .failure(error):
-        state.errorMessage = error.errorDescription
         state.$editGeneration.withLock { $0 = false }
         state.alert = AlertState {
           TextState("프로필 수정 실패")
@@ -334,7 +323,6 @@ extension SelectManagingFeature {
     _ profile: ProfileEntity,
     to state: inout State
   ) {
-    state.editProfile = profile
     state.$editGeneration.withLock { $0 = false }
     state.$staffRole.withLock { $0 = profile.role }
     state.$userSession.withLock {

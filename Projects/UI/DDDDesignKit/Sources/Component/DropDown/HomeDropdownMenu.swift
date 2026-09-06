@@ -27,8 +27,9 @@ public struct HomeDropdownMenu: View {
     }
   }
 
-  private var entries: [Entry]
-  private var onSelect: (Entry) -> Void
+  private let entries: [Entry]
+  private let onSelect: (Entry) -> Void
+  private var itemAccessibilityIdentifier: (Entry) -> String? = { _ in nil }
 
   public init(
     entries: [Entry],
@@ -56,8 +57,9 @@ public struct HomeDropdownMenu: View {
     }
   }
 
+  @ViewBuilder
   private func menuItem(_ entry: Entry) -> some View {
-    HStack(spacing: 8) {
+    let item = HStack(spacing: 8) {
       Text(entry.title)
         .pretendardFont(family: entry.isSelected ? .Bold : .Medium, size: 20)
         .foregroundStyle(entry.isSelected ? .staticWhite : .borderInactive)
@@ -73,6 +75,12 @@ public struct HomeDropdownMenu: View {
     .frame(maxWidth: .infinity, alignment: .leading)
     .contentShape(Rectangle())
     .onTapGesture { onSelect(entry) }
+
+    if let identifier = itemAccessibilityIdentifier(entry) {
+      item.accessibilityIdentifier(identifier)
+    } else {
+      item
+    }
   }
 
   private var newBadge: some View {
@@ -87,21 +95,13 @@ public struct HomeDropdownMenu: View {
   }
 }
 
-// MARK: - 체이닝 설정
-//
-// 값 타입 사본을 돌려주므로 호출 순서에 영향받지 않는다.
-// 기존 init 은 그대로 두어, 체이닝은 선택지로만 더한다.
 public extension HomeDropdownMenu {
-  /// `entries` 을 바꾼 사본을 돌려준다.
-  func entries(_ entries: [Entry]) -> Self {
+  /// 각 메뉴 항목에 적용할 접근성 식별자를 설정합니다.
+  func accessibilityIdentifier(
+    _ identifier: @escaping (Entry) -> String?
+  ) -> Self {
     var copy = self
-    copy.entries = entries
-    return copy
-  }
-  /// `onSelect` 을 바꾼 사본을 돌려준다.
-  func onSelect(_ onSelect: @escaping (Entry) -> Void) -> Self {
-    var copy = self
-    copy.onSelect = onSelect
+    copy.itemAccessibilityIdentifier = identifier
     return copy
   }
 }

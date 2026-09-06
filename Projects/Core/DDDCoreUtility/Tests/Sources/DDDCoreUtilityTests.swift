@@ -18,12 +18,12 @@ struct AppDateFormatTests {
 
     let timestamp = date.timeIntervalSince1970
 
-    #expect(timestamp == 1788222600)
+    #expect(timestamp == 1_788_222_600)
   }
 
   @Test("Date를 yyyy-MM-dd 포맷으로 변환한다")
   func formatsDateAsYearMonthDay() {
-    let date = Date(timeIntervalSince1970: 1788222600)
+    let date = Date(timeIntervalSince1970: 1_788_222_600)
 
     let formatted = date.formatted(.yearMonthDay)
 
@@ -36,14 +36,28 @@ struct AppDateFormatTests {
 
     #expect(date == nil)
   }
+
+  @Test("지정한 타임존의 자정으로 날짜를 파싱한다")
+  func parsesDateUsingProvidedTimeZone() throws {
+    let timeZone = try #require(TimeZone(identifier: "America/Los_Angeles"))
+    let date = try #require("2026-09-05".date(as: .yearMonthDay, timeZone: timeZone))
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = timeZone
+
+    let components = calendar.dateComponents([.year, .month, .day, .hour], from: date)
+    #expect(components.year == 2026)
+    #expect(components.month == 9)
+    #expect(components.day == 5)
+    #expect(components.hour == 0)
+  }
 }
 
 @Suite("DDDCoreUtility QR 문자열")
 struct QRCodeValueTests {
   @Test("QR 값은 사용자, 이벤트, 시작 시간, 30분 연장된 종료 시간을 포함한다")
   func includesUserEventStartTimeAndExtendedEndTime() {
-    let startTime = Date(timeIntervalSince1970: 1788222600)
-    let endTime = Date(timeIntervalSince1970: 1788226200)
+    let startTime = Date(timeIntervalSince1970: 1_788_222_600)
+    let endTime = Date(timeIntervalSince1970: 1_788_226_200)
 
     let value = String.makeQrCodeValue(
       userID: "user-1",
@@ -118,7 +132,7 @@ private func makeJWT(payload: [String: Any]) -> String {
   return [
     base64URLEncodedJSONObject(header),
     base64URLEncodedJSONObject(payload),
-    "signature",
+    "signature"
   ].joined(separator: ".")
 }
 

@@ -233,13 +233,13 @@ struct CustomConfirmationPopup: View {
         }
         .buttonStyle(.plain)
 
-        Text(checkboxTitle)
-          .dddFont(.body3NormalRegular)
-          .foregroundStyle(.staticWhite)
-          .underline(true, color: .mediumGray)
-          .onTapGesture {
-            onPolicyTap()
-          }
+        DDDUnderlinedTextButton(
+          title: checkboxTitle,
+          font: .body3NormalRegular,
+          foregroundColor: .staticWhite,
+          underlineColor: .mediumGray,
+          action: onPolicyTap
+        )
       }
       .padding(.top, 4)
     }

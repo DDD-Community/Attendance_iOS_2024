@@ -16,9 +16,9 @@ import UIKit
 @MainActor
 @Suite("WebView body 렌더링")
 struct WebViewBodyRenderTests {
-  private func makeStore(url: String) -> StoreOf<WebReducer> {
-    Store(initialState: WebReducer.State(url: url)) {
-      WebReducer()
+  private func makeStore(url: String) -> StoreOf<WebFeature> {
+    Store(initialState: WebFeature.State(url: url)) {
+      WebFeature()
     }
   }
 

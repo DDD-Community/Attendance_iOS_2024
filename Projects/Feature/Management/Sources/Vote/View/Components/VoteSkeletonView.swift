@@ -42,9 +42,7 @@ public struct VoteSkeletonView: View {
   private var cardSkeleton: some View {
     VStack(spacing: 0) {
       row
-      Rectangle()
-        .fill(Color.gray80)
-        .frame(height: 1)
+      DDDDivider(color: .gray80)
       row
     }
     .padding(.horizontal, 16)

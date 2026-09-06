@@ -1,0 +1,11 @@
+# 온보딩 화면은 프로필의 "기수 변경" 경로로만 안전하게 진입할 수 있다.
+# 이름/직무/팀 선택 단계는 유효한 초대 코드가 있어야 도달하므로 여기서 다루지 않는다.
+appId: io.DDD.Attendance
+name: 온보딩 전체 테스트
+tags:
+  - full
+  - onboarding
+---
+
+- runFlow:
+    file: invite_code.yaml

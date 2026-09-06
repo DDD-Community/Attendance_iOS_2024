@@ -88,7 +88,7 @@ public extension Settings {
     return .settings(
       base: [
         "IPHONEOS_DEPLOYMENT_TARGET": "18.0",
-        "OTHER_SWIFT_FLAGS": "$(inherited) -suppress-warnings"
+        "OTHER_SWIFT_FLAGS": "$(inherited) -suppress-warnings -module-alias Sharing=DDDPointFreeSharing"
       ],
       configurations: XCConfig.configurations
     )
@@ -98,7 +98,7 @@ public extension Settings {
     return .settings(
       base: [
         "IPHONEOS_DEPLOYMENT_TARGET": "18.0",
-        "OTHER_SWIFT_FLAGS": "$(inherited) -suppress-warnings",
+        "OTHER_SWIFT_FLAGS": "$(inherited) -suppress-warnings -module-alias Sharing=DDDPointFreeSharing",
         "ENABLE_TESTING_SEARCH_PATHS": "YES",
         "SWIFT_TESTING": "YES"
       ],

@@ -33,10 +33,10 @@ struct ManagementStaffViewRenderTests {
   }
 
   private func makeAttendanceStore(
-    state: AttendanceCheck.State
-  ) -> StoreOf<AttendanceCheck> {
+    state: AttendanceCheckFeature.State
+  ) -> StoreOf<AttendanceCheckFeature> {
     Store(initialState: state) {
-      AttendanceCheck()
+      AttendanceCheckFeature()
     } withDependencies: {
       $0.attendanceUseCase = ManagementSupportAttendanceUseCase()
       $0.scheduleUseCase = ManagementSupportScheduleUseCase()
@@ -45,21 +45,16 @@ struct ManagementStaffViewRenderTests {
     }
   }
 
-  private func loadedAttendanceState() -> AttendanceCheck.State {
-    var state = AttendanceCheck.State()
+  private func loadedAttendanceState() -> AttendanceCheckFeature.State {
+    var state = AttendanceCheckFeature.State()
     state.viewState = .loaded
-    state.scheduleModel = .init(uniqueElements: ManagementSupportFixture.schedules)
-    state.selectScheduleID = EntityFixtureSchedule.value.id
-    state.attendanceCountModel = ManagementSupportFixture.attendanceCount
-    state.attendanceCount = ManagementSupportFixture.attendanceCount.attendanceCount
-    state.lateCount = ManagementSupportFixture.attendanceCount.lateCount
-    state.absentCount = ManagementSupportFixture.attendanceCount.absentCount
-    state.attendanceTeam = .init(uniqueElements: ManagementSupportFixture.teams)
-    state.selectTeamID = 1
-    state.selectPart = .ios1
-    state.attendanceModel = ManagementSupportFixture.attendances
+    state.selectedSchedule = EntityFixtureSchedule.value
+    state.attendanceSummary = ManagementSupportFixture.attendanceCount
+    state.teams = .init(uniqueElements: ManagementSupportFixture.teams)
+    state.selectedTeamID = 1
+    state.settledTeamID = 1
     state.attendanceByTeam = [1: ManagementSupportFixture.attendances, 2: []]
-    state.attendanceStatus = .init(uniqueElements: ManagementSupportFixture.statuses)
+    state.availableStatuses = .init(uniqueElements: ManagementSupportFixture.statuses)
     return state
   }
 
@@ -68,7 +63,7 @@ struct ManagementStaffViewRenderTests {
   @Test("기본 StaffView 는 출석 탭 본문을 렌더링한다")
   func rendersStaffViewAttendanceTab() {
     var state = StaffFeature.State()
-    state.attendanceCheck = loadedAttendanceState()
+    state.attendance = loadedAttendanceState()
 
     ManagementSupportViewRenderer.render(StaffView(store: makeStaffStore(state: state)))
   }
@@ -76,7 +71,7 @@ struct ManagementStaffViewRenderTests {
   @Test("출석 탭이 로딩 중이면 StaffView 는 스켈레톤 경로를 탄다")
   func rendersStaffViewAttendanceSkeleton() {
     var state = StaffFeature.State()
-    state.attendanceCheck.viewState = .loading
+    state.attendance.viewState = .loading
 
     ManagementSupportViewRenderer.render(StaffView(store: makeStaffStore(state: state)))
   }
@@ -84,8 +79,8 @@ struct ManagementStaffViewRenderTests {
   @Test("출석 상태 갱신 중에는 전체 화면이 아닌 출석 카드 목록만 skeleton을 렌더링한다")
   func rendersStaffViewAttendanceListSkeleton() {
     var state = StaffFeature.State()
-    state.attendanceCheck = loadedAttendanceState()
-    state.attendanceCheck.viewState = .refreshingAttendanceList
+    state.attendance = loadedAttendanceState()
+    state.attendance.viewState = .refreshingAttendanceList
 
     #expect(state.viewState == .loaded)
     ManagementSupportViewRenderer.render(StaffView(store: makeStaffStore(state: state)))
@@ -94,7 +89,7 @@ struct ManagementStaffViewRenderTests {
   @Test("일정 탭이면 StaffView 는 일정 본문을 렌더링한다")
   func rendersStaffViewScheduleTab() {
     var state = StaffFeature.State()
-    state.selectDropDownItem = .schedule
+    state.selectedItem = .schedule
     state.schedule.viewState = .loaded
 
     ManagementSupportViewRenderer.render(StaffView(store: makeStaffStore(state: state)))
@@ -103,7 +98,7 @@ struct ManagementStaffViewRenderTests {
   @Test("일정 탭이 로딩 중이면 일정 스켈레톤 경로를 탄다")
   func rendersStaffViewScheduleSkeleton() {
     var state = StaffFeature.State()
-    state.selectDropDownItem = .schedule
+    state.selectedItem = .schedule
     state.schedule.viewState = .loading
 
     ManagementSupportViewRenderer.render(StaffView(store: makeStaffStore(state: state)))
@@ -112,7 +107,7 @@ struct ManagementStaffViewRenderTests {
   @Test("투표 탭이면 StaffView 는 투표 본문을 렌더링한다")
   func rendersStaffViewVoteTab() {
     var state = StaffFeature.State()
-    state.selectDropDownItem = .vote
+    state.selectedItem = .vote
     state.vote.viewState = .loaded
 
     ManagementSupportViewRenderer.render(StaffView(store: makeStaffStore(state: state)))
@@ -121,7 +116,7 @@ struct ManagementStaffViewRenderTests {
   @Test("투표 탭이 로딩 중이면 투표 스켈레톤 경로를 탄다")
   func rendersStaffViewVoteSkeleton() {
     var state = StaffFeature.State()
-    state.selectDropDownItem = .vote
+    state.selectedItem = .vote
     state.vote.viewState = .loading
 
     ManagementSupportViewRenderer.render(StaffView(store: makeStaffStore(state: state)))
@@ -131,7 +126,7 @@ struct ManagementStaffViewRenderTests {
   func rendersStaffViewWithExpandedDropDown() {
     var state = StaffFeature.State()
     state.isExpandedDropDown = true
-    state.attendanceCheck.viewState = .loaded
+    state.attendance.viewState = .loaded
 
     ManagementSupportViewRenderer.render(StaffView(store: makeStaffStore(state: state)))
   }
@@ -153,7 +148,7 @@ struct ManagementStaffViewRenderTests {
   @Test("데이터가 비어 있는 AttendanceCheckView 를 렌더링한다")
   func rendersAttendanceCheckViewEmpty() {
     ManagementSupportViewRenderer.render(
-      AttendanceCheckView(store: makeAttendanceStore(state: AttendanceCheck.State()))
+      AttendanceCheckView(store: makeAttendanceStore(state: AttendanceCheckFeature.State()))
     )
   }
 

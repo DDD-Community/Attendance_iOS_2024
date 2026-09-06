@@ -13,9 +13,10 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "ProfileDomain",
   bundleId: .appBundleID(name: ".ProfileDomain"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [
+    .core(.storage, .interface),
     .serviceAssembly,
     .domain(.auth, .interface),
     .domain(.onBoarding, .interface),

@@ -8,51 +8,50 @@
 import SwiftUI
 
 import ComposableArchitecture
+import DDDAccessibility
 import DDDDesignKit
 import ProfileDomainInterface
-import SwiftUIX
 
 struct CreateAppView: View {
-  @Bindable private var store: StoreOf<CreateApp>
+  @Bindable private var store: StoreOf<CreateAppFeature>
 
-  init(store: StoreOf<CreateApp>) {
+  init(store: StoreOf<CreateAppFeature>) {
     self.store = store
   }
-  
+
   var body: some View {
     ZStack {
       Color.basicBlack
         .edgesIgnoringSafeArea(.all)
-      
+
       VStack {
         createAppHeaderView()
-        
-        createAppFooterView()
-        
-        closeButton()
 
+        createAppFooterView()
+
+        closeButton()
       }
     }
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(ProfileAccessibilityID.CreateApp.root)
   }
 }
 
-extension CreateAppView {
-  
+private extension CreateAppView {
   @ViewBuilder
-  fileprivate func createAppHeaderView() -> some View {
+  func createAppHeaderView() -> some View {
     VStack(alignment: .center) {
       Spacer()
         .frame(height: 16)
-      
+
       Text("만든 사람들")
         .dddFont(.title2NormalBold)
         .foregroundStyle(.staticWhite)
-      
     }
   }
-  
+
   @ViewBuilder
-  fileprivate func createAppFooterView() -> some View {
+  func createAppFooterView() -> some View {
     VStack(spacing: .zero) {
       createAppPartItem(
         selectPart: .pm,
@@ -68,60 +67,51 @@ extension CreateAppView {
         selectPart: .ios,
         creators: "서원지, 홍은표"
       )
-      
+
       createAppPartItem(
         selectPart: .android,
         creators: "심은석, 오세민, 이상훈"
       )
-      
+
       createAppPartItem(
         selectPart: .backend,
         creators: "조승준, 조지원, 이준석"
       )
-      
     }
   }
-  
+
   @ViewBuilder
-  fileprivate func createAppPartItem(
+  func createAppPartItem(
     selectPart: SelectParts,
     creators: String
   ) -> some View {
     VStack(alignment: .center) {
       Spacer()
         .frame(height: 24)
-      
+
       Text(selectPart.desc)
         .dddFont(.body3NormalRegular)
         .foregroundStyle(.staticWhite)
-      
+
       Spacer()
         .frame(height: 2)
-      
+
       Text(creators)
         .dddFont(.title3NormalMedium)
         .foregroundStyle(.staticWhite)
-      
     }
-    
   }
-  
+
   @ViewBuilder
-  fileprivate func closeButton() -> some View {
+  func closeButton() -> some View {
     VStack {
       Spacer()
         .frame(height: 36)
 
-      Capsule()
-        .strokeBorder(.borderInactive, lineWidth: 1)
-        .frame(height: 58)
-        .overlay {
-          Text("앱 피드백 남기기")
-            .dddFont(.body1NormalMedium)
-            .foregroundStyle(.staticWhite)
-        }
-        .contentShape(Capsule())
-        .onTapGesture { store.send(.delegate(.presentWeb)) }
+      DDDOutlinedButton(title: "앱 피드백 남기기") {
+        store.send(.delegate(.presentWeb))
+      }
+      .dddAccessibilityID(ProfileAccessibilityID.CreateApp.feedbackButton)
 
       Spacer()
         .frame(height: 8)
@@ -132,8 +122,8 @@ extension CreateAppView {
         config: CustomButtonConfig.createDateButton()
       )
       .isEnable(true)
+      .dddAccessibilityID(ProfileAccessibilityID.CreateApp.closeButton)
     }
     .padding(.horizontal, 24)
-
   }
 }

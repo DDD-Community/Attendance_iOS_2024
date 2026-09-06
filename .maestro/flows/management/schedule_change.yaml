@@ -1,0 +1,45 @@
+# 운영진이 다른 일정을 선택해 해당 일정의 출석 현황을 조회한다.
+appId: io.DDD.Attendance
+name: 운영진 출석 일정 변경
+tags:
+  - e2e
+  - management
+  - schedule
+---
+
+- extendedWaitUntil:
+    visible:
+      text: "20[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}"
+    timeout: 30000
+- tapOn:
+    text: "20[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}"
+
+- extendedWaitUntil:
+    visible:
+      text: "일정 선택"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      text: "부스팅 데이"
+    timeout: 30000
+- tapOn:
+    text: "부스팅 데이"
+- tapOn:
+    text: "확인"
+
+- extendedWaitUntil:
+    notVisible:
+      text: "일정 선택"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      text: "2026\\.03\\.21"
+    timeout: 30000
+- assertVisible:
+    id: "management.attendance.summary"
+- assertVisible:
+    id: "management.attendance.list"
+- assertNotVisible:
+    id: "management.attendance.list.skeleton"
+
+- takeScreenshot: .maestro/artifacts/management/schedule-change

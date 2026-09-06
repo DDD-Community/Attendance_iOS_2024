@@ -105,7 +105,6 @@ struct SelectTeamReducerTests {
     }
     await store.receive(\.async)
     await store.receive(\.inner) {
-      $0.signUpUser = OnBoardingCoverageFixture.signUpUser
       $0.staffRole = .manager
     }
     await store.receive(\.delegate.presentManager)
@@ -127,13 +126,12 @@ struct SelectTeamReducerTests {
     await store.send(.view(.signUp))
     await store.receive(\.async)
     await store.receive(\.inner) {
-      $0.signUpUser = OnBoardingCoverageFixture.signUpUser
       $0.staffRole = .member
     }
     await store.receive(\.delegate.presentMember)
   }
 
-  @Test("회원가입 실패는 에러 메시지와 실패 알럿을 표시한다")
+  @Test("회원가입 실패는 실패 알럿을 표시한다")
   func signUpFailurePresentsAlert() async {
     let store = TestStore(initialState: SelectTeamFeature.State()) {
       SelectTeamFeature()
@@ -142,7 +140,6 @@ struct SelectTeamReducerTests {
     let error = SignUpError.accountAlreadyExists
 
     await store.send(.inner(.signUpUserResponse(.failure(error)))) {
-      $0.errorMessage = error.errorDescription
       $0.alert = AlertState {
         TextState("회원가입 실패")
       } actions: {
@@ -178,7 +175,6 @@ struct SelectTeamReducerTests {
     await store.send(.view(.signUp))
     await store.receive(\.async)
     await store.receive(\.inner) {
-      $0.editProfile = profile
       $0.editGeneration = false
       $0.staffRole = .manager
       $0.userSession.userID = profile.userID
@@ -215,7 +211,6 @@ struct SelectTeamReducerTests {
     await store.receive(\.async)
     await store.receive(\.inner)
     await store.receive(\.delegate.presentLogin)
-    #expect(store.state.editProfile == profile)
     #expect(store.state.editGeneration == false)
     #expect(store.state.staffRole == .manager)
   }
@@ -232,7 +227,6 @@ struct SelectTeamReducerTests {
     }
 
     await store.send(.inner(.editProfileResponse(.success(profile)))) {
-      $0.editProfile = profile
       $0.editGeneration = false
       $0.staffRole = .member
       $0.userSession.userID = profile.userID
@@ -258,7 +252,6 @@ struct SelectTeamReducerTests {
     let error = ProfileError.loadFailed
 
     await store.send(.inner(.editProfileResponse(.failure(error)))) {
-      $0.errorMessage = error.errorDescription
       $0.editGeneration = false
       $0.alert = AlertState {
         TextState("프로필 수정 실패")

@@ -2,7 +2,7 @@
 //  WebReducerStateActionTests.swift
 //  WebTests
 //
-//  WebReducer 의 State 초기화/동등성과 Action(WebDelegate 별칭) 처리 경로를 커버한다.
+//  WebFeature 의 State 초기화/동등성과 Action(WebDelegate 별칭) 처리 경로를 커버한다.
 //  기존 WebReducerTests / WebTests 와 겹치지 않는 경계값·반복 시나리오만 다룬다.
 //
 
@@ -12,7 +12,7 @@ import Testing
 @testable import Web
 
 @MainActor
-@Suite("WebReducer 상태와 액션")
+@Suite("WebFeature 상태와 액션")
 struct WebReducerStateActionTests {
   // MARK: - State 초기화 (정상 / 경계값)
 
@@ -30,7 +30,7 @@ struct WebReducerStateActionTests {
   )
   func state_withVariousURLs_keepsRawValue(url: String) {
     // Given / When
-    let state = WebReducer.State(url: url)
+    let state = WebFeature.State(url: url)
 
     // Then
     #expect(state.url == url)
@@ -39,7 +39,7 @@ struct WebReducerStateActionTests {
   @Test("빈 문자열로 초기화하면 url 은 빈 문자열이다")
   func state_withEmptyString_hasEmptyURL() {
     // Given / When
-    let state = WebReducer.State(url: "")
+    let state = WebFeature.State(url: "")
 
     // Then
     #expect(state.url.isEmpty)
@@ -51,7 +51,7 @@ struct WebReducerStateActionTests {
     let longURL = "https://dddstudy.kr/?q=" + String(repeating: "a", count: 4096)
 
     // When
-    let state = WebReducer.State(url: longURL)
+    let state = WebFeature.State(url: longURL)
 
     // Then
     #expect(state.url == longURL)
@@ -63,8 +63,8 @@ struct WebReducerStateActionTests {
   @Test("같은 url 을 가진 State 는 서로 같다")
   func state_withSameURL_isEqual() {
     // Given
-    let lhs = WebReducer.State(url: "https://dddstudy.kr")
-    let rhs = WebReducer.State(url: "https://dddstudy.kr")
+    let lhs = WebFeature.State(url: "https://dddstudy.kr")
+    let rhs = WebFeature.State(url: "https://dddstudy.kr")
 
     // Then
     #expect(lhs == rhs)
@@ -73,25 +73,11 @@ struct WebReducerStateActionTests {
   @Test("다른 url 을 가진 State 는 서로 다르다")
   func state_withDifferentURL_isNotEqual() {
     // Given
-    let lhs = WebReducer.State(url: "https://dddstudy.kr")
-    let rhs = WebReducer.State(url: "https://dddstudy.kr/privacy")
+    let lhs = WebFeature.State(url: "https://dddstudy.kr")
+    let rhs = WebFeature.State(url: "https://dddstudy.kr/privacy")
 
     // Then
     #expect(lhs != rhs)
-  }
-
-  @Test("url 을 직접 바꾸면 State 동등성이 깨진다")
-  func state_whenURLMutated_breaksEquality() {
-    // Given
-    var state = WebReducer.State(url: "https://dddstudy.kr")
-    let original = state
-
-    // When
-    state.url = "https://dddstudy.kr/terms"
-
-    // Then
-    #expect(state != original)
-    #expect(state.url == "https://dddstudy.kr/terms")
   }
 
   // MARK: - Action
@@ -99,8 +85,8 @@ struct WebReducerStateActionTests {
   @Test("Action 은 WebDelegate 별칭이라 backToRoot 끼리 동등하다")
   func action_backToRoot_isEqualToItself() {
     // Given
-    let lhs: WebReducer.Action = .backToRoot
-    let rhs: WebReducer.Action = .backToRoot
+    let lhs: WebFeature.Action = .backToRoot
+    let rhs: WebFeature.Action = .backToRoot
 
     // Then
     #expect(lhs == rhs)
@@ -109,10 +95,10 @@ struct WebReducerStateActionTests {
   @Test("reduce 를 직접 호출해도 backToRoot 는 State 를 바꾸지 않는다")
   func reduce_backToRoot_keepsState() {
     // Given
-    var state = WebReducer.State(url: "https://dddstudy.kr/privacy")
+    var state = WebFeature.State(url: "https://dddstudy.kr/privacy")
 
     // When
-    _ = WebReducer().reduce(into: &state, action: .backToRoot)
+    _ = WebFeature().reduce(into: &state, action: .backToRoot)
 
     // Then
     #expect(state.url == "https://dddstudy.kr/privacy")
@@ -121,8 +107,8 @@ struct WebReducerStateActionTests {
   @Test("backToRoot 를 연속으로 보내도 State 는 변하지 않는다")
   func store_sendingBackToRootRepeatedly_keepsState() async {
     // Given
-    let store = TestStore(initialState: WebReducer.State(url: "https://dddstudy.kr/terms")) {
-      WebReducer()
+    let store = TestStore(initialState: WebFeature.State(url: "https://dddstudy.kr/terms")) {
+      WebFeature()
     }
 
     // When
@@ -137,8 +123,8 @@ struct WebReducerStateActionTests {
   @Test("빈 url 상태에서 backToRoot 를 보내도 State 는 변하지 않는다")
   func store_sendingBackToRootWithEmptyURL_keepsState() async {
     // Given
-    let store = TestStore(initialState: WebReducer.State(url: "")) {
-      WebReducer()
+    let store = TestStore(initialState: WebFeature.State(url: "")) {
+      WebFeature()
     }
 
     // When
@@ -151,8 +137,8 @@ struct WebReducerStateActionTests {
   @Test("일반 Store 로도 backToRoot 액션이 안전하게 처리된다")
   func liveStore_sendingBackToRoot_keepsState() {
     // Given
-    let store = Store(initialState: WebReducer.State(url: "https://dddstudy.kr")) {
-      WebReducer()
+    let store = Store(initialState: WebFeature.State(url: "https://dddstudy.kr")) {
+      WebFeature()
     }
 
     // When
@@ -162,13 +148,13 @@ struct WebReducerStateActionTests {
     #expect(store.url == "https://dddstudy.kr")
   }
 
-  @Test("WebReducer 는 인자 없이 생성할 수 있다")
+  @Test("WebFeature 는 인자 없이 생성할 수 있다")
   func init_defaultInitializer_buildsReducer() {
     // Given / When
-    var state = WebReducer.State(url: "https://dddstudy.kr")
+    var state = WebFeature.State(url: "https://dddstudy.kr")
 
     // Then
-    _ = WebReducer().reduce(into: &state, action: .backToRoot)
+    _ = WebFeature().reduce(into: &state, action: .backToRoot)
     #expect(state.url == "https://dddstudy.kr")
   }
 }

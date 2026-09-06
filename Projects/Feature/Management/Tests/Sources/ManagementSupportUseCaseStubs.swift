@@ -2,7 +2,7 @@
 //  ManagementSupportUseCaseStubs.swift
 //  ManagementTests
 //
-//  StaffMain / QrCode / AttendanceCheck 리듀서 테스트용 UseCase 스텁과 고정 픽스처.
+//  StaffMain / QrCode / AttendanceCheckFeature 리듀서 테스트용 UseCase 스텁과 고정 픽스처.
 //
 
 import Foundation

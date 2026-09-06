@@ -17,7 +17,7 @@ let project = Project.makeModule(
   product: .staticFramework,
   settings: .moduleSettings,
   dependencies: [
-    // App은 이 모듈의 bootstrap 하나만 호출하고, DomainAssembly가 컨텍스트 구현을 조립한다.
+    // 동적 하위 모듈의 DependencyKey.liveValue를 앱에 링크한다.
     .domainAssembly,
     .feature(.auth),
     .feature(.management),

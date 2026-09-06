@@ -187,9 +187,9 @@ extension AuthCoordinator {
 extension AuthCoordinator {
   @Reducer
   public enum AuthScreen {
-    case login(Login)
+    case login(LoginFeature)
     case onboarding(OnBoardingCoordinator)
-    case web(WebReducer)
+    case web(WebFeature)
   }
 }
 

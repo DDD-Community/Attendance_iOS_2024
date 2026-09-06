@@ -15,14 +15,14 @@ import Testing
 struct MemberMainViewRenderTests {
   @Test("멤버 홈 로딩 상태는 skeleton을 렌더링한다")
   func rendersLoadingSkeleton() {
-    var state = MemberMain.State()
+    var state = MemberMainFeature.State()
     state.didAppear = true
     state.viewState = .loading
 
     MemberViewRenderer.render(
       MemberMainView(
         store: Store(initialState: state) {
-          MemberMain()
+          MemberMainFeature()
         }
       )
     )
@@ -35,7 +35,7 @@ struct MemberMainViewRenderTests {
 
   @Test("출석 갱신 상태는 출석 카드 skeleton만 렌더링한다")
   func rendersAttendanceCardSkeleton() {
-    var state = MemberMain.State()
+    var state = MemberMainFeature.State()
     state.didAppear = true
     state.viewState = .loaded
     state.attendanceViewState = .loading
@@ -43,7 +43,7 @@ struct MemberMainViewRenderTests {
     MemberViewRenderer.render(
       MemberMainView(
         store: Store(initialState: state) {
-          MemberMain()
+          MemberMainFeature()
         }
       )
     )
@@ -51,7 +51,7 @@ struct MemberMainViewRenderTests {
 
   @Test("멤버 투표 로딩 상태는 투표 화면 skeleton을 렌더링한다")
   func rendersVoteLoadingSkeleton() {
-    var state = MemberMain.State()
+    var state = MemberMainFeature.State()
     state.didAppear = true
     state.viewState = .loaded
     state.selectedHomeTab = .vote
@@ -60,7 +60,7 @@ struct MemberMainViewRenderTests {
     MemberViewRenderer.render(
       MemberMainView(
         store: Store(initialState: state) {
-          MemberMain()
+          MemberMainFeature()
         }
       )
     )

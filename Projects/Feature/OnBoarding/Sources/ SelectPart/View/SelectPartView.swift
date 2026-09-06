@@ -5,6 +5,7 @@
 //  Created by DDD on 11/3/24.
 //
 
+import DDDAccessibility
 import DDDCoreUI
 import DDDSharedUI
 import SwiftUI
@@ -42,6 +43,7 @@ public struct SelectPartView: View {
             title: "프로젝트 참여하시는 직무을 선택해 주세요.",
             bottomSpacing: .fixed(20)
           )
+          .dddAccessibilityID(OnBoardingAccessibilityID.SelectPart.skeleton)
 
         case .loaded:
           signUpPartText()
@@ -55,6 +57,8 @@ public struct SelectPartView: View {
         send(.onAppear)
       }
     }
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(OnBoardingAccessibilityID.SelectPart.root)
   }
 }
 
@@ -88,8 +92,11 @@ extension SelectPartView {
             ) {
               send(.selectPartButton(selectPart: item))
             }
+            .dddAccessibilityID(OnBoardingAccessibilityID.SelectPart.item(item.jobKeys))
           }
         }
+        .accessibilityElement(children: .contain)
+        .dddAccessibilityID(OnBoardingAccessibilityID.SelectPart.list)
       }
       .scrollIndicators(.hidden)
       .frame(height: UIScreen.screenHeight * 0.6)
@@ -109,6 +116,7 @@ extension SelectPartView {
         config: CustomButtonConfig.create()
       )
       .isEnable(store.activeSelectPart)
+      .dddAccessibilityID(OnBoardingAccessibilityID.SelectPart.nextButton)
 
       Spacer()
         .frame(height: 20)

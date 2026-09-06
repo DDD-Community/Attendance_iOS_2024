@@ -1,0 +1,19 @@
+appId: io.DDD.Attendance
+name: 멤버 홈 주요 콘텐츠
+tags:
+  - e2e
+  - member
+---
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 30000
+- assertVisible:
+    id: "member.attendance.summary"
+- assertVisible:
+    id: "member.schedule.list"
+- assertNotVisible:
+    id: "member.home.skeleton"
+- takeScreenshot: .maestro/artifacts/member/home

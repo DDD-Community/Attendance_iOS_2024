@@ -4,7 +4,7 @@
 //
 //  Created by DDD on 2026-09-03
 //
-//  Login 리듀서의 모든 액션 분기(binding/view/async/inner/scope/delegate)를
+//  LoginFeature 리듀서의 모든 액션 분기(binding/view/async/inner/scope/delegate)를
 //  TestStore 로 태워 커버리지를 확보한다.
 //
 
@@ -17,7 +17,7 @@ import Testing
 @testable import Auth
 
 @MainActor
-@Suite("Login 액션 커버리지", .serialized)
+@Suite("LoginFeature 액션 커버리지", .serialized)
 struct LoginActionCoverageTests {
   // MARK: - binding
 
@@ -137,7 +137,6 @@ struct LoginActionCoverageTests {
     let store = Self.makeStore()
 
     await store.send(.inner(.loginResponse(.success(LoginTestFixture.member)))) {
-      $0.loginEntity = LoginTestFixture.member
       $0.staffRole = .member
       $0.userSession.userRole = .member
     }
@@ -150,7 +149,6 @@ struct LoginActionCoverageTests {
     let store = Self.makeStore()
 
     await store.send(.inner(.loginResponse(.success(LoginTestFixture.manager)))) {
-      $0.loginEntity = LoginTestFixture.manager
       $0.staffRole = .manager
       $0.userSession.userRole = .manager
     }
@@ -163,7 +161,6 @@ struct LoginActionCoverageTests {
     let store = Self.makeStore()
 
     await store.send(.inner(.loginResponse(.success(LoginTestFixture.roleless)))) {
-      $0.loginEntity = LoginTestFixture.roleless
       $0.staffRole = .member
       $0.userSession.userRole = .member
     }
@@ -176,7 +173,6 @@ struct LoginActionCoverageTests {
     let store = Self.makeStore(configureState: { $0.editGeneration = true })
 
     await store.send(.inner(.loginResponse(.success(LoginTestFixture.newUser)))) {
-      $0.loginEntity = LoginTestFixture.newUser
       $0.staffRole = nil
       $0.userSession.userRole = .manager
       $0.editGeneration = false
@@ -293,19 +289,19 @@ private extension LoginActionCoverageTests {
   static func makeStore(
     clock: TestClock<Duration> = TestClock(),
     oauthOutcome: Result<LoginEntity, AuthError>? = nil,
-    configureState: (inout Login.State) -> Void = { _ in }
-  ) -> TestStore<Login.State, Login.Action> {
+    configureState: (inout LoginFeature.State) -> Void = { _ in }
+  ) -> TestStore<LoginFeature.State, LoginFeature.Action> {
     let appStorage = UserDefaults.inMemory
     let inMemoryStorage = InMemoryStorage()
 
     return TestStore(
       initialState: {
-        var state = Login.State()
+        var state = LoginFeature.State()
         configureState(&state)
         return state
       }()
     ) {
-      Login()
+      LoginFeature()
     } withDependencies: {
       $0.defaultAppStorage = appStorage
       $0.defaultInMemoryStorage = inMemoryStorage

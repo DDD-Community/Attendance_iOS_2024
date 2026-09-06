@@ -15,6 +15,7 @@ import OnBoardingDomain
 import ProfileDomain
 import QRCodeDomain
 import ScheduleDomain
+import ServiceAssembly
 import VoteDomain
 
 @testable import DomainAssembly
@@ -25,7 +26,7 @@ struct DomainAssemblyTests {
   func appleProviderResolvesFromApplicationAssembly() {
     withDependencies {
       $0 = .live
-      DomainDependencyAssembly.register(into: &$0)
+      ServiceDependencyAssembly.register(into: &$0)
     } operation: {
       @Dependency(\.appleOAuthProvider) var provider
 
@@ -37,7 +38,7 @@ struct DomainAssemblyTests {
   func googleProviderResolvesFromApplicationAssembly() {
     withDependencies {
       $0 = .live
-      DomainDependencyAssembly.register(into: &$0)
+      ServiceDependencyAssembly.register(into: &$0)
     } operation: {
       @Dependency(\.googleOAuthProvider) var provider
 
@@ -48,14 +49,17 @@ struct DomainAssemblyTests {
   @Test("DomainAssembly는 도메인별 UseCase 구현을 등록한다")
   func registersUseCaseDependencies() {
     withDependencies {
-      DomainDependencyAssembly.register(into: &$0)
+      $0.context = .live
+      ServiceDependencyAssembly.register(into: &$0)
     } operation: {
+      @Dependency(\.appUpdateUseCase) var appUpdateUseCase
       @Dependency(\.attendanceUseCase) var attendanceUseCase
       @Dependency(\.authUseCase) var authUseCase
       @Dependency(\.profileUseCase) var profileUseCase
       @Dependency(\.onBoardingUseCase) var onBoardingUseCase
       @Dependency(\.voteUseCase) var voteUseCase
 
+      #expect(appUpdateUseCase is AppUpdateUseCaseImpl)
       #expect(attendanceUseCase is AttendanceUseCaseImpl)
       #expect(authUseCase is AuthUseCaseImpl)
       #expect(profileUseCase is ProfileUseCaseImpl)

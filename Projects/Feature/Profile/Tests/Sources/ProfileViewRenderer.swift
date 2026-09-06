@@ -35,14 +35,14 @@ enum ProfileViewRenderer {
   }
 
   /// onAppear 에서 fetchUser 이펙트가 돌아도 네트워크를 타지 않도록
-  /// 스텁 의존성을 심은 ProfileReducer 스토어를 만든다.
+  /// 스텁 의존성을 심은 ProfileFeature 스토어를 만든다.
   static func makeStore(
-    state: ProfileReducer.State,
+    state: ProfileFeature.State,
     profileUseCase: StubProfileUseCase = StubProfileUseCase(),
     authRepository: StubAuthRepository = StubAuthRepository()
-  ) -> StoreOf<ProfileReducer> {
+  ) -> StoreOf<ProfileFeature> {
     Store(initialState: state) {
-      ProfileReducer()
+      ProfileFeature()
     } withDependencies: {
       $0.profileUseCase = profileUseCase
       $0.authUseCase = authRepository
@@ -54,9 +54,9 @@ enum ProfileViewRenderer {
   static func makeStore(
     profile: ProfileEntity?,
     isLoading: Bool = false
-  ) -> StoreOf<ProfileReducer> {
-    var state = ProfileReducer.State()
-    state.profileModel = profile
+  ) -> StoreOf<ProfileFeature> {
+    var state = ProfileFeature.State()
+    state.profile = profile
     state.viewState = isLoading ? .loading : .loaded
     return makeStore(state: state)
   }

@@ -1,0 +1,61 @@
+# VoteFeedbackView 화면. 팀 선택 다음 단계이며 제출은 하지 않는다.
+# 팀 선택/다음은 로컬 단계 이동이라 서버 상태를 바꾸지 않는다.
+appId: io.DDD.Attendance
+name: 멤버 투표 피드백 화면
+tags:
+  - e2e
+  - member
+  - vote
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 30000
+
+- runFlow:
+    file: ../_shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "member.home.sectionbutton"
+      SECTION_ITEM_ID: "member.home.dropdown.item.vote"
+
+- extendedWaitUntil:
+    visible:
+      id: "member.vote.teamselect.root"
+    timeout: 30000
+- tapOn:
+    id: "member.vote.teamselect.team.[0-9]+"
+    index: 0
+- tapOn:
+    id: "member.vote.teamselect.nextbutton"
+
+- extendedWaitUntil:
+    visible:
+      id: "member.vote.feedback.root"
+    timeout: 30000
+- assertVisible:
+    id: "member.vote.feedback.question.*"
+- assertVisible:
+    id: "member.vote.feedback.submitbutton"
+
+- takeScreenshot: .maestro/artifacts/member/vote-feedback
+
+- swipe:
+    start: "2%, 50%"
+    end: "80%, 50%"
+- tapOn:
+    text: "나가기"
+
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 30000
+- runFlow:
+    file: ../_shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "member.home.sectionbutton"
+      SECTION_ITEM_ID: "member.home.dropdown.item.attendance"
+- extendedWaitUntil:
+    visible:
+      id: "member.attendance.summary"
+    timeout: 30000

@@ -54,6 +54,23 @@ private enum AppDateFormatter {
     }
     return date
   }
+
+  static func date(
+    from value: String,
+    format: AppDateFormat,
+    timeZone: TimeZone
+  ) -> Date? {
+    let formatter = DateFormatter()
+    formatter.locale = locale
+    formatter.timeZone = timeZone
+    formatter.calendar = calendar
+    formatter.dateFormat = format.rawValue
+
+    guard let date = formatter.date(from: value), formatter.string(from: date) == value else {
+      return nil
+    }
+    return date
+  }
 }
 
 public extension String {
@@ -70,10 +87,23 @@ public extension String {
   func date(as format: AppDateFormat) -> Date? {
     return AppDateFormatter.date(from: self, format: format)
   }
+
+  func date(as format: AppDateFormat, timeZone: TimeZone) -> Date? {
+    AppDateFormatter.date(from: self, format: format, timeZone: timeZone)
+  }
 }
 
 public extension Date {
   func formatted(_ format: AppDateFormat) -> String {
     AppDateFormatter[format].string(from: self)
+  }
+
+  func formatted(_ format: AppDateFormat, timeZone: TimeZone) -> String {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.timeZone = timeZone
+    formatter.calendar = Calendar(identifier: .gregorian)
+    formatter.dateFormat = format.rawValue
+    return formatter.string(from: self)
   }
 }

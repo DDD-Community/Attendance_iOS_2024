@@ -1,0 +1,20 @@
+appId: io.DDD.Attendance
+name: 로그인부터 멤버 홈까지
+tags:
+  - e2e
+  - login
+  - member
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    file: ../login/google_member.yaml
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 60000
+- assertVisible:
+    id: "member.attendance.summary"
+- assertVisible:
+    id: "member.schedule.list"
+- takeScreenshot: .maestro/artifacts/member/login-to-home

@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import DDDAccessibility
 import DDDDesignKit
 
 /// 멤버 투표의 초기 로딩 화면. 첫 단계인 팀 선택 화면과 같은 구조를 유지한다.
@@ -34,6 +35,7 @@ struct MemberVoteSkeletonView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color.backGroundPrimary)
+    .dddAccessibilityID(MemberAccessibilityID.Vote.skeleton)
   }
 
   private var progressSkeleton: some View {
@@ -92,9 +94,7 @@ struct MemberVoteSkeletonView: View {
         teamRowSkeleton
 
         if index < 3 {
-          Rectangle()
-            .fill(Color.gray90)
-            .frame(height: 1)
+          DDDDivider(color: .gray90)
         }
       }
     }

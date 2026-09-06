@@ -5,12 +5,12 @@
 //  Created by DDD on 11/3/24.
 //
 
+import DDDAccessibility
 import DDDSharedUI
 import SwiftUI
 
 import DDDDesignKit
 
-import SwiftUIX
 import ComposableArchitecture
 
 
@@ -24,7 +24,7 @@ public struct  OnBoardingNameView: View {
   
   
   public var body: some View {
-    LazyView {
+    DDDLazyView {
       ZStack {
         Color.backGroundPrimary
           .edgesIgnoringSafeArea(.all)
@@ -57,16 +57,15 @@ public struct  OnBoardingNameView: View {
             .frame(height: 20)
         }
         .onTapGesture {
-          UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+          dismissKeyboard()
         }
-      }
-      .onTapGesture {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
       }
       .onAppear {
         send(.initSignUpName)
       }
     }
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(OnBoardingAccessibilityID.Name.root)
   }
 }
 
@@ -104,6 +103,7 @@ extension  OnBoardingNameView {
                 .font(.pretendardFontFamily(family: .Medium, size: 16))
                 .foregroundColor(.white.opacity(0.6))   // placeholder 색
             )
+            .dddAccessibilityID(OnBoardingAccessibilityID.Name.textField)
             .dddFont(.body2NormalMedium)  // 입력 글자 스타일
             .foregroundStyle(.staticWhite)                        // 입력 글자 색
             .frame(maxWidth: .infinity)
@@ -172,6 +172,7 @@ extension  OnBoardingNameView {
         config: CustomButtonConfig.create()
       )
       .isEnable(store.enableButton)
+      .dddAccessibilityID(OnBoardingAccessibilityID.Name.nextButton)
     }
     .padding(.horizontal, 24)
   }

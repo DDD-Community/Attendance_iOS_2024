@@ -14,7 +14,7 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "ServiceAssembly",
   bundleId: .appBundleID(name: ".ServiceAssembly"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [
     .core(.assembly),

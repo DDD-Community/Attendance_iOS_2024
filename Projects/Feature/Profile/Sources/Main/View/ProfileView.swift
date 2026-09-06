@@ -6,16 +6,18 @@
 //
 
 import DDDCoreUI
+import DDDAccessibility
+import Foundation
 import SwiftUI
 
 import ComposableArchitecture
 import DDDDesignKit
 
-@ViewAction(for: ProfileReducer.self)
+@ViewAction(for: ProfileFeature.self)
 public struct ProfileView: View {
-  @Bindable public var store: StoreOf<ProfileReducer>
+  @Bindable public var store: StoreOf<ProfileFeature>
 
-  public init(store: StoreOf<ProfileReducer>) {
+  public init(store: StoreOf<ProfileFeature>) {
     self.store = store
   }
 
@@ -68,9 +70,13 @@ extension ProfileView {
         CustomNavigationBar(backAction: { store.send(.delegate(.presentBack)) }, addAction: {
           send(.appearModal)
         }, image: .info)
+        .backButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.backButton)
+        .actionButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.infoButton)
 
         ProfileSkeletonView()
+          .dddAccessibilityID(ProfileAccessibilityID.Main.skeleton)
       }
+      .dddAccessibilityID(ProfileAccessibilityID.Main.root)
     } else {
       mangerProfileData()
     }
@@ -85,8 +91,11 @@ extension ProfileView {
       CustomNavigationBar(backAction: { store.send(.delegate(.presentBack)) }, addAction: {
         send(.appearModal)
       }, image: .info)
+      .backButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.backButton)
+      .actionButtonAccessibilityIdentifier(ProfileAccessibilityID.Main.infoButton)
 
       mangerCardImage()
+        .dddAccessibilityID(ProfileAccessibilityID.Main.card)
 
       logoutButton()
 
@@ -94,6 +103,7 @@ extension ProfileView {
 
       Spacer()
     }
+    .dddAccessibilityID(ProfileAccessibilityID.Main.root)
   }
 
   @ViewBuilder
@@ -167,6 +177,7 @@ extension ProfileView {
         .dddFont(.body3NormalMedium)
         .foregroundStyle(.staticWhite)
     }
+    .dddAccessibilityID(ProfileAccessibilityID.Main.generationEditButton)
     .padding(.horizontal, 18)
     .padding(.vertical, 10)
     .background {
@@ -209,7 +220,7 @@ extension ProfileView {
 
   private var jobRoleComponent: some View {
     managerTextComponent(
-      title: store.managerProfileRoleType,
+      title: "직군",
       subTitle: store.displayedProfile?.jobRole.desc ?? "",
       managingTeam: "",
       isManaging: false,
@@ -222,7 +233,7 @@ extension ProfileView {
 
     return Group {
       managerTextComponent(
-        title: store.memberSelectTeam,
+        title: "소속 팀",
         subTitle: "매니징",
         managingTeam: team.attendanceListDescription,
         isManaging: true,
@@ -230,7 +241,7 @@ extension ProfileView {
       )
 
       managerTextComponent(
-        title: store.managerProfileGeneration,
+        title: "소속 기수",
         subTitle: store.displayedProfile?.generation ?? "",
         managingTeam: "",
         isManaging: false,
@@ -239,7 +250,7 @@ extension ProfileView {
 
       if let managerRoles = store.displayedProfile?.manger, !managerRoles.isEmpty {
         managerTextComponent(
-          title: store.managerProfileManaging,
+          title: "담당 업무",
           subTitle: managerRoles.map { $0.desc }.joined(separator: " / "),
           managingTeam: "",
           isManaging: false,
@@ -254,7 +265,7 @@ extension ProfileView {
 
     return Group {
       managerTextComponent(
-        title: store.memberSelectTeam,
+        title: "소속 팀",
         subTitle: team.attendanceListDescription,
         managingTeam: "",
         isManaging: false,
@@ -262,7 +273,7 @@ extension ProfileView {
       )
 
       managerTextComponent(
-        title: store.managerProfileGeneration,
+        title: "소속 기수",
         subTitle: store.displayedProfile?.generation ?? "",
         managingTeam: "",
         isManaging: false,
@@ -363,24 +374,25 @@ extension ProfileView {
 
       HStack(alignment: .center) {
 
-        Text("탈퇴하기")
-          .dddFont(.body2NormalMedium)
-          .foregroundStyle(.mediumGray)
-          .underline(true, color: .mediumGray)
-          .onTapGesture {
-            send(.showWithdrawAlert)
-          }
+        DDDUnderlinedTextButton(
+          title: "탈퇴하기",
+          font: .body2NormalMedium,
+          foregroundColor: .mediumGray,
+          underlineColor: .mediumGray,
+          action: { send(.showWithdrawAlert) }
+        )
+          .dddAccessibilityID(ProfileAccessibilityID.Main.withdrawButton)
 
       Spacer()
           .frame(width: 64)
 
-        Text(store.logoutText)
-          .dddFont(.body2NormalMedium)
-          .foregroundStyle(.staticWhite)
-          .underline(true, color: .staticWhite)
-          .onTapGesture {
-            send(.showLogoutAlert)
-          }
+        DDDUnderlinedTextButton(
+          title: "로그아웃",
+          font: .body2NormalMedium,
+          foregroundColor: .staticWhite,
+          underlineColor: .staticWhite,
+          action: { send(.showLogoutAlert) }
+        )
       }
     }
     .padding(.horizontal, 24)
@@ -393,23 +405,29 @@ extension ProfileView {
         .frame(height: 12)
 
 
-      Text("Version \(store.appVersion)")
+      Text("Version \(appVersion)")
         .dddFont(.body3NormalRegular)
         .foregroundStyle(.mediumGray100)
+        .dddAccessibilityID(ProfileAccessibilityID.Main.version)
 
       Spacer()
         .frame(height: 4)
 
-      Text("개인정보처리방침 보기")
-        .dddFont(.body3NormalRegular)
-        .foregroundStyle(.mediumGray)
-        .underline(true, color: .mediumGray)
-        .onTapGesture {
-          store.send(.delegate(.presentPrivacyPolicy))
-        }
+      DDDUnderlinedTextButton(
+        title: "개인정보처리방침 보기",
+        font: .body3NormalRegular,
+        foregroundColor: .mediumGray,
+        underlineColor: .mediumGray,
+        action: { store.send(.delegate(.presentPrivacyPolicy)) }
+      )
+        .dddAccessibilityID(ProfileAccessibilityID.Main.privacyPolicyButton)
 
       Spacer()
         .frame(height: 20)
     }
+  }
+
+  private var appVersion: String {
+    Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
   }
 }

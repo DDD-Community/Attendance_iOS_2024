@@ -1,0 +1,21 @@
+# 홈 상단 섹션 버튼으로 드롭다운을 열고 원하는 탭으로 전환한다.
+# 호출 측에서 SECTION_BUTTON_ID(섹션 버튼)와 SECTION_ITEM_ID(드롭다운 항목)를 넘긴다.
+# 운영진/멤버 홈 모두 같은 드롭다운 구조라 한 파일로 공유한다.
+appId: io.DDD.Attendance
+name: 홈 섹션 전환
+tags:
+  - e2e
+  - shared
+---
+
+- tapOn:
+    id: "${SECTION_BUTTON_ID}"
+
+- extendedWaitUntil:
+    visible:
+      id: "${SECTION_ITEM_ID}"
+    timeout: 15000
+
+- tapOn:
+    id: "${SECTION_ITEM_ID}"
+- waitForAnimationToEnd

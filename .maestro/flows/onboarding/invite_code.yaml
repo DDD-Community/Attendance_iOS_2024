@@ -1,0 +1,40 @@
+# InviteCodeView 화면. 프로필의 "기수 변경"이 이 화면으로 이동한다.
+# 실제 코드를 확정하면 계정 기수가 바뀌므로 입력 칸 노출까지만 확인하고 되돌아온다.
+appId: io.DDD.Attendance
+name: 온보딩 초대 코드 화면
+tags:
+  - e2e
+  - onboarding
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "profile.main.root"
+    timeout: 30000
+
+- tapOn:
+    id: "profile.main.generationeditbutton"
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding.invitecode.root"
+    timeout: 30000
+- assertVisible:
+    id: "onboarding.invitecode.textfield.first"
+- assertVisible:
+    id: "onboarding.invitecode.textfield.second"
+- assertVisible:
+    id: "onboarding.invitecode.textfield.third"
+- assertVisible:
+    id: "onboarding.invitecode.textfield.last"
+- assertVisible:
+    id: "onboarding.invitecode.confirmbutton"
+
+- takeScreenshot: .maestro/artifacts/onboarding/invite-code
+
+- tapOn:
+    id: "onboarding.invitecode.backbutton"
+- extendedWaitUntil:
+    visible:
+      id: "profile.main.root"
+    timeout: 30000

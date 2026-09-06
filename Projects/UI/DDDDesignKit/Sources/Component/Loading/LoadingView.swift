@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-import SwiftUIX
 import DDDAnimation
+import DDDCoreUI
 
 public struct LoadingView: View {
   @State private var isVisible = false
@@ -16,7 +16,7 @@ public struct LoadingView: View {
   public init() {}
 
   public var body: some View {
-    LazyView {
+    DDDLazyView {
       ZStack {
         Color.basicBlack
           .edgesIgnoringSafeArea(.all)
@@ -48,4 +48,3 @@ extension LoadingView {
     }
   }
 }
-

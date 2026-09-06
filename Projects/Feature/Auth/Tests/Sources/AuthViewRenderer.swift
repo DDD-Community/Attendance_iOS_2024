@@ -34,19 +34,19 @@ enum AuthViewRenderer {
   /// `initialState` 는 autoclosure 라서 Store 내부의 의존성 컨텍스트에서 평가된다.
   /// 따라서 State 를 미리 만들지 않고 클로저 안에서 조립해야 격리가 유지된다.
   static func makeStore(
-    configureState: (inout Login.State) -> Void = { _ in }
-  ) -> StoreOf<Login> {
+    configureState: (inout LoginFeature.State) -> Void = { _ in }
+  ) -> StoreOf<LoginFeature> {
     let appStorage = UserDefaults.inMemory
     let inMemoryStorage = InMemoryStorage()
 
     return Store(
       initialState: {
-        var state = Login.State()
+        var state = LoginFeature.State()
         configureState(&state)
         return state
       }()
     ) {
-      Login()
+      LoginFeature()
     } withDependencies: {
       $0.defaultAppStorage = appStorage
       $0.defaultInMemoryStorage = inMemoryStorage

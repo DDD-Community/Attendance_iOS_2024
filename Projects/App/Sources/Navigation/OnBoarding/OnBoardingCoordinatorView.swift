@@ -6,6 +6,7 @@
 //
 
 import OnBoarding
+import DDDCoreUI
 import SwiftUI
 
 import ComposableArchitecture
@@ -25,23 +26,23 @@ public struct OnBoardingCoordinatorView: View {
       switch screen.case {
         case .InviteCode(let InviteCodeStore):
           InviteCodeView(store: InviteCodeStore)
-          .navigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
 
         case .onBoardingName(let onBoardingNameStore):
            OnBoardingNameView(store: onBoardingNameStore)
-          .navigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
 
         case .selectPart(let selectPartStore):
           SelectPartView(store: selectPartStore)
-          .navigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
 
         case .selectManaging(let selectManagingStore):
           SelectManagingView(store: selectManagingStore)
-          .navigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
 
         case .selectTeam(let signUpSelectTeamStore):
           SelectTeamView(store: signUpSelectTeamStore)
-          .navigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
       }
     }
   }

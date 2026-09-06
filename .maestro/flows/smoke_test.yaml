@@ -1,0 +1,51 @@
+# 5분 내 통과를 목표로 하는 스모크 스위트.
+# 로그인 2회(운영진/멤버)만 하고 서버 상태를 바꾸는 동작은 하지 않는다.
+appId: io.DDD.Attendance
+name: 스모크 테스트
+tags:
+  - smoke
+  - e2e
+---
+
+- runFlow:
+    file: splash/launch_to_login.yaml
+
+- runFlow:
+    file: management/login_to_home.yaml
+- assertVisible:
+    id: "management.attendance.root"
+- assertVisible:
+    id: "management.attendance.list"
+
+- runFlow:
+    file: _shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "management.staff.sectionbutton"
+      SECTION_ITEM_ID: "management.staff.dropdown.item.schedule"
+- extendedWaitUntil:
+    visible:
+      id: "management.schedule.root"
+    timeout: 30000
+- assertVisible:
+    id: "management.schedule.list"
+
+- runFlow:
+    file: _shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "management.staff.sectionbutton"
+      SECTION_ITEM_ID: "management.staff.dropdown.item.vote"
+- extendedWaitUntil:
+    visible:
+      id: "management.vote.root"
+    timeout: 30000
+- assertVisible:
+    id: "management.vote.statuschip"
+
+- takeScreenshot: .maestro/artifacts/smoke/management
+
+- runFlow:
+    file: member/login_to_home.yaml
+- runFlow:
+    file: member/home_smoke.yaml
+
+- takeScreenshot: .maestro/artifacts/smoke/member

@@ -1,0 +1,36 @@
+appId: io.DDD.Attendance
+name: 프로필 화면 주요 콘텐츠
+tags:
+  - e2e
+  - profile
+---
+- launchApp:
+    clearState: false
+
+# 운영진 홈에서 우측 상단 프로필 버튼으로 들어간다.
+- extendedWaitUntil:
+    visible:
+      id: "management.staff.root"
+    timeout: 30000
+- tapOn:
+    id: "management.staff.profilebutton"
+
+- extendedWaitUntil:
+    visible:
+      id: "profile.main.root"
+    timeout: 30000
+
+- assertVisible:
+    id: "profile.main.card"
+- assertVisible:
+    id: "profile.main.generationeditbutton"
+- assertVisible:
+    id: "profile.main.withdrawbutton"
+- assertVisible:
+    id: "profile.main.version"
+- assertVisible:
+    id: "profile.main.privacypolicybutton"
+- assertNotVisible:
+    id: "profile.main.skeleton"
+
+- takeScreenshot: .maestro/artifacts/profile/home

@@ -1,0 +1,15 @@
+appId: io.DDD.Attendance
+name: Google 운영진 계정 로그인
+---
+- runFlow:
+    file: google.yaml
+
+# suhwj81이 포함된 계정은 운영진 계정이다.
+- extendedWaitUntil:
+    visible: ".*계정(을)? 선택(하세요)?[.]*|.*Choose an account.*"
+    timeout: 30000
+- tapOn:
+    text: ".*suhwj81.*"
+- tapOn:
+    text: "Continue|계속"
+    optional: true

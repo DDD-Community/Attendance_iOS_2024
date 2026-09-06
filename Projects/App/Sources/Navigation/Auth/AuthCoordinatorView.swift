@@ -6,6 +6,7 @@
 //
 
 import Auth
+import DDDCoreUI
 import SwiftUI
 
 import OnBoarding
@@ -29,16 +30,16 @@ public struct AuthCoordinatorView: View {
       switch screen.case {
       case .login(let loginStore):
         LoginView(store: loginStore)
-          .navigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
 
         case .onboarding(let onBoardingStore):
           OnBoardingCoordinatorView(store: onBoardingStore)
-            .navigationBarBackButtonHidden()
+            .dddNavigationBarBackButtonHidden()
 
 
         case .web(let webStore):
           WebView(store: webStore)
-            .navigationBarBackButtonHidden()
+            .dddNavigationBarBackButtonHidden()
       }
     }
   }

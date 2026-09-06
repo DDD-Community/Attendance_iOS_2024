@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DDDAccessibility
 import DDDDesignKit
 import AttendanceDomainInterface
 
@@ -41,6 +42,7 @@ struct AttendanceDropdown: View {
       headerContent
     }
     .buttonStyle(.plain)
+    .dddAccessibilityID(ManagementAccessibilityID.Attendance.modalStatusButton)
   }
 
   private var headerContent: some View {
@@ -107,6 +109,7 @@ struct AttendanceDropdown: View {
       optionRowContent(for: status)
     }
     .buttonStyle(.plain)
+    .dddAccessibilityID(ManagementAccessibilityID.Attendance.modalStatus(status))
   }
 
   private func optionRowContent(for status: AttendanceStatus) -> some View {
@@ -131,9 +134,7 @@ struct AttendanceDropdown: View {
   }
 
   private var optionDivider: some View {
-    Rectangle()
-      .fill(.gray70)
-      .frame(height: 1)
+    DDDDivider(color: .gray70)
       .padding(.horizontal, 16)
   }
 }

@@ -1,0 +1,12 @@
+appId: io.DDD.Attendance
+name: Google 로그인 시작
+---
+- extendedWaitUntil:
+    visible:
+      id: "auth.login.root"
+    timeout: 30000
+- tapOn:
+    id: "auth.login.social.google.button"
+- tapOn:
+    text: "Continue|계속"
+    optional: true

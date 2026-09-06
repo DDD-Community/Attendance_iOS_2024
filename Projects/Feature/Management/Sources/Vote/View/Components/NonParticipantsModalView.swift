@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import DDDAccessibility
 import DDDDesignKit
 import VoteDomainInterface
 
@@ -21,6 +22,7 @@ extension View {
       if isPresented {
         NonParticipantsModalView(isLoading: isLoading, members: members, onClose: onClose)
           .transition(.opacity)
+          .dddAccessibilityID(ManagementAccessibilityID.Vote.nonParticipantsModal)
       }
     }
     .animation(.easeInOut(duration: 0.2), value: isPresented)
@@ -106,9 +108,7 @@ struct NonParticipantsModalView: View {
           memberRow(member)
 
           if index < members.count - 1 {
-            Rectangle()
-              .fill(Color.gray80)
-              .frame(height: 1)
+            DDDDivider(color: .gray80)
           }
         }
       }
@@ -124,9 +124,7 @@ struct NonParticipantsModalView: View {
         skeletonRow
 
         if index < 5 {
-          Rectangle()
-            .fill(Color.gray80)
-            .frame(height: 1)
+          DDDDivider(color: .gray80)
         }
       }
     }

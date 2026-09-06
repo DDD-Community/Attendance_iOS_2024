@@ -6,6 +6,7 @@
 //
 
 import Management
+import DDDCoreUI
 import SwiftUI
 
 import ComposableArchitecture
@@ -26,11 +27,11 @@ public struct StaffCoordinatorView: View {
       switch screens.case {
       case .coreMember(let coreMember):
         StaffView(store: coreMember)
-          .navigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
 
       case .profile(let profileStore):
        ProfileCoordinatorView(store: profileStore)
-        .navigationBarBackButtonHidden()
+        .dddNavigationBarBackButtonHidden()
       }
     }
   }

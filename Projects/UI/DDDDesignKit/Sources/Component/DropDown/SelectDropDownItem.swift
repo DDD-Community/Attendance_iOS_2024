@@ -8,13 +8,13 @@
 import Foundation
 
 public enum SelectDropDownItem: String, CaseIterable, Codable {
-  case attandance
+  case attendance = "attandance"
   case schedule
   case vote
   
   public var desc: String {
     switch self {
-    case .attandance:
+    case .attendance:
       return "출석"
     case .schedule:
       return "일정"

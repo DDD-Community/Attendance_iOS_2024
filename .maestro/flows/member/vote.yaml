@@ -1,0 +1,42 @@
+# 멤버 홈에서 투표 탭으로 전환해 투표 화면 진입까지만 확인한다.
+# 투표 제출은 서버 상태를 바꾸므로 하지 않는다.
+appId: io.DDD.Attendance
+name: 멤버 투표 화면 진입
+tags:
+  - e2e
+  - member
+  - vote
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 30000
+
+- runFlow:
+    file: ../_shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "member.home.sectionbutton"
+      SECTION_ITEM_ID: "member.home.dropdown.item.vote"
+
+- extendedWaitUntil:
+    visible:
+      id: "member.vote.root"
+    timeout: 30000
+- extendedWaitUntil:
+    notVisible:
+      id: "member.vote.skeleton"
+    timeout: 30000
+
+- takeScreenshot: .maestro/artifacts/member/vote
+
+# 홈 계약: 출석 탭으로 복귀한다.
+- runFlow:
+    file: ../_shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "member.home.sectionbutton"
+      SECTION_ITEM_ID: "member.home.dropdown.item.attendance"
+- extendedWaitUntil:
+    visible:
+      id: "member.attendance.summary"
+    timeout: 30000

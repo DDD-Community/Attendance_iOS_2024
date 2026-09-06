@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import DDDAccessibility
 import DDDDesignKit
 import VoteDomainInterface
 
@@ -23,6 +24,13 @@ struct FeedbackQuestionView: View {
   private let defaultPlaceholder = "자유롭게 의견을 남겨주세요."
 
   var body: some View {
+    content
+      .accessibilityElement(children: .contain)
+      .dddAccessibilityID(MemberAccessibilityID.Vote.Feedback.question(question.id))
+  }
+
+  @ViewBuilder
+  private var content: some View {
     switch question.type {
     case .multiSelect, .teamSelect:
       multiSelectView
@@ -55,6 +63,9 @@ struct FeedbackQuestionView: View {
         items: (question.options ?? []).map { ChipItem(id: $0.id, title: $0.label) },
         selectedIDs: $selectedOptionIds
       )
+      .accessibilityIdentifier { item in
+        MemberAccessibilityID.Vote.Feedback.option(question.id, item.id)
+      }
 
       ForEach(question.followUp) { followUp in
         FeedbackTextEditor(

@@ -1,0 +1,24 @@
+# 비로그인 상태로 재실행해도 로그인 화면을 유지하는지 확인한다.
+appId: io.DDD.Attendance
+name: 재실행 후에도 로그인 화면 유지
+tags:
+  - smoke
+  - login
+  - session
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "auth.login.root"
+    timeout: 30000
+
+- launchApp:
+    clearState: false
+
+- extendedWaitUntil:
+    visible:
+      id: "auth.login.root"
+    timeout: 30000
+- assertVisible:
+    id: "auth.login.logo"

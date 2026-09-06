@@ -11,19 +11,19 @@ import Testing
 @testable import Web
 
 @MainActor
-@Suite("WebReducer")
+@Suite("WebFeature")
 struct WebReducerTests {
   @Test("초기화 때 전달한 URL을 State에 보관한다")
   func initStoresURL() {
-    let state = WebReducer.State(url: "https://dddstudy.kr/privacy")
+    let state = WebFeature.State(url: "https://dddstudy.kr/privacy")
 
     #expect(state.url == "https://dddstudy.kr/privacy")
   }
 
   @Test("backToRoot 액션은 웹 상태를 변경하지 않는다")
   func backToRootDoesNotMutateState() async {
-    let store = TestStore(initialState: WebReducer.State(url: "https://dddstudy.kr")) {
-      WebReducer()
+    let store = TestStore(initialState: WebFeature.State(url: "https://dddstudy.kr")) {
+      WebFeature()
     }
 
     await store.send(.backToRoot)

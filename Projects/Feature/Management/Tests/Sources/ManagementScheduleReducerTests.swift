@@ -4,8 +4,8 @@
 //
 //  Created by DDD on 2026-09-03.
 //
-//  ScheduleReducer 의 view / async / inner / delegate / binding 분기를 훑는다.
-//  ScheduleReducer 는 InnerAction 과 AsyncAction 에 @CasePathable 이 없어
+//  ScheduleFeature 의 view / async / inner / delegate / binding 분기를 훑는다.
+//  ScheduleFeature 는 InnerAction 과 AsyncAction 에 @CasePathable 이 없어
 //  최상위 케이스 키패스(\.async, \.inner)로만 receive 한다.
 //
 
@@ -23,8 +23,8 @@ struct ManagementScheduleReducerTests {
     var stub = ManagementScheduleUseCaseStub()
     stub.schedules = ManagementScheduleFixture.all
 
-    let store = TestStore(initialState: ScheduleReducer.State()) {
-      ScheduleReducer()
+    let store = TestStore(initialState: ScheduleFeature.State()) {
+      ScheduleFeature()
     } withDependencies: {
       $0.scheduleUseCase = stub
     }
@@ -35,7 +35,7 @@ struct ManagementScheduleReducerTests {
     await store.receive(\.async)
     await store.receive(\.inner) {
       $0.viewState = .loaded
-      $0.scheduleModel = .init(uniqueElements: ManagementScheduleFixture.all)
+      $0.schedules = .init(uniqueElements: ManagementScheduleFixture.all)
     }
 
     // 두 번째 onAppear 는 loading 을 건드리지 않고 목록만 다시 받아온다.
@@ -47,8 +47,8 @@ struct ManagementScheduleReducerTests {
   /// 빈 목록도 정상 응답이다. 로딩만 내리고 목록은 비어 있어야 한다.
   @Test("빈 스케줄 응답은 로딩만 내리고 빈 목록을 유지한다")
   func emptyScheduleResponseKeepsEmptyList() async {
-    let store = TestStore(initialState: ScheduleReducer.State()) {
-      ScheduleReducer()
+    let store = TestStore(initialState: ScheduleFeature.State()) {
+      ScheduleFeature()
     } withDependencies: {
       $0.scheduleUseCase = ManagementScheduleUseCaseStub()
     }
@@ -65,11 +65,11 @@ struct ManagementScheduleReducerTests {
     var stub = ManagementScheduleUseCaseStub()
     stub.error = .loadFailed
 
-    var state = ScheduleReducer.State()
-    state.scheduleModel = .init(uniqueElements: [ManagementScheduleFixture.orientation])
+    var state = ScheduleFeature.State()
+    state.schedules = .init(uniqueElements: [ManagementScheduleFixture.orientation])
 
     let store = TestStore(initialState: state) {
-      ScheduleReducer()
+      ScheduleFeature()
     } withDependencies: {
       $0.scheduleUseCase = stub
     }
@@ -78,31 +78,13 @@ struct ManagementScheduleReducerTests {
     await store.receive(\.inner) {
       $0.viewState = .loaded
     }
-    #expect(store.state.scheduleModel.count == 1)
-  }
-
-  @Test("stratLoading 과 stopLoading 은 로딩 플래그를 토글한다")
-  func loadingActionsToggleFlag() async {
-    // 기본값이 .loading 이라 토글을 보려면 .loaded 에서 출발해야 한다.
-    var state = ScheduleReducer.State()
-    state.viewState = .loaded
-
-    let store = TestStore(initialState: state) {
-      ScheduleReducer()
-    }
-
-    await store.send(.view(.stratLoading)) {
-      $0.viewState = .loading
-    }
-    await store.send(.view(.stopLoading)) {
-      $0.viewState = .loaded
-    }
+    #expect(store.state.schedules.count == 1)
   }
 
   @Test("바인딩 액션은 상태를 그대로 반영한다")
   func bindingActionUpdatesState() async {
-    let store = TestStore(initialState: ScheduleReducer.State()) {
-      ScheduleReducer()
+    let store = TestStore(initialState: ScheduleFeature.State()) {
+      ScheduleFeature()
     }
 
     await store.send(.binding(.set(\.hasFetchedSchedule, true))) {

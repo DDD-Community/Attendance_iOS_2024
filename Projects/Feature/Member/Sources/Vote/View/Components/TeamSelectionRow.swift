@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import DDDSharedUI
+
 /// 팀 투표 1단계의 팀 선택 행 (이름 + 서비스명 + 체크박스/본인팀 칩).
 /// 도메인 비의존 — feature 에서 모델을 매핑해 사용한다.
 struct TeamSelectionRow: View {
@@ -89,12 +91,4 @@ struct TeamSelectionRow: View {
       .frame(width: 22, height: 22)
   }
 
-  private func dismissKeyboard() {
-    UIApplication.shared.sendAction(
-      #selector(UIResponder.resignFirstResponder),
-      to: nil,
-      from: nil,
-      for: nil
-    )
-  }
 }

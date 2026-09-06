@@ -60,9 +60,10 @@ public struct AttendanceCard: View {
   }
   
   private var divider: some View {
-    Rectangle()
-      .frame(width: 1, height: 48)
-      .foregroundStyle(.borderDisabled)
+    DDDDivider(
+      color: .borderDisabled,
+      orientation: .vertical(height: 48)
+    )
   }
 }
 

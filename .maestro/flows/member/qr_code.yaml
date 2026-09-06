@@ -1,0 +1,36 @@
+# 멤버 홈에서 출석용 QR 코드를 열고 홈으로 돌아온다.
+appId: io.DDD.Attendance
+name: 멤버 QR 코드 조회
+tags:
+  - e2e
+  - member
+  - qr
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 30000
+
+- tapOn:
+    id: "member.home.qrbutton"
+
+- extendedWaitUntil:
+    visible:
+      id: "member.qrcode.root"
+    timeout: 30000
+- extendedWaitUntil:
+    notVisible:
+      id: "member.qrcode.skeleton"
+    timeout: 30000
+- assertVisible:
+    id: "member.qrcode.image"
+
+- takeScreenshot: .maestro/artifacts/member/qr-code
+
+- tapOn:
+    id: "member.qrcode.backbutton"
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 30000

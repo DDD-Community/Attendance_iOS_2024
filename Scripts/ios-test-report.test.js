@@ -5,6 +5,7 @@ const path = require("node:path");
 const test = require("node:test");
 
 const {
+  findFilesByExtension,
   internalCoverageTargetNames,
   mergeCoverage,
   readBundleInsights,
@@ -12,6 +13,28 @@ const {
   renderBundleInsights,
 } =
   require("./ios-test-report.js").__test__;
+
+test("xccov package 디렉터리를 coverage 병합 입력으로 찾는다", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "xccov-packages-"));
+  const archive = path.join(directory, "0.xccovarchive");
+  const report = path.join(directory, "0.xccovreport");
+  fs.mkdirSync(archive);
+  fs.writeFileSync(report, "report");
+
+  assert.deepEqual(findFilesByExtension(directory, ".xccovarchive"), [archive]);
+  assert.deepEqual(findFilesByExtension(directory, ".xccovreport"), [report]);
+});
+
+test("Xcode 26 coverage export 이름을 coverage 병합 입력으로 찾는다", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "xcode-26-coverage-"));
+  const archive = path.join(directory, "0_Test_iPhone 17 Pro_CoverageArchive");
+  const report = path.join(directory, "0_Test_iPhone 17 Pro_CoverageReport");
+  fs.mkdirSync(archive);
+  fs.writeFileSync(report, "report");
+
+  assert.deepEqual(findFilesByExtension(directory, ".xccovarchive"), [archive]);
+  assert.deepEqual(findFilesByExtension(directory, ".xccovreport"), [report]);
+});
 
 test("프로젝트 매니페스트에서 자사 커버리지 대상을 구성한다", () => {
   const targets = internalCoverageTargetNames();
@@ -65,6 +88,25 @@ test("Tuist run report에서 테스트와 빌드 dashboard URL을 찾는다", ()
   assert.equal(
     readDashboardURL(reportPath, "/builds/build-runs/"),
     "https://tuist.dev/DDD2026/attendance/builds/build-runs/build-id",
+  );
+});
+
+test("shard별 Tuist run report 디렉터리에서도 dashboard URL을 찾는다", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "tuist-shard-reports-"));
+  fs.mkdirSync(path.join(directory, "shard-0"));
+  fs.mkdirSync(path.join(directory, "shard-1"));
+  fs.writeFileSync(
+    path.join(directory, "shard-0", "TestRunReport-0.json"),
+    JSON.stringify({ message: "첫 shard" }),
+  );
+  fs.writeFileSync(
+    path.join(directory, "shard-1", "TestRunReport-1.json"),
+    JSON.stringify({ url: "https://tuist.dev/DDD2026/attendance/tests/test-runs/shard-id" }),
+  );
+
+  assert.equal(
+    readDashboardURL(directory, "/tests/test-runs/"),
+    "https://tuist.dev/DDD2026/attendance/tests/test-runs/shard-id",
   );
 });
 

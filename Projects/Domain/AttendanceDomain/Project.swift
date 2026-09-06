@@ -13,7 +13,7 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "AttendanceDomain",
   bundleId: .appBundleID(name: ".AttendanceDomain"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [
     .serviceAssembly,

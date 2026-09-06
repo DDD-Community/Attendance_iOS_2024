@@ -43,7 +43,7 @@ public enum AttendanceModalAction: BindableAction, Equatable {
 // MARK: - AttendanceModalReducer
 
 @Reducer
-public struct AttendanceModal {
+public struct AttendanceModalFeature {
   public init() {}
 
   public var body: some Reducer<AttendanceModalState<AttendanceModalAction>, AttendanceModalAction> {
@@ -59,7 +59,7 @@ public struct AttendanceModal {
   }
 }
 
-// MARK: - Factory Methods (ProfileReducer customAlert 패턴)
+// MARK: - Factory Methods (ProfileFeature customAlert 패턴)
 
 public extension AttendanceModalState where Action == AttendanceModalAction {
   /// 기본 출석 상태 변경 모달

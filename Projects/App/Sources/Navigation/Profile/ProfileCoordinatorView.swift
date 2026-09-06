@@ -6,6 +6,7 @@
 //
 
 import Profile
+import DDDCoreUI
 import SwiftUI
 
 import ComposableArchitecture
@@ -27,15 +28,15 @@ public struct ProfileCoordinatorView: View {
       switch screens.case {
         case .profile(let profileStore):
           ProfileView(store: profileStore)
-          .navigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
 
         case .web(let webStore):
           WebView(store: webStore)
-            .navigationBarBackButtonHidden()
+            .dddNavigationBarBackButtonHidden()
 
         case .onBoarding(let onBoardingStore):
           OnBoardingCoordinatorView(store: onBoardingStore)
-            .navigationBarBackButtonHidden()
+            .dddNavigationBarBackButtonHidden()
       }
     }
   }

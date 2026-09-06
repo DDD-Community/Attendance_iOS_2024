@@ -15,7 +15,7 @@ let project = Project.makeAppModule(
   product: .app,
   settings: .appMainSetting,
   scripts: [],
-  // App은 FeatureAssembly 하나만 알고, Repository·Service 구현 조립은 하위 Assembly가 담당한다.
+  // App은 FeatureAssembly의 composition root 하나만 호출한다.
   dependencies: [
     .featureAssembly,
   ],

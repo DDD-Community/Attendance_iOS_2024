@@ -14,7 +14,7 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "DomainAssembly",
   bundleId: .appBundleID(name: ".DomainAssembly"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   // 컨텍스트별 Repository와 UseCase 구현을 한곳에서 조립하는 앱 진입 경계.
   dependencies: [

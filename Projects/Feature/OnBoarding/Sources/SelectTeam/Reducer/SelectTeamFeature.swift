@@ -24,7 +24,7 @@ public struct SelectTeamFeature {
   public struct State: Equatable {
     public init() {}
 
-    var activeButton: Bool = false
+    var activeButton = false
     var selectTeam: SelectTeams? = .unknown
     /// 이 화면이 지금 무엇을 그려야 하는지.
     public enum ViewState: Equatable {
@@ -34,11 +34,8 @@ public struct SelectTeamFeature {
 
     /// 첫 진입은 항상 fetch 로 시작한다. 빈 화면이 한 프레임 스쳐 지나가지 않도록 스켈레톤부터 그린다.
 
-    var viewState: ViewState = .loading
-    var errorMessage: String?
-    var teams: IdentifiedArrayOf<SelectTeamEntity> = .init(uniqueElements: [])
-    var signUpUser: SignUpUser?
-    var editProfile: ProfileEntity?
+    var viewState = ViewState.loading
+    var teams: IdentifiedArrayOf<SelectTeamEntity> = []
 
 
     @Shared(.userSession) var userSession
@@ -290,8 +287,7 @@ extension SelectTeamFeature {
 
       case .signUpUserResponse(let result):
         switch result {
-          case .success(let data):
-            state.signUpUser = data
+          case .success:
             state.$staffRole.withLock { $0 = state.userSession.userRole }
 
             if state.userSession.userRole == .manager {
@@ -301,7 +297,6 @@ extension SelectTeamFeature {
             }
 
           case .failure(let error):
-            state.errorMessage = error.errorDescription
             state.alert = AlertState {
               TextState("회원가입 실패")
             } actions: {
@@ -327,7 +322,6 @@ extension SelectTeamFeature {
             }
 
           case .failure(let error):
-            state.errorMessage = error.errorDescription
             state.$editGeneration.withLock { $0 = false }
             state.alert = AlertState {
               TextState("프로필 수정 실패")
@@ -352,7 +346,6 @@ extension SelectTeamFeature {
     _ profile: ProfileEntity,
     to state: inout State
   ) {
-    state.editProfile = profile
     state.$editGeneration.withLock { $0 = false }
     state.$staffRole.withLock { $0 = profile.role }
     state.$userSession.withLock {

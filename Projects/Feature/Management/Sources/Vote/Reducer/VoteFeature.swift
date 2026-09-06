@@ -43,7 +43,6 @@ public struct VoteFeature {
     case view(View)
     case async(AsyncAction)
     case inner(InnerAction)
-    case delegate(DelegateAction)
     case scope(ScopeAction)
   }
 
@@ -88,8 +87,6 @@ public struct VoteFeature {
     case closeVoteResponse(Result<Bool, VoteError>)
   }
 
-  public enum DelegateAction: Equatable {}
-
   nonisolated enum CancelID: Hashable {
     case fetchVotes
     case fetchParticipation
@@ -116,9 +113,6 @@ public struct VoteFeature {
 
       case let .inner(innerAction):
         return handleInnerAction(state: &state, action: innerAction)
-
-      case let .delegate(delegateAction):
-        return handleDelegateAction(state: &state, action: delegateAction)
 
       case let .scope(scopeAction):
         switch scopeAction {
@@ -382,12 +376,5 @@ extension VoteFeature {
     case .dismiss:
       return .none
     }
-  }
-
-  private func handleDelegateAction(
-    state _: inout State,
-    action: DelegateAction
-  ) -> Effect<Action> {
-    switch action {}
   }
 }

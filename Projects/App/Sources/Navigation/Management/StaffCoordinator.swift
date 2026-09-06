@@ -101,9 +101,9 @@ extension StaffCoordinator {
       state.routes.push(.profile(.init()))
       return .concatenate(
         .cancel(id: CancelID.profileEffects),
-        .cancel(id: ProfileReducer.CancelID.fetchProfile),
-        .cancel(id: ProfileReducer.CancelID.deleteUser),
-        .cancel(id: ProfileReducer.CancelID.logoutUser)
+        .cancel(id: ProfileFeature.CancelID.fetchProfile),
+        .cancel(id: ProfileFeature.CancelID.deleteUser),
+        .cancel(id: ProfileFeature.CancelID.logoutUser)
       )
 
 
@@ -112,36 +112,36 @@ extension StaffCoordinator {
       return .concatenate(
         .cancel(id: CancelID.allEffects),
         .cancel(id: CancelID.profileEffects),
-        .cancel(id: ProfileReducer.CancelID.fetchProfile),
-        .cancel(id: ProfileReducer.CancelID.deleteUser),
-        .cancel(id: ProfileReducer.CancelID.logoutUser),
+        .cancel(id: ProfileFeature.CancelID.fetchProfile),
+        .cancel(id: ProfileFeature.CancelID.deleteUser),
+        .cancel(id: ProfileFeature.CancelID.logoutUser),
         .send(.navigation(.presentLogin))
       )
 
       case .routeAction(id: _, action: .profile(.navigation(.presentRoot))):
         return .concatenate(
           .cancel(id: CancelID.profileEffects),
-          .cancel(id: ProfileReducer.CancelID.fetchProfile),
-          .cancel(id: ProfileReducer.CancelID.deleteUser),
-          .cancel(id: ProfileReducer.CancelID.logoutUser),
+          .cancel(id: ProfileFeature.CancelID.fetchProfile),
+          .cancel(id: ProfileFeature.CancelID.deleteUser),
+          .cancel(id: ProfileFeature.CancelID.logoutUser),
           .send(.view(.backAction))
         )
 
       case .routeAction(id: _, action: .profile(.navigation(.presentMember))):
         return .concatenate(
           .cancel(id: CancelID.profileEffects),
-          .cancel(id: ProfileReducer.CancelID.fetchProfile),
-          .cancel(id: ProfileReducer.CancelID.deleteUser),
-          .cancel(id: ProfileReducer.CancelID.logoutUser),
+          .cancel(id: ProfileFeature.CancelID.fetchProfile),
+          .cancel(id: ProfileFeature.CancelID.deleteUser),
+          .cancel(id: ProfileFeature.CancelID.logoutUser),
           .send(.navigation(.presentMember))
         )
 
       case .routeAction(id: _, action: .profile(.navigation(.presentStaff))):
         return .concatenate(
           .cancel(id: CancelID.profileEffects),
-          .cancel(id: ProfileReducer.CancelID.fetchProfile),
-          .cancel(id: ProfileReducer.CancelID.deleteUser),
-          .cancel(id: ProfileReducer.CancelID.logoutUser),
+          .cancel(id: ProfileFeature.CancelID.fetchProfile),
+          .cancel(id: ProfileFeature.CancelID.deleteUser),
+          .cancel(id: ProfileFeature.CancelID.logoutUser),
           .send(.view(.backToRootAction))
         )
 

@@ -17,7 +17,6 @@ public extension TargetDependency.SPM {
   static let tcaFlow = TargetDependency.external(name: "TCAFlow", condition: .none)
   static let concurrencyExtras = TargetDependency.external(name: "ConcurrencyExtras", condition: .none)
   static let sdwebImage = TargetDependency.external(name: "SDWebImageSwiftUI", condition: .none)
-  static let swiftUIX = TargetDependency.external(name: "SwiftUIX", condition: .none)
 
   static let googleSignIn = TargetDependency.external(name: "GoogleSignIn", condition: .none)
   static let firebaseCrashlytics = TargetDependency.external(name: "FirebaseCrashlytics", condition: .none)

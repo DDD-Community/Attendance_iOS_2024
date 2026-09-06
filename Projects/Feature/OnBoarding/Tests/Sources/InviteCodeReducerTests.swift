@@ -92,7 +92,6 @@ struct InviteCodeReducerTests {
 
     await store.send(.async(.verifyInviteCode(code: "ABCD")))
     await store.receive(\.inner.verifyInviteCodeResponse) {
-      $0.verifyInviteCodeModel = verification
       $0.isNotAvailableCode = false
       $0.userSession.userRole = .member
       $0.userSession.generationId = 14

@@ -75,21 +75,18 @@ struct SelectPartReducerTests {
     }
   }
 
-  @Test("직무 목록 조회 실패는 에러 메시지를 남긴다")
-  func jobListFailureStoresErrorMessage() async {
+  @Test("직무 목록 조회 실패는 로딩 상태를 종료한다")
+  func jobListFailureFinishesLoading() async {
     let store = TestStore(initialState: SelectPartFeature.State()) {
       SelectPartFeature()
     } withDependencies: {
       $0.onBoardingUseCase = StubOnBoardingRepository(failure: .networkError)
     }
 
-    let expected = SignUpError.from(OnBoardingError.networkError)
-
     await store.send(.view(.onAppear))
     await store.receive(\.async)
     await store.receive(\.inner) {
       $0.viewState = .loaded
-      $0.errorMessage = expected.errorDescription
     }
   }
 

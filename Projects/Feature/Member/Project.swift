@@ -17,6 +17,7 @@ let project = Project.makeModule(
   product: .staticFramework,
   settings: .moduleSettings,
   dependencies: [
+    .service(.accessibility),
     .ui(.sharedUI),
     .core(.logger),
     .domain(.auth, .interface),

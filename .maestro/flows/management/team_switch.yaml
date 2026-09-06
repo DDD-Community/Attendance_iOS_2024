@@ -1,0 +1,39 @@
+# 운영진이 다른 팀의 출석 목록을 조회한 뒤 첫 팀으로 돌아온다.
+appId: io.DDD.Attendance
+name: 운영진 다른 팀 출석 목록 전환
+tags:
+  - e2e
+  - management
+  - attendance
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "management.attendance.list"
+    timeout: 30000
+
+- tapOn:
+    id: "management.attendance.team.*"
+    index: 1
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    notVisible:
+      id: "management.attendance.list.skeleton"
+    timeout: 30000
+- assertVisible:
+    id: "management.attendance.list"
+
+- tapOn:
+    id: "management.attendance.team.*"
+    index: 0
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    notVisible:
+      id: "management.attendance.list.skeleton"
+    timeout: 30000
+- assertVisible:
+    id: "management.attendance.summary"
+- assertVisible:
+    id: "management.attendance.list"
+
+- takeScreenshot: .maestro/artifacts/management/team-switch

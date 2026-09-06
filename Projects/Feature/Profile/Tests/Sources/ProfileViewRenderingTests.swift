@@ -79,8 +79,8 @@ struct ProfileViewRenderingTests {
 
   @Test("실패 알럿이 있으면 알럿을 붙인 채로 그려진다")
   func presentedAlertRenders() {
-    var state = ProfileReducer.State()
-    state.profileModel = ProfileTestSupport.memberProfile
+    var state = ProfileFeature.State()
+    state.profile = ProfileTestSupport.memberProfile
     state.alert = AlertState {
       TextState("탈퇴실패")
     } actions: {
@@ -98,8 +98,8 @@ struct ProfileViewRenderingTests {
 
   @Test("탈퇴 확인 팝업이 있으면 커스텀 알럿을 붙인 채로 그려진다")
   func presentedCustomAlertRenders() {
-    var state = ProfileReducer.State()
-    state.profileModel = ProfileTestSupport.memberProfile
+    var state = ProfileFeature.State()
+    state.profile = ProfileTestSupport.memberProfile
     state.customAlert = .withdrawAccount()
 
     let store = ProfileViewRenderer.makeStore(state: state)
@@ -109,8 +109,8 @@ struct ProfileViewRenderingTests {
 
   @Test("로그아웃 확인 팝업이 있으면 커스텀 알럿을 붙인 채로 그려진다")
   func presentedLogoutAlertRenders() {
-    var state = ProfileReducer.State()
-    state.profileModel = ProfileTestSupport.managerProfile
+    var state = ProfileFeature.State()
+    state.profile = ProfileTestSupport.managerProfile
     state.customAlert = .logout()
 
     let store = ProfileViewRenderer.makeStore(state: state)
@@ -120,8 +120,8 @@ struct ProfileViewRenderingTests {
 
   @Test("앱 피드백 모달이 열려 있으면 블러 배경과 시트를 함께 그린다")
   func presentedCreateAppDestinationRendersBlurAndSheet() {
-    var state = ProfileReducer.State()
-    state.profileModel = ProfileTestSupport.memberProfile
+    var state = ProfileFeature.State()
+    state.profile = ProfileTestSupport.memberProfile
     state.destination = .createApp(.init())
 
     let store = ProfileViewRenderer.makeStore(state: state)
@@ -138,8 +138,8 @@ struct ProfileViewRenderingTests {
 
   @Test("앱 피드백 작성 뷰는 단독으로도 그려진다")
   func createAppViewRendersStandalone() {
-    let store = Store(initialState: CreateApp.State()) {
-      CreateApp()
+    let store = Store(initialState: CreateAppFeature.State()) {
+      CreateAppFeature()
     }
 
     ProfileViewRenderer.render(CreateAppView(store: store))
@@ -148,16 +148,16 @@ struct ProfileViewRenderingTests {
   // MARK: - Helper
 
   /// 세션이 비어 있어 displayedProfile 이 nil 이 되는 State 를 만든다.
-  private func emptySessionState(isLoading: Bool) -> ProfileReducer.State {
-    var state = ProfileReducer.State()
+  private func emptySessionState(isLoading: Bool) -> ProfileFeature.State {
+    var state = ProfileFeature.State()
     state.viewState = isLoading ? .loading : .loaded
-    state.profileModel = nil
+    state.profile = nil
     state.$userSession.withLock { $0 = .empty }
     return state
   }
 
   /// 전역 공유 세션을 초기값으로 되돌린다.
-  private func restoreSession(_ store: StoreOf<ProfileReducer>) {
+  private func restoreSession(_ store: StoreOf<ProfileFeature>) {
     store.state.$userSession.withLock { $0 = .empty }
   }
 }

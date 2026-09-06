@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import DDDAccessibility
 import DDDDesignKit
 import VoteDomainInterface
 
@@ -83,6 +84,8 @@ struct VoteFeedbackView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color.backGroundPrimary)
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(MemberAccessibilityID.Vote.Feedback.root)
     .overlay(alignment: .leading) {
       edgeSwipeArea(gesture: edgeBackGesture)
     }
@@ -185,7 +188,8 @@ struct VoteFeedbackView: View {
       guard !question.required || !answer.selectedOptionIds.isEmpty else { return false }
 
       if let maxSelectableOptions = question.maxSelectableOptions,
-         answer.selectedOptionIds.count > maxSelectableOptions {
+         answer.selectedOptionIds.count > maxSelectableOptions
+      {
         return false
       }
 
@@ -234,6 +238,7 @@ struct VoteFeedbackView: View {
     }
     .buttonStyle(.plain)
     .disabled(!isSubmitEnabled)
+    .dddAccessibilityID(MemberAccessibilityID.Vote.Feedback.submitButton)
   }
 }
 

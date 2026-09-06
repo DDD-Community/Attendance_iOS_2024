@@ -14,6 +14,7 @@ public struct FeedbackChipGroup: View {
   @Binding private var selectedIDs: Set<String>
   private var horizontalSpacing: CGFloat
   private var verticalSpacing: CGFloat
+  private var itemAccessibilityIdentifier: (ChipItem) -> String? = { _ in nil }
 
   public init(
     items: [ChipItem],
@@ -33,13 +34,24 @@ public struct FeedbackChipGroup: View {
       verticalSpacing: verticalSpacing
     ) {
       ForEach(items) { item in
-        FeedbackChip(
-          title: item.title,
-          isSelected: selectedIDs.contains(item.id)
-        ) {
-          toggle(item.id)
-        }
+        chip(item)
       }
+    }
+  }
+
+  @ViewBuilder
+  private func chip(_ item: ChipItem) -> some View {
+    let view = FeedbackChip(
+      title: item.title,
+      isSelected: selectedIDs.contains(item.id)
+    ) {
+      toggle(item.id)
+    }
+
+    if let identifier = itemAccessibilityIdentifier(item) {
+      view.accessibilityIdentifier(identifier)
+    } else {
+      view
     }
   }
 
@@ -73,6 +85,7 @@ public struct FeedbackChipGroup: View {
 }
 
 // MARK: - 체이닝 설정
+
 //
 // 값 타입 사본을 돌려주므로 호출 순서에 영향받지 않는다.
 // 기존 init 은 그대로 두어, 체이닝은 선택지로만 더한다.
@@ -83,16 +96,27 @@ public extension FeedbackChipGroup {
     copy.items = items
     return copy
   }
+
   /// `horizontalSpacing` 을 바꾼 사본을 돌려준다.
   func horizontalSpacing(_ horizontalSpacing: CGFloat) -> Self {
     var copy = self
     copy.horizontalSpacing = horizontalSpacing
     return copy
   }
+
   /// `verticalSpacing` 을 바꾼 사본을 돌려준다.
   func verticalSpacing(_ verticalSpacing: CGFloat) -> Self {
     var copy = self
     copy.verticalSpacing = verticalSpacing
+    return copy
+  }
+
+  /// 각 칩에 적용할 접근성 식별자를 설정합니다.
+  func accessibilityIdentifier(
+    _ identifier: @escaping (ChipItem) -> String?
+  ) -> Self {
+    var copy = self
+    copy.itemAccessibilityIdentifier = identifier
     return copy
   }
 }

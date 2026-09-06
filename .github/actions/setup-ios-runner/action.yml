@@ -1,0 +1,69 @@
+name: Setup iOS runner
+description: Configure the self-hosted macOS runner and restore gitignored iOS build inputs.
+
+inputs:
+  derived-data-directory:
+    description: Directory name below $HOME/ci-derived-data. Leave empty when the job does not build.
+    required: false
+    default: ''
+  include-ruby-path:
+    description: Add the runner rbenv shims for Fastlane jobs.
+    required: false
+    default: 'false'
+  verify-config-ignored:
+    description: Verify restored configuration remains ignored by Git.
+    required: false
+    default: 'true'
+  verify-config-nonempty:
+    description: Verify deploy configuration files exist and are non-empty.
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Configure runner PATH
+      shell: bash
+      env:
+        DERIVED_DATA_DIRECTORY: ${{ inputs.derived-data-directory }}
+        INCLUDE_RUBY_PATH: ${{ inputs.include-ruby-path }}
+      run: |
+        echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
+
+        if [[ "$INCLUDE_RUBY_PATH" == "true" ]]; then
+          echo "$HOME/.rbenv/shims" >> "$GITHUB_PATH"
+        fi
+
+        if [[ -n "$DERIVED_DATA_DIRECTORY" ]]; then
+          echo "CI_DERIVED_DATA=$HOME/ci-derived-data/$DERIVED_DATA_DIRECTORY" >> "$GITHUB_ENV"
+        fi
+
+    - name: Restore iOS build configuration
+      shell: bash
+      env:
+        VERIFY_CONFIG_IGNORED: ${{ inputs.verify-config-ignored }}
+        VERIFY_CONFIG_NONEMPTY: ${{ inputs.verify-config-nonempty }}
+      run: |
+        CONFIG_ARCHIVE="$(mktemp "${RUNNER_TEMP:-/tmp}/ddd-ios-config.XXXXXX")"
+        trap 'rm -f "$CONFIG_ARCHIVE"' EXIT
+        printf '%s' "$CONFIG_TAR" | base64 --decode > "$CONFIG_ARCHIVE"
+        tar tzf "$CONFIG_ARCHIVE" >/dev/null
+        tar xzf "$CONFIG_ARCHIVE"
+        mkdir -p Projects/App/Resources
+        printf '%s' "$GOOGLE_PLIST" | base64 --decode > Projects/App/Resources/GoogleService-Info.plist
+
+        if [[ "$VERIFY_CONFIG_NONEMPTY" == "true" ]]; then
+          test -f Config/base.xcconfig
+          test -s Projects/App/Resources/GoogleService-Info.plist
+        fi
+
+        if [[ "$VERIFY_CONFIG_IGNORED" == "true" ]]; then
+          git check-ignore -q Config/base.xcconfig
+          git check-ignore -q Projects/App/Resources/GoogleService-Info.plist
+        fi
+
+    - name: Install Tuist
+      shell: bash
+      run: mise install tuist

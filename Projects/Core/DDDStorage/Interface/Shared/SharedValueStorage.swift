@@ -27,14 +27,14 @@ public protocol SharedValueStorage: Sendable {
   func remove(forKey key: String) throws
 }
 
-private enum SharedValueStorageKey: TestDependencyKey {
-  static let testValue: any SharedValueStorage = UnimplementedSharedValueStorage()
+public enum SharedValueStorageDependency: TestDependencyKey {
+  public static let testValue: any SharedValueStorage = UnimplementedSharedValueStorage()
 }
 
 public extension DependencyValues {
   var sharedValueStorage: any SharedValueStorage {
-    get { self[SharedValueStorageKey.self] }
-    set { self[SharedValueStorageKey.self] = newValue }
+    get { self[SharedValueStorageDependency.self] }
+    set { self[SharedValueStorageDependency.self] = newValue }
   }
 }
 

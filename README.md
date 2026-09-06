@@ -204,7 +204,7 @@ TuistSpider에서 주요 조립 모듈을 기준으로 내부 의존성을 확�
 | 네트워크 | DDDNetwork, Alamofire 5.12.0 |
 | 인증 | Sign in with Apple, GoogleSignIn 9.2.0, AppAuth 2.1.0 |
 | 저장소 | DDDStorage, Keychain |
-| 이미지 | SDWebImageSwiftUI 3.1.4, SwiftUIX 0.2.3 |
+| 이미지 | SDWebImageSwiftUI 3.1.4 |
 | 모니터링 | Firebase Crashlytics 12.12.0 |
 | 테스트 | Swift Testing, Tuist Test Insights |
 

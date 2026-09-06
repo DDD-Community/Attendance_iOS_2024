@@ -1,0 +1,54 @@
+# VoteTeamSelectView 화면. 투표가 진행 중일 때만 뜬다.
+# 팀 선택만 확인하고 제출하지 않으며, 종료 시 홈으로 복귀한다.
+appId: io.DDD.Attendance
+name: 멤버 투표 팀 선택 화면
+tags:
+  - e2e
+  - member
+  - vote
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 30000
+
+- runFlow:
+    file: ../_shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "member.home.sectionbutton"
+      SECTION_ITEM_ID: "member.home.dropdown.item.vote"
+
+- extendedWaitUntil:
+    visible:
+      id: "member.vote.teamselect.root"
+    timeout: 30000
+- assertVisible:
+    id: "member.vote.teamselect.category.*"
+- assertVisible:
+    id: "member.vote.teamselect.team.[0-9]+"
+- assertVisible:
+    id: "member.vote.teamselect.nextbutton"
+
+- takeScreenshot: .maestro/artifacts/member/vote-team-select
+
+# 작성 중 이탈은 확인 모달을 띄운다. "나가기"로 빠져나온다.
+- swipe:
+    start: "2%, 50%"
+    end: "80%, 50%"
+- tapOn:
+    text: "나가기"
+
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 30000
+- runFlow:
+    file: ../_shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "member.home.sectionbutton"
+      SECTION_ITEM_ID: "member.home.dropdown.item.attendance"
+- extendedWaitUntil:
+    visible:
+      id: "member.attendance.summary"
+    timeout: 30000

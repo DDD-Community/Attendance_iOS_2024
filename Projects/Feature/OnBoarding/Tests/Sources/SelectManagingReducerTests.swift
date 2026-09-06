@@ -31,14 +31,14 @@ struct SelectManagingReducerTests {
     await store.receive(\.async)
     await store.receive(\.inner) {
       $0.viewState = .loaded
-      $0.selectMangers = .init(uniqueElements: OnBoardingCoverageFixture.managings)
+      $0.managers = .init(uniqueElements: OnBoardingCoverageFixture.managings)
     }
   }
 
   @Test("목록이 이미 있으면 onAppear 는 다시 조회하지 않는다")
   func onAppearSkipsFetchWhenListAlreadyLoaded() async {
     var state = SelectManagingFeature.State()
-    state.selectMangers = .init(uniqueElements: OnBoardingCoverageFixture.managings)
+    state.managers = .init(uniqueElements: OnBoardingCoverageFixture.managings)
 
     let store = TestStore(initialState: state) {
       SelectManagingFeature()
@@ -47,21 +47,18 @@ struct SelectManagingReducerTests {
     await store.send(.view(.onAppear))
   }
 
-  @Test("담당 업무 목록 조회 실패는 에러 메시지를 남긴다")
-  func managingListFailureStoresErrorMessage() async {
+  @Test("담당 업무 목록 조회 실패는 로딩 상태를 종료한다")
+  func managingListFailureFinishesLoading() async {
     let store = TestStore(initialState: SelectManagingFeature.State()) {
       SelectManagingFeature()
     } withDependencies: {
       $0.onBoardingUseCase = StubOnBoardingRepository(failure: .verifyFailed)
     }
 
-    let expected = SignUpError.from(OnBoardingError.verifyFailed)
-
     await store.send(.view(.onAppear))
     await store.receive(\.async)
     await store.receive(\.inner) {
       $0.viewState = .loaded
-      $0.errorMessage = expected.errorDescription
     }
   }
 
@@ -74,7 +71,6 @@ struct SelectManagingReducerTests {
 
     await store.send(.view(.selectManagingButton(selectManaging: OnBoardingCoverageFixture.photoManaging))) {
       $0.userSession.managing = [.photo]
-      $0.activeButton = true
     }
   }
 
@@ -82,7 +78,6 @@ struct SelectManagingReducerTests {
   func selectManagingButtonRemovesManaging() async {
     var state = SelectManagingFeature.State()
     state.userSession.managing = [.photo]
-    state.activeButton = true
 
     let store = TestStore(initialState: state) {
       SelectManagingFeature()
@@ -90,7 +85,6 @@ struct SelectManagingReducerTests {
 
     await store.send(.view(.selectManagingButton(selectManaging: OnBoardingCoverageFixture.photoManaging))) {
       $0.userSession.managing = []
-      $0.activeButton = false
     }
   }
 
@@ -112,13 +106,12 @@ struct SelectManagingReducerTests {
     await store.send(.view(.signUp))
     await store.receive(\.async)
     await store.receive(\.inner) {
-      $0.signUpUser = OnBoardingCoverageFixture.signUpUser
       $0.staffRole = .manager
     }
     await store.receive(\.delegate.presentManager)
   }
 
-  @Test("회원가입 실패는 에러 메시지와 실패 알럿을 표시한다")
+  @Test("회원가입 실패는 실패 알럿을 표시한다")
   func signUpFailurePresentsAlert() async {
     let store = TestStore(initialState: SelectManagingFeature.State()) {
       SelectManagingFeature()
@@ -131,7 +124,6 @@ struct SelectManagingReducerTests {
     await store.send(.view(.signUp))
     await store.receive(\.async)
     await store.receive(\.inner) {
-      $0.errorMessage = error.errorDescription
       $0.alert = AlertState {
         TextState("회원가입 실패")
       } actions: {
@@ -165,7 +157,6 @@ struct SelectManagingReducerTests {
     await store.send(.view(.signUp))
     await store.receive(\.async)
     await store.receive(\.inner) {
-      $0.editProfile = profile
       $0.editGeneration = false
       $0.staffRole = .member
       $0.userSession.userID = profile.userID
@@ -202,7 +193,6 @@ struct SelectManagingReducerTests {
     await store.receive(\.async)
     await store.receive(\.inner)
     await store.receive(\.delegate.presentLogin)
-    #expect(store.state.editProfile == profile)
     #expect(store.state.editGeneration == false)
     #expect(store.state.staffRole == .manager)
   }
@@ -219,7 +209,6 @@ struct SelectManagingReducerTests {
     }
 
     await store.send(.inner(.editProfileResponse(.success(profile)))) {
-      $0.editProfile = profile
       $0.editGeneration = false
       $0.staffRole = .manager
       $0.userSession.userID = profile.userID
@@ -245,7 +234,6 @@ struct SelectManagingReducerTests {
     let error = ProfileError.profileNotFound
 
     await store.send(.inner(.editProfileResponse(.failure(error)))) {
-      $0.errorMessage = error.errorDescription
       $0.editGeneration = false
       $0.alert = AlertState {
         TextState("프로필 수정 실패")
@@ -300,8 +288,8 @@ struct SelectManagingReducerTests {
       SelectManagingFeature()
     }
 
-    await store.send(.binding(.set(\.activeButton, true))) {
-      $0.activeButton = true
+    await store.send(.binding(.set(\.viewState, .loaded))) {
+      $0.viewState = .loaded
     }
   }
 }

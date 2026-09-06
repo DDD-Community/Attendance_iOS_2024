@@ -24,8 +24,8 @@ struct MemberDemoApp: App {
   var body: some Scene {
     WindowGroup {
       MemberMainView(
-        store: Store(initialState: MemberMain.State()) {
-          MemberMain()
+        store: Store(initialState: MemberMainFeature.State()) {
+          MemberMainFeature()
         }
       )
     }

@@ -5,19 +5,19 @@
 //  Created by DDD on 9/4/26.
 //
 
+import DependencyPackagePlugin
+import DependencyPlugin
 import Foundation
 import ProjectDescription
-import DependencyPlugin
 import ProjectTemplatePlugin
-import ProjectTemplatePlugin
-import DependencyPackagePlugin
 
 let project = Project.makeModule(
   name: "Web",
   bundleId: .appBundleID(name: ".Web"),
   product: .staticFramework,
-  settings:  .moduleSettings,
+  settings: .moduleSettings,
   dependencies: [
+    .service(.accessibility),
     .ui(.sharedUI)
   ],
   sources: ["Sources/**"],

@@ -6,17 +6,18 @@
 //
 
 import SwiftUI
+import DDDAccessibility
 
 import DDDDesignKit
 
 import ComposableArchitecture
 
 /// [멤버] 투표 탭 컨테이너. 단계(Step)에 따라 팀 선택/피드백/완료 화면을 전환한다.
-@ViewAction(for: MemberVote.self)
+@ViewAction(for: MemberVoteFeature.self)
 struct MemberVoteView: View {
-  @Bindable var store: StoreOf<MemberVote>
+  @Bindable var store: StoreOf<MemberVoteFeature>
 
-  init(store: StoreOf<MemberVote>) {
+  init(store: StoreOf<MemberVoteFeature>) {
     self.store = store
   }
 
@@ -33,56 +34,59 @@ struct MemberVoteView: View {
 
   @ViewBuilder
   private func content() -> some View {
-    switch store.step {
-    case .loading:
-      MemberVoteSkeletonView()
-
-    case .empty:
-      messageView(
-        title: "진행 중인 투표가 없어요",
-        description: "새로운 투표가 열리면 이곳에서 참여할 수 있어요."
-      )
-
-    case .alreadyVoted:
-      messageView(
-        title: "이미 투표에 참여했어요",
-        description: "투표 결과는 집계 후 공개될 예정이에요."
-      )
-
-    case .teamSelect:
-      if let info = store.teamTemplate {
-        VoteTeamSelectView(
-          info: info,
-          initialAnswers: store.teamAnswers,
-          onRequestExit: {
-            send(.requestExit)
-          },
-          onNext: { answers in
-            send(.teamSelectNext(answers))
-          }
-        )
-      } else {
+    Group {
+      switch store.step {
+      case .loading:
         MemberVoteSkeletonView()
-      }
 
-    case .feedback:
-      if let info = store.feedbackTemplate {
-        VoteFeedbackView(
-          info: info,
-          onBack: {
-            send(.requestExit)
-          },
-          onSubmit: { answers in
-            send(.submitFeedback(answers))
-          }
+      case .empty:
+        messageView(
+          title: "진행 중인 투표가 없어요",
+          description: "새로운 투표가 열리면 이곳에서 참여할 수 있어요."
         )
-      } else {
-        MemberVoteSkeletonView()
-      }
 
-    case .completed:
-      completedView
+      case .alreadyVoted:
+        messageView(
+          title: "이미 투표에 참여했어요",
+          description: "투표 결과는 집계 후 공개될 예정이에요."
+        )
+
+      case .teamSelect:
+        if let info = store.teamTemplate {
+          VoteTeamSelectView(
+            info: info,
+            initialAnswers: store.teamAnswers,
+            onRequestExit: {
+              send(.requestExit)
+            },
+            onNext: { answers in
+              send(.teamSelectNext(answers))
+            }
+          )
+        } else {
+          MemberVoteSkeletonView()
+        }
+
+      case .feedback:
+        if let info = store.feedbackTemplate {
+          VoteFeedbackView(
+            info: info,
+            onBack: {
+              send(.requestExit)
+            },
+            onSubmit: { answers in
+              send(.submitFeedback(answers))
+            }
+          )
+        } else {
+          MemberVoteSkeletonView()
+        }
+
+      case .completed:
+        completedView
+      }
     }
+    .dddAccessibilityID(MemberAccessibilityID.voteRoot)
   }
 
   @ViewBuilder

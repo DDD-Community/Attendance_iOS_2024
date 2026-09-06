@@ -1,0 +1,42 @@
+# 운영진 홈에서 투표 탭으로 전환해 상태만 확인한다. 투표 시작/종료는 상태를 바꾸므로 누르지 않는다.
+appId: io.DDD.Attendance
+name: 운영진 투표 탭 조회
+tags:
+  - e2e
+  - management
+  - vote
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "management.staff.root"
+    timeout: 30000
+
+- runFlow:
+    file: ../_shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "management.staff.sectionbutton"
+      SECTION_ITEM_ID: "management.staff.dropdown.item.vote"
+
+- extendedWaitUntil:
+    visible:
+      id: "management.vote.root"
+    timeout: 30000
+- extendedWaitUntil:
+    notVisible:
+      id: "management.vote.skeleton"
+    timeout: 30000
+- assertVisible:
+    id: "management.vote.statuschip"
+
+- takeScreenshot: .maestro/artifacts/management/vote-tab
+
+- runFlow:
+    file: ../_shared/switch_section.yaml
+    env:
+      SECTION_BUTTON_ID: "management.staff.sectionbutton"
+      SECTION_ITEM_ID: "management.staff.dropdown.item.attendance"
+- extendedWaitUntil:
+    visible:
+      id: "management.attendance.root"
+    timeout: 30000

@@ -1,0 +1,19 @@
+appId: io.DDD.Attendance
+name: 운영진 홈 주요 콘텐츠
+tags:
+  - e2e
+  - management
+---
+- extendedWaitUntil:
+    visible:
+      id: "management.staff.root"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: "management.attendance.summary"
+    timeout: 30000
+- assertVisible:
+    id: "management.attendance.list"
+- assertNotVisible:
+    id: "management.staff.skeleton"
+- takeScreenshot: .maestro/artifacts/management/home

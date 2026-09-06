@@ -77,7 +77,7 @@ struct AttendanceModalStoreModifier: ViewModifier {
 // MARK: - TCA 기반 AttendanceModalView
 
 struct AttendanceModalView: View {
-  @Bindable var store: StoreOf<AttendanceModal>
+  @Bindable var store: StoreOf<AttendanceModalFeature>
 
   var body: some View {
     AttendanceStatusModal(

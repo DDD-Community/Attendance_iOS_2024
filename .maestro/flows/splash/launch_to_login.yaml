@@ -1,0 +1,19 @@
+# 앱을 처음 설치한 상태에서 로그인 화면까지 도달하는지 확인한다.
+appId: io.DDD.Attendance
+name: 실행부터 로그인 화면까지
+tags:
+  - smoke
+  - splash
+---
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible:
+      id: "auth.login.root"
+    timeout: 30000
+
+- assertVisible:
+    id: "auth.login.logo"
+
+- takeScreenshot: .maestro/artifacts/splash/launch-to-login

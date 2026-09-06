@@ -89,9 +89,9 @@ extension ProfileCoordinator {
 
     case .routeAction(id: _, action: .profile(.delegate(.presentLogOut))):
       return .concatenate(
-        .cancel(id: ProfileReducer.CancelID.fetchProfile),
-        .cancel(id: ProfileReducer.CancelID.deleteUser),
-        .cancel(id: ProfileReducer.CancelID.logoutUser),
+        .cancel(id: ProfileFeature.CancelID.fetchProfile),
+        .cancel(id: ProfileFeature.CancelID.deleteUser),
+        .cancel(id: ProfileFeature.CancelID.logoutUser),
         .send(.navigation(.presentLogin))
       )
 
@@ -144,17 +144,17 @@ extension ProfileCoordinator {
       state.routes.goBack()
       // 🔥 TCA 해결책 2: navigation 시 모든 Profile Effect 취소
       return .concatenate(
-        .cancel(id: ProfileReducer.CancelID.fetchProfile),
-        .cancel(id: ProfileReducer.CancelID.deleteUser),
-        .cancel(id: ProfileReducer.CancelID.logoutUser)
+        .cancel(id: ProfileFeature.CancelID.fetchProfile),
+        .cancel(id: ProfileFeature.CancelID.deleteUser),
+        .cancel(id: ProfileFeature.CancelID.logoutUser)
       )
 
     case .backToRootAction:
       state.routes.goBackToRoot()
       return .concatenate(
-        .cancel(id: ProfileReducer.CancelID.fetchProfile),
-        .cancel(id: ProfileReducer.CancelID.deleteUser),
-        .cancel(id: ProfileReducer.CancelID.logoutUser)
+        .cancel(id: ProfileFeature.CancelID.fetchProfile),
+        .cancel(id: ProfileFeature.CancelID.deleteUser),
+        .cancel(id: ProfileFeature.CancelID.logoutUser)
       )
     }
   }
@@ -196,8 +196,8 @@ extension ProfileCoordinator {
 extension ProfileCoordinator {
   @Reducer
   public enum ProfileScreen {
-    case profile(ProfileReducer)
-    case web(WebReducer)
+    case profile(ProfileFeature)
+    case web(WebFeature)
     case onBoarding(OnBoardingCoordinator)
   }
 }

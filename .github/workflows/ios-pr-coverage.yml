@@ -10,15 +10,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  coverage:
+  build-test-shards:
+    name: Build test shards
     runs-on: self-hosted
-    timeout-minutes: 90
+    timeout-minutes: 20
 
     permissions:
       contents: read
-      # PR 코멘트는 issues API 를 쓴다.
-      issues: write
-      pull-requests: write
 
     env:
       TUIST_TOKEN: ${{ secrets.TUIST_TOKEN }}
@@ -26,36 +24,20 @@ jobs:
       TUIST_BUILD_VALUE_PR_URL: ${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.pull_request.number }}
       LANG: en_US.UTF-8
       LC_ALL: en_US.UTF-8
-      TEST_RUN_REPORT_PATH: TestRunReport.json
-      BUILD_RUN_REPORT_PATH: BuildRunReport.json
-      BUNDLE_INSPECT_REPORT_PATH: BundleInspectReport.json
+
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup PATH
-        run: |
-          echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
-          echo "$HOME/.rbenv/shims" >> "$GITHUB_PATH"
-          echo "CI_DERIVED_DATA=$HOME/ci-derived-data/DDDAttendance-pr" >> "$GITHUB_ENV"
-
-      - name: Restore gitignored build config
+      - name: Setup iOS runner
+        uses: ./.github/actions/setup-ios-runner
         env:
           CONFIG_TAR: ${{ secrets.CONFIG_DIR_TAR_BASE64 }}
           GOOGLE_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
-        run: |
-          printf '%s' "$CONFIG_TAR" | base64 --decode | tar xzf -
-          mkdir -p Projects/App/Resources
-          printf '%s' "$GOOGLE_PLIST" | base64 --decode > Projects/App/Resources/GoogleService-Info.plist
-          git check-ignore -q Config/base.xcconfig
-          git check-ignore -q Projects/App/Resources/GoogleService-Info.plist
-
-      - name: Install toolchain
-        run: |
-          mise install tuist
-          bundle install
+        with:
+          derived-data-directory: DDDAttendance-pr-build-shards
 
       # CI 잡마다 캐시 데몬과 소켓을 빌드 전에 보장한다.
       # 인증이나 daemon 기동이 실패해도 테스트 자체는 캐시 없이 계속한다.
@@ -85,14 +67,10 @@ jobs:
         timeout-minutes: 3
         run: mise exec -- tuist setup insights
 
-      - name: Generate Xcode workspace
-        run: |
-          mise exec -- tuist install
-          mise exec -- tuist generate --no-open
+      - name: Install project dependencies
+        run: mise exec -- tuist install
 
-      # CompilationCache.noindex는 유지하고 이전 실행의 빌드 산출물만 비운다.
-      # DerivedData 전체를 지우면 Xcode compilation cache도 함께 사라진다.
-      - name: Prepare runner disk
+      - name: Prepare build DerivedData
         run: |
           mkdir -p "$CI_DERIVED_DATA"
           rm -rf \
@@ -100,15 +78,10 @@ jobs:
             "$CI_DERIVED_DATA/Index.noindex" \
             "$CI_DERIVED_DATA/Logs" \
             "$CI_DERIVED_DATA/SourcePackages" \
-            "$CI_DERIVED_DATA/info.plist"
-          rm -rf \
-            TestResults \
-            TestResults.xcresult \
-            BundleBuildResults.xcresult \
-            "$TEST_RUN_REPORT_PATH" \
-            "$BUILD_RUN_REPORT_PATH" \
-            "$BUNDLE_INSPECT_REPORT_PATH" \
-            DDDAttendance-Stage.ipa
+            "$CI_DERIVED_DATA/info.plist" \
+            ShardBuildResults.xcresult \
+            ShardBuildRunReport.json \
+            TuistShardBuild.log
 
       # Xcode 업데이트 뒤에도 러너에 실제 설치된 최신 iPhone runtime을 사용한다.
       - name: Select simulator
@@ -120,27 +93,274 @@ jobs:
       - name: Prepare simulator
         run: ./Scripts/prepare-ios-simulator.sh
 
-      - name: Run tests
-        id: tests
+      # Tuist가 테스트 산출물을 원격 shard storage에 올리고 matrix JSON을 GITHUB_OUTPUT으로 내보낸다.
+      - name: Build and plan test shards
+        id: build
         continue-on-error: true
         run: |
-          # 모듈 테스트는 별도 host 없이 Stage workspace scheme에서 한 번만 실행한다.
-          # Point-Free Sharing은 정적으로 링크해 Apple Sharing.framework와의 충돌을 피한다.
-          ./Scripts/run-isolated-module-tests.sh
+          mise exec -- tuist test run DDDAttendance-Stage \
+            --build-only \
+            --test-plan DDDAttendance \
+            --configuration Stage \
+            --no-selective-testing \
+            --shard-total 2 \
+            --shard-granularity suite \
+            --inspect-mode remote \
+            --result-bundle-path ShardBuildResults.xcresult \
+            --run-report-path ShardBuildRunReport.json \
+            --path "$PWD" \
+            -- \
+            -destination "$SIMULATOR_DESTINATION" \
+            -derivedDataPath "$CI_DERIVED_DATA" \
+            -enableCodeCoverage YES \
+            -collect-test-diagnostics never \
+            ONLY_ACTIVE_ARCH=YES \
+            COMPILATION_CACHE_ENABLE_CACHING="$XCODE_COMPILATION_CACHE_ENABLED" \
+            2>&1 | tee TuistShardBuild.log
 
       # tuist test 실패 시 Test Insights만 업로드될 수 있으므로, 남은 xcactivitylog를
       # 명시적으로 분석해 Builds 표에도 실패한 Stage 빌드를 기록한다.
       - name: Report failed build to Tuist
-        if: steps.tests.outcome == 'failure'
+        if: steps.build.outcome == 'failure'
         continue-on-error: true
         run: |
           mise exec -- tuist inspect build \
             --derived-data-path "$CI_DERIVED_DATA"
 
-      # 테스트 빌드의 DerivedData를 재사용해 추가 컴파일을 줄이고 PR 크기 변화를 기록한다.
+      - name: Upload shard build reports
+        id: upload-shard-build-reports
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: pr-test-build-${{ github.run_id }}
+          path: |
+            ShardBuildResults.xcresult
+            ShardBuildRunReport.json
+            TuistShardBuild.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Retry shard build report upload
+        if: always() && steps.upload-shard-build-reports.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: pr-test-build-${{ github.run_id }}-retry-${{ github.run_attempt }}
+          path: |
+            ShardBuildResults.xcresult
+            ShardBuildRunReport.json
+            TuistShardBuild.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Shut down shard build simulator
+        if: always()
+        run: |
+          SIMULATOR_UDID="${SIMULATOR_DESTINATION##*,id=}"
+          if [[ -n "$SIMULATOR_UDID" && "$SIMULATOR_UDID" != "$SIMULATOR_DESTINATION" ]]; then
+            xcrun simctl shutdown "$SIMULATOR_UDID" || true
+          fi
+
+      - name: Clean shard build DerivedData
+        if: always()
+        run: |
+          rm -rf \
+            "$CI_DERIVED_DATA/Build" \
+            "$CI_DERIVED_DATA/Index.noindex" \
+            "$CI_DERIVED_DATA/Logs" \
+            "$CI_DERIVED_DATA/SourcePackages" \
+            "$CI_DERIVED_DATA/info.plist" \
+            ShardBuildResults.xcresult \
+            ShardBuildRunReport.json \
+            TuistShardBuild.log
+
+      - name: Fail if shard build failed
+        if: steps.build.outcome != 'success'
+        run: exit 1
+
+  test-shards:
+    name: Test shard ${{ matrix.shard }}
+    needs: build-test-shards
+    if: needs.build-test-shards.result == 'success' && toJSON(fromJSON(needs.build-test-shards.outputs.matrix).shard) != '[]'
+    runs-on: self-hosted
+    timeout-minutes: 20
+
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.build-test-shards.outputs.matrix) }}
+
+    env:
+      TUIST_TOKEN: ${{ secrets.TUIST_TOKEN }}
+      TUIST_BUILD_TAGS: ci,pull-request,sharded
+      TUIST_BUILD_VALUE_PR_URL: ${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+      TUIST_SHARD_INDEX: ${{ matrix.shard }}
+      TUIST_SHARD_PLAN_ID: ${{ matrix.shard_plan_id }}
+      RESULT_BUNDLE: TestResults-${{ matrix.shard }}.xcresult
+      TEST_RUN_REPORT_PATH: TestRunReport-${{ matrix.shard }}.json
+      TEST_LOG_PATH: TuistTestRun-${{ matrix.shard }}.log
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup iOS runner
+        uses: ./.github/actions/setup-ios-runner
+        env:
+          CONFIG_TAR: ${{ secrets.CONFIG_DIR_TAR_BASE64 }}
+          GOOGLE_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+        with:
+          derived-data-directory: DDDAttendance-pr-shard-${{ matrix.shard }}
+
+      - name: Select simulator
+        run: |
+          SIMULATOR_DESTINATION="$(python3 Scripts/select-ios-simulator.py)"
+          echo "SIMULATOR_DESTINATION=$SIMULATOR_DESTINATION" >> "$GITHUB_ENV"
+
+      - name: Prepare simulator
+        run: ./Scripts/prepare-ios-simulator.sh
+
+      - name: Prepare shard DerivedData
+        run: |
+          mkdir -p "$CI_DERIVED_DATA"
+          rm -rf \
+            "$CI_DERIVED_DATA/Build" \
+            "$CI_DERIVED_DATA/Index.noindex" \
+            "$CI_DERIVED_DATA/Logs" \
+            "$CI_DERIVED_DATA/SourcePackages" \
+            "$CI_DERIVED_DATA/info.plist" \
+            "$RESULT_BUNDLE" \
+            "$TEST_RUN_REPORT_PATH" \
+            "$TEST_LOG_PATH"
+
+      - name: Run test shard
+        id: tests
+        continue-on-error: true
+        run: ./Scripts/run-isolated-module-tests.sh
+
+      - name: Upload test shard reports
+        id: upload-test-reports
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: pr-test-shard-${{ github.run_id }}-${{ matrix.shard }}
+          path: |
+            TestResults-${{ matrix.shard }}.xcresult
+            TestRunReport-${{ matrix.shard }}.json
+            TuistTestRun-${{ matrix.shard }}.log
+            TestLogs
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Retry test shard report upload
+        if: always() && steps.upload-test-reports.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: pr-test-shard-${{ github.run_id }}-${{ matrix.shard }}-retry-${{ github.run_attempt }}
+          path: |
+            TestResults-${{ matrix.shard }}.xcresult
+            TestRunReport-${{ matrix.shard }}.json
+            TuistTestRun-${{ matrix.shard }}.log
+            TestLogs
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Clean test shard DerivedData
+        if: always()
+        run: |
+          rm -rf \
+            "$CI_DERIVED_DATA/Build" \
+            "$CI_DERIVED_DATA/Index.noindex" \
+            "$CI_DERIVED_DATA/Logs" \
+            "$CI_DERIVED_DATA/SourcePackages" \
+            "$CI_DERIVED_DATA/info.plist" \
+            "$RESULT_BUNDLE" \
+            "$TEST_RUN_REPORT_PATH" \
+            "$TEST_LOG_PATH" \
+            TestLogs
+
+      - name: Fail if test shard failed
+        if: steps.tests.outcome != 'success'
+        run: exit 1
+
+  bundle-insights:
+    name: Bundle insights
+    needs: test-shards
+    if: always() && needs.test-shards.result != 'cancelled'
+    runs-on: self-hosted
+    timeout-minutes: 20
+
+    permissions:
+      contents: read
+
+    env:
+      TUIST_TOKEN: ${{ secrets.TUIST_TOKEN }}
+      TUIST_BUILD_TAGS: ci,pull-request,bundle
+      TUIST_BUILD_VALUE_PR_URL: ${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+      BUILD_RUN_REPORT_PATH: BuildRunReport.json
+      BUNDLE_INSPECT_REPORT_PATH: BundleInspectReport.json
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup iOS runner
+        uses: ./.github/actions/setup-ios-runner
+        env:
+          CONFIG_TAR: ${{ secrets.CONFIG_DIR_TAR_BASE64 }}
+          GOOGLE_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+        with:
+          derived-data-directory: DDDAttendance-pr-bundle
+
+      - name: Setup Tuist cache
+        id: tuist-cache
+        continue-on-error: true
+        timeout-minutes: 3
+        run: mise exec -- tuist setup cache
+
+      - name: Configure compilation cache fallback
+        run: |
+          if [[ "${{ steps.tuist-cache.outcome }}" == "success" ]]; then
+            echo "XCODE_COMPILATION_CACHE_ENABLED=YES" >> "$GITHUB_ENV"
+          else
+            echo "XCODE_COMPILATION_CACHE_ENABLED=NO" >> "$GITHUB_ENV"
+            echo "Tuist cache를 사용할 수 없어 bundle build는 Xcode compilation cache 없이 진행합니다."
+          fi
+
+      - name: Setup Tuist insights
+        continue-on-error: true
+        timeout-minutes: 3
+        run: mise exec -- tuist setup insights
+
+      - name: Generate Xcode workspace
+        run: |
+          mise exec -- tuist install
+          mise exec -- tuist generate --no-open --cache-profile none
+
+      - name: Prepare bundle DerivedData
+        run: |
+          mkdir -p "$CI_DERIVED_DATA"
+          rm -rf \
+            "$CI_DERIVED_DATA/Build" \
+            "$CI_DERIVED_DATA/Index.noindex" \
+            "$CI_DERIVED_DATA/Logs" \
+            "$CI_DERIVED_DATA/SourcePackages" \
+            "$CI_DERIVED_DATA/info.plist" \
+            BundleBuildResults.xcresult \
+            "$BUILD_RUN_REPORT_PATH" \
+            "$BUNDLE_INSPECT_REPORT_PATH" \
+            DDDAttendance-Stage.ipa
+
       - name: Build app for bundle insights
         id: app-build
-        if: steps.tests.outcome == 'success'
+        continue-on-error: true
         run: |
           TUIST_RUN_REPORT_PATH="$BUILD_RUN_REPORT_PATH" \
             mise exec -- tuist xcodebuild build \
@@ -161,11 +381,10 @@ jobs:
           fi
 
       - name: Inspect bundle size
-        if: steps.tests.outcome == 'success' && steps.app-build.outcome == 'success'
+        id: bundle-inspect
+        if: steps.app-build.outcome == 'success'
         continue-on-error: true
         run: |
-          # 번들 크기는 디바이스 아키텍처 기준이어야 의미가 있다.
-          # 시뮬레이터 산출물로 만든 ipa 는 download size 가 Unknown 으로 남는다.
           APP_PATH="$(find "$CI_DERIVED_DATA/Build/Products/Stage-iphoneos" -maxdepth 1 -type d -name DDDAttendance.app -print -quit)"
           if [[ -z "$APP_PATH" ]]; then
             echo "Stage 디바이스 앱 번들을 찾지 못했습니다." >&2
@@ -180,68 +399,40 @@ jobs:
             "$BUNDLE_PAYLOAD/Payload" \
             DDDAttendance-Stage.ipa
 
-          # IPA를 검사해야 압축 후 Download size까지 PR 리포트에 기록된다.
           mise exec -- tuist inspect bundle DDDAttendance-Stage.ipa --json \
             > "$BUNDLE_INSPECT_REPORT_PATH"
-
-          # --json은 로컬 출력만 만들고 서버에 업로드하지 않으므로,
-          # Tuist Run Report의 Bundles 섹션을 위해 한 번 더 등록한다.
           mise exec -- tuist inspect bundle DDDAttendance-Stage.ipa
 
-      - name: Upload test and run reports
-        id: upload-test-reports
+      - name: Upload bundle reports
+        id: upload-bundle-reports
         if: always()
         continue-on-error: true
-        # v7은 Node 24를 사용하며 self-hosted runner 2.327.1 이상이 필요하다.
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: test-results-${{ github.run_id }}
+          name: pr-bundle-insights-${{ github.run_id }}
           path: |
-            TestResults.xcresult
             BundleBuildResults.xcresult
-            TestRunReport.json
             BuildRunReport.json
             BundleInspectReport.json
             DDDAttendance-Stage.ipa
-            TuistTestRun.log
-            TestLogs
           if-no-files-found: ignore
           retention-days: 7
 
-      # self-hosted runner에서 artifact finalize가 간헐적으로 403을 반환할 수 있다.
-      # immutable artifact 충돌을 피하도록 새 이름으로 한 번 더 업로드한다.
-      - name: Retry test and run report upload
-        if: always() && steps.upload-test-reports.outcome == 'failure'
+      - name: Retry bundle report upload
+        if: always() && steps.upload-bundle-reports.outcome == 'failure'
         continue-on-error: true
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: test-results-${{ github.run_id }}-retry-${{ github.run_attempt }}
+          name: pr-bundle-insights-${{ github.run_id }}-retry-${{ github.run_attempt }}
           path: |
-            TestResults.xcresult
             BundleBuildResults.xcresult
-            TestRunReport.json
             BuildRunReport.json
             BundleInspectReport.json
             DDDAttendance-Stage.ipa
-            TuistTestRun.log
-            TestLogs
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Report to PR
-        if: always() && steps.tests.outcome != 'cancelled'
-        uses: actions/github-script@v7
-        env:
-          RESULT_BUNDLE_DIR: TestResults.xcresult
-          TEST_OUTCOME: ${{ steps.tests.outcome }}
-        with:
-          script: |
-            // github-script 의 require 는 액션 디렉토리 기준으로 경로를 풀어서
-            // 상대경로가 먹지 않는다. 워크스페이스 절대경로로 지정한다.
-            const report = require(`${process.env.GITHUB_WORKSPACE}/Scripts/ios-test-report.js`)
-            await report({ github, context, core })
-
-      - name: Clean CI DerivedData
+      - name: Clean bundle DerivedData
         if: always()
         run: |
           rm -rf \
@@ -249,14 +440,61 @@ jobs:
             "$CI_DERIVED_DATA/Index.noindex" \
             "$CI_DERIVED_DATA/Logs" \
             "$CI_DERIVED_DATA/SourcePackages" \
-            "$CI_DERIVED_DATA/info.plist"
-          rm -rf \
+            "$CI_DERIVED_DATA/info.plist" \
             BundleBuildResults.xcresult \
-            "$TEST_RUN_REPORT_PATH" \
             "$BUILD_RUN_REPORT_PATH" \
             "$BUNDLE_INSPECT_REPORT_PATH" \
             DDDAttendance-Stage.ipa
 
-      - name: Fail if tests failed
-        if: steps.tests.outcome != 'success'
+      # 기존 계약대로 앱 build는 필수지만 bundle inspect는 정보성으로 유지한다.
+      - name: Fail if app build failed
+        if: steps.app-build.outcome != 'success'
+        run: exit 1
+
+  # Maestro E2E가 로컬 Studio에서 안정화되면 별도 job으로 추가하고 pr-report.needs에 연결한다.
+  pr-report:
+    name: PR report
+    if: always() && needs.build-test-shards.result != 'cancelled'
+    needs: [build-test-shards, test-shards, bundle-insights]
+    runs-on: self-hosted
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download test and coverage reports
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          pattern: pr-test-*-${{ github.run_id }}*
+          path: Artifacts/tests
+
+      - name: Download bundle reports
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          pattern: pr-bundle-insights-${{ github.run_id }}*
+          path: Artifacts/bundle
+          merge-multiple: true
+
+      - name: Report to PR
+        uses: actions/github-script@v7
+        env:
+          RESULT_BUNDLE_DIR: Artifacts/tests
+          TEST_OUTCOME: ${{ needs.build-test-shards.result == 'success' && needs.test-shards.result == 'success' && 'success' || 'failure' }}
+          TEST_RUN_REPORT_PATH: Artifacts/tests
+          BUILD_RUN_REPORT_PATH: Artifacts/bundle/BuildRunReport.json
+          BUNDLE_INSPECT_REPORT_PATH: Artifacts/bundle/BundleInspectReport.json
+        with:
+          script: |
+            const report = require(`${process.env.GITHUB_WORKSPACE}/Scripts/ios-test-report.js`)
+            await report({ github, context, core })
+
+      - name: Fail if a required PR check failed
+        if: needs.build-test-shards.result != 'success' || needs.test-shards.result != 'success' || needs.bundle-insights.result != 'success'
         run: exit 1

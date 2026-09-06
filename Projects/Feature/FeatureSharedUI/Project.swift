@@ -16,6 +16,7 @@ let project = Project.makeModule(
   product: .staticFramework,
   settings: .moduleSettings,
   dependencies: [
+    .service(.accessibility),
     .ui(.sharedUI),
     .domain(.attendance, .interface),
     .domain(.onBoarding, .interface)

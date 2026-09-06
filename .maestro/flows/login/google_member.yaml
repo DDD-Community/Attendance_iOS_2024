@@ -1,0 +1,18 @@
+appId: io.DDD.Attendance
+name: Google 멤버 계정 로그인
+---
+- runFlow:
+    file: google.yaml
+
+# 멤버 계정은 suhwj81 운영진 계정 바로 아래에 표시된다.
+- extendedWaitUntil:
+    visible: ".*계정(을)? 선택(하세요)?[.]*|.*Choose an account.*"
+    timeout: 30000
+- tapOn:
+    text: ".*@.*"
+    below:
+      text: ".*suhwj81.*"
+    index: 0
+- tapOn:
+    text: "Continue|계속"
+    optional: true

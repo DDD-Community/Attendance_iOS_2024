@@ -21,7 +21,6 @@ let project = Project.makeModule(
     .SPM.concurrencyExtras,
     .SPM.tcaFlow,
     .SPM.sdwebImage,
-    .SPM.swiftUIX,
     .SPM.googleSignIn,
     .SPM.firebaseCrashlytics,
   ],

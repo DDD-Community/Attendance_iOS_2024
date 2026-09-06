@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DDDAccessibility
 import DDDCoreUI
 import DDDDesignKit
 import DDDSharedUI
@@ -39,6 +40,7 @@ public struct SelectManagingView: View {
             content: "담당 업무를 선택해주세요",
             title: "프로젝트 참여하시는 직무를 선택해 주세요."
           )
+          .dddAccessibilityID(OnBoardingAccessibilityID.SelectManaging.skeleton)
 
         case .loaded:
           signUpSelectManagingText()
@@ -54,6 +56,8 @@ public struct SelectManagingView: View {
         send(.onAppear)
       }
     }
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(OnBoardingAccessibilityID.SelectManaging.root)
   }
 }
 
@@ -75,15 +79,18 @@ extension SelectManagingView {
 
       ScrollView {
         VStack {
-          ForEach(store.selectMangers, id: \.managingKeys) { item in
+          ForEach(store.managers, id: \.managingKeys) { item in
             SelectPartItem(
               content: item.managing.desc,
               isActive: store.userSession.managing.contains(item.managing)
             ) {
               send(.selectManagingButton(selectManaging: item))
             }
+            .dddAccessibilityID(OnBoardingAccessibilityID.SelectManaging.item(item.managingKeys))
           }
         }
+        .accessibilityElement(children: .contain)
+        .dddAccessibilityID(OnBoardingAccessibilityID.SelectManaging.list)
       }
       .scrollIndicators(.hidden)
       .frame(height: UIScreen.screenHeight * 0.6)
@@ -108,6 +115,7 @@ extension SelectManagingView {
         config: CustomButtonConfig.create()
       )
       .isEnable(!store.userSession.managing.isEmpty)
+      .dddAccessibilityID(OnBoardingAccessibilityID.SelectManaging.nextButton)
 
       Spacer()
     }

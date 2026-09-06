@@ -14,12 +14,12 @@ import ProfileDomainInterface
 @testable import Profile
 
 @MainActor
-@Suite("ProfileReducer")
+@Suite("ProfileFeature")
 struct ProfileReducerTests {
   @Test("appearModal 액션은 앱 피드백 작성 화면을 destination에 표시한다")
   func appearModalPresentsCreateAppDestination() async {
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     }
 
     await store.send(.view(.appearModal)) {
@@ -29,11 +29,11 @@ struct ProfileReducerTests {
 
   @Test("closeModal 액션은 표시 중인 destination을 닫는다")
   func closeModalDismissesDestination() async {
-    var state = ProfileReducer.State()
+    var state = ProfileFeature.State()
     state.destination = .createApp(.init())
 
     let store = TestStore(initialState: state) {
-      ProfileReducer()
+      ProfileFeature()
     }
 
     await store.send(.view(.closeModal)) {
@@ -43,8 +43,8 @@ struct ProfileReducerTests {
 
   @Test("showLogoutAlert 액션은 로그아웃 확인 팝업을 표시한다")
   func showLogoutAlertPresentsLogoutConfirmation() async {
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     }
 
     await store.send(.view(.showLogoutAlert)) {
@@ -54,23 +54,23 @@ struct ProfileReducerTests {
 
   @Test("fetchUserResponse 성공은 로딩을 끄고 프로필을 저장한다")
   func fetchUserSuccessStoresProfileAndStopsLoading() async {
-    var state = ProfileReducer.State()
+    var state = ProfileFeature.State()
     state.viewState = .loading
     let profile = Self.memberProfile
 
     let store = TestStore(initialState: state) {
-      ProfileReducer()
+      ProfileFeature()
     }
 
     await store.send(.inner(.fetchUserResponse(.success(profile)))) {
       $0.viewState = .loaded
-      $0.profileModel = profile
+      $0.profile = profile
     }
   }
 
   @Test("네트워크 프로필이 없으면 세션의 마지막 프로필을 즉시 표시한다")
   func displayedProfileFallsBackToUserSession() {
-    var state = ProfileReducer.State()
+    var state = ProfileFeature.State()
     let originalSession = state.userSession
     defer {
       state.$userSession.withLock { $0 = originalSession }
@@ -92,29 +92,24 @@ struct ProfileReducerTests {
     #expect(state.displayedProfile?.team == .ios2)
   }
 
-  @Test("logoutResponses 성공은 로그아웃 결과 저장 후 로그아웃 navigation을 보낸다")
+  @Test("logoutResponses 성공은 로그아웃 navigation을 보낸다")
   func logoutSuccessSendsLogoutNavigation() async {
-    let authExit = AuthExitEntity(code: "200", message: "ok", detail: nil)
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     }
 
-    await store.send(.inner(.logoutResponses(.success(authExit)))) {
-      $0.authExit = authExit
-    }
+    await store.send(.inner(.logoutResponses(.success(ProfileTestSupport.authExitSuccess))))
     await store.receive(\.delegate.presentLogOut)
   }
 
   @Test("deleteUserResponse 성공이 아니면 로그아웃 navigation을 보내지 않는다")
   func deleteUserNonSuccessDoesNotNavigate() async {
     let response = WithdrawEntity(isSuccess: false, code: "400", message: "failed")
-    let store = TestStore(initialState: ProfileReducer.State()) {
-      ProfileReducer()
+    let store = TestStore(initialState: ProfileFeature.State()) {
+      ProfileFeature()
     }
 
-    await store.send(.inner(.deleteUserResponse(.success(response)))) {
-      $0.deleteUser = response
-    }
+    await store.send(.inner(.deleteUserResponse(.success(response))))
   }
 }
 

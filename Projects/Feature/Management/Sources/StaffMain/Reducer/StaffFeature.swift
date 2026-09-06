@@ -20,38 +20,29 @@ public struct StaffFeature {
   @ObservableState
   public struct State: Equatable {
     
-    var isExpandedDropDown: Bool = false
-    var selectedIDropDownItem = "출석"
-    var dropDownItem: [String] = SelectDropDownItem.item
-    var selectDropDownItem: SelectDropDownItem = .attandance
+    var isExpandedDropDown = false
+    var selectedItem: SelectDropDownItem = .attendance
     
-    var attendanceCheck = AttendanceCheck.State()
-    var schedule = ScheduleReducer.State()
+    var attendance = AttendanceCheckFeature.State()
+    var schedule = ScheduleFeature.State()
     var vote = VoteFeature.State()
 
-    /// 이 화면이 지금 무엇을 그려야 하는지.
-    /// 드롭다운으로 고른 탭의 자식 상태를 그대로 따른다.
+    /// 현재 선택된 탭의 자식 로딩 상태를 화면 상태로 노출한다.
     public enum ViewState: Equatable {
       case loading
       case loaded
     }
 
     var viewState: ViewState {
-      let childIsLoading: Bool
-      switch selectDropDownItem {
-      case .attandance:
-        childIsLoading = attendanceCheck.viewState == .loading
+      switch selectedItem {
+      case .attendance:
+        return attendance.viewState == .loading ? .loading : .loaded
       case .schedule:
-        childIsLoading = schedule.viewState == .loading
+        return schedule.viewState == .loading ? .loading : .loaded
       case .vote:
-        childIsLoading = vote.viewState == .loading
+        return vote.viewState == .loading ? .loading : .loaded
       }
-      return childIsLoading ? .loading : .loaded
     }
-    
-    var qrcodeImage: ImageAsset = .qrCode
-    var eventImage: ImageAsset = .eventGenerate
-    var managerProfilemage: ImageAsset = .managementProfile
     
     
     @Presents var destination: Destination.State?
@@ -67,8 +58,8 @@ public struct StaffFeature {
     case async(AsyncAction)
     case inner(InnerAction)
     case delegate(DelegateAction)
-    case attendanceCheck(AttendanceCheck.Action)
-    case schedule(ScheduleReducer.Action)
+    case attendance(AttendanceCheckFeature.Action)
+    case schedule(ScheduleFeature.Action)
     case vote(VoteFeature.Action)
   }
   
@@ -77,10 +68,9 @@ public struct StaffFeature {
   @CasePathable
   public enum View: Equatable {
     case presentQrcode
-    case closeModal
     case toggleDropDown
     case closeDropDown
-    case selectDropDownItem(SelectDropDownItem)
+    case selectItem(SelectDropDownItem)
   }
   
   // MARK: - 비동기 처리 액션
@@ -100,7 +90,7 @@ public struct StaffFeature {
   
   @Reducer(state: .equatable)
   public enum Destination {
-    case qrcode(QRCode)
+    case qrcode(QRCodeFeature)
   }
   
   
@@ -108,15 +98,12 @@ public struct StaffFeature {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case .binding(_):
-        return .none
-        
-      case .binding(\.isExpandedDropDown):
+      case .binding:
         return .none
         
       case .destination(.presented(.qrcode(.delegate(.presentBack)))):
         state.destination = nil
-        return .send(.attendanceCheck(.view(.onAppear)))
+        return .send(.attendance(.view(.onAppear)))
 
       case .destination:
         return .none
@@ -142,11 +129,11 @@ public struct StaffFeature {
       }
     }
     .ifLet(\.$destination, action: \.destination)
-    Scope(state: \.attendanceCheck, action: \.attendanceCheck) {
-      AttendanceCheck()
+    Scope(state: \.attendance, action: \.attendance) {
+      AttendanceCheckFeature()
     }
     Scope(state: \.schedule, action: \.schedule) {
-      ScheduleReducer()
+      ScheduleFeature()
     }
     Scope(state: \.vote, action: \.vote) {
       VoteFeature()
@@ -165,10 +152,6 @@ extension StaffFeature {
       state.destination = .qrcode(.init())
       return .none
 
-    case .closeModal:
-      state.destination = nil
-      return .none
-
     case .toggleDropDown:
       state.isExpandedDropDown.toggle()
       return .none
@@ -177,8 +160,8 @@ extension StaffFeature {
       state.isExpandedDropDown = false
       return .none
 
-    case let .selectDropDownItem(item):
-      state.selectDropDownItem = item
+    case let .selectItem(item):
+      state.selectedItem = item
       state.isExpandedDropDown = false
       return .none
     }

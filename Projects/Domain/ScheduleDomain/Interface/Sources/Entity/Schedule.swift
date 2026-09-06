@@ -5,6 +5,7 @@
 //  Created by DDD on 1/10/26.
 //
 
+import DDDCoreUtility
 import Foundation
 
 public struct Schedule: Equatable, Identifiable {
@@ -12,7 +13,7 @@ public struct Schedule: Equatable, Identifiable {
   public let name: String
   public let description: String
   public let month, day, year: Int
-  
+
   public init(
     id: Int,
     name: String,
@@ -32,17 +33,7 @@ public struct Schedule: Equatable, Identifiable {
 
 public extension Schedule {
   func toDate(timeZone: TimeZone = .init(identifier: "Asia/Seoul")!) -> Date? {
-    var cal = Calendar(identifier: .gregorian)
-    cal.timeZone = timeZone
-    
-    var comps = DateComponents()
-    comps.year = year
-    comps.month = month
-    comps.day = day
-    comps.hour = 0
-    comps.minute = 0
-    comps.second = 0
-    
-    return cal.date(from: comps)
+    String(format: "%04d-%02d-%02d", year, month, day)
+      .date(as: .yearMonthDay, timeZone: timeZone)
   }
 }

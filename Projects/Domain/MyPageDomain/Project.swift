@@ -13,7 +13,7 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "MyPageDomain",
   bundleId: .appBundleID(name: ".MyPageDomain"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [
     .serviceAssembly,

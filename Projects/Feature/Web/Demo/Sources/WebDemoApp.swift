@@ -24,8 +24,8 @@ struct WebDemoApp: App {
   var body: some Scene {
     WindowGroup {
       WebView(
-        store: Store(initialState: WebReducer.State(url: "https://www.apple.com")) {
-          WebReducer()
+        store: Store(initialState: WebFeature.State(url: "https://www.apple.com")) {
+          WebFeature()
         }
       )
     }

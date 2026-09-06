@@ -1,0 +1,20 @@
+appId: io.DDD.Attendance
+name: 전체 E2E 테스트
+tags:
+  - full
+  - e2e
+---
+- runFlow:
+    file: splash/launch_to_login.yaml
+- runFlow:
+    file: login/relaunch_keeps_login.yaml
+- runFlow:
+    file: management/full_test.yaml
+- runFlow:
+    file: member/full_test.yaml
+- runFlow:
+    file: profile/full_test.yaml
+
+# 온보딩 초대 코드 화면은 바로 앞 profile/full_test 가 열어둔 프로필 화면에서 진입한다.
+- runFlow:
+    file: onboarding/full_test.yaml

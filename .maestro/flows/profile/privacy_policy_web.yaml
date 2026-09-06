@@ -1,0 +1,30 @@
+# 프로필 화면에서 개인정보처리방침 웹뷰를 열고 프로필로 돌아온다.
+appId: io.DDD.Attendance
+name: 프로필 개인정보처리방침 웹뷰
+tags:
+  - e2e
+  - profile
+  - web
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "profile.main.root"
+    timeout: 30000
+
+- tapOn:
+    id: "profile.main.privacypolicybutton"
+
+- extendedWaitUntil:
+    visible:
+      id: "web.root"
+    timeout: 60000
+
+- takeScreenshot: .maestro/artifacts/profile/privacy-policy-web
+
+- tapOn:
+    id: "web.backbutton"
+- extendedWaitUntil:
+    visible:
+      id: "profile.main.root"
+    timeout: 30000

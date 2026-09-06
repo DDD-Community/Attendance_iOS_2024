@@ -332,7 +332,7 @@ private actor ScheduleLocalDataSourceStub: ScheduleLocalDataSourceProtocol {
 
 private actor ProfileScheduleClient: DDDNetworkClient {
   private let result: Result<DDDHTTPResponse, DDDNetworkError>
-  private(set) var lastEditProfileBody: BaseUserProfileDTO?
+  private(set) var lastEditProfileBody: CapturedEditProfileBody?
 
   init(json: String) {
     result = .success(.init(statusCode: 200, data: Data(json.utf8)))
@@ -346,9 +346,10 @@ private actor ProfileScheduleClient: DDDNetworkClient {
     _ request: R,
     as _: T.Type
   ) async throws(DDDNetworkError) -> T {
-    if let request = request as? ProfileService,
-       case let .editProfile(body) = request {
-      lastEditProfileBody = body.profile
+    if request.method == .put,
+       let parameters = request.parameters,
+       let data = try? JSONEncoder().encode(parameters) {
+      lastEditProfileBody = try? JSONDecoder().decode(CapturedEditProfileBody.self, from: data)
     }
 
     let response = try result.get()
@@ -374,4 +375,13 @@ private actor ProfileScheduleClient: DDDNetworkClient {
   func upload(_: some DDDFileUploadRequest) async throws(DDDNetworkError) {
     fatalError("이 테스트에서는 file upload를 사용하지 않습니다")
   }
+}
+
+private struct CapturedEditProfileBody: Decodable, Sendable {
+  let name: String
+  let generationId: Int
+  let jobRole: String
+  let teamId: Int?
+  let managerRoles: [String]?
+  let invitationCode: String
 }

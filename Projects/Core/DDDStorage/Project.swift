@@ -14,7 +14,7 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "DDDStorage",
   bundleId: .appBundleID(name: ".DDDStorage"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [.SPM.sqliteData],
   sources: ["Sources/**"],
@@ -22,6 +22,7 @@ let project = Project.makeModule(
   hasInterface: true,
   interfaceDependencies: [
     .SPM.dependencies,
-    .SPM.sharing
+    .SPM.sharing,
+    .SPM.sqliteData
   ]
 )

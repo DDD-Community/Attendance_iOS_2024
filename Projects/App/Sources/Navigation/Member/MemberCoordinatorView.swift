@@ -6,6 +6,7 @@
 //
 
 import Member
+import DDDCoreUI
 import SwiftUI
 
 import ComposableArchitecture
@@ -26,15 +27,15 @@ public struct MemberCoordinatorView: View {
       switch screens.case {
       case .member(let store):
         MemberMainView(store: store)
-          .navigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
 
       case .profile(let profileStore):
        ProfileCoordinatorView(store: profileStore)
-        .navigationBarBackButtonHidden()
+        .dddNavigationBarBackButtonHidden()
 
       case .qrCode(let qrCodeStore):
         MemberQRCodeView(store: qrCodeStore)
-          .navigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
       }
     }
   }

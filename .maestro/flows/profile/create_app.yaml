@@ -1,0 +1,31 @@
+# CreateAppView("만든 사람들") 모달. 프로필 우측 상단 info 버튼으로 연다.
+appId: io.DDD.Attendance
+name: 프로필 만든 사람들 모달
+tags:
+  - e2e
+  - profile
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "profile.main.root"
+    timeout: 30000
+
+- tapOn:
+    id: "profile.main.infobutton"
+
+- extendedWaitUntil:
+    visible:
+      id: "profile.createapp.root"
+    timeout: 30000
+- assertVisible:
+    id: "profile.createapp.feedbackbutton"
+
+- takeScreenshot: .maestro/artifacts/profile/create-app
+
+- tapOn:
+    id: "profile.createapp.closebutton"
+- extendedWaitUntil:
+    visible:
+      id: "profile.main.root"
+    timeout: 30000

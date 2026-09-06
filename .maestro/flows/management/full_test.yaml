@@ -1,0 +1,22 @@
+appId: io.DDD.Attendance
+name: 운영진 전체 테스트
+tags:
+  - full
+  - management
+---
+- runFlow:
+    file: login_to_home.yaml
+- runFlow:
+    file: home_smoke.yaml
+- runFlow:
+    file: attendance_refresh.yaml
+- runFlow:
+    file: team_switch.yaml
+- runFlow:
+    file: schedule_change.yaml
+- runFlow:
+    file: schedule_tab.yaml
+- runFlow:
+    file: vote_tab.yaml
+- runFlow:
+    file: qr_scanner.yaml

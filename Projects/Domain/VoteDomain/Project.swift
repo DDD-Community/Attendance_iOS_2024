@@ -13,7 +13,7 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "VoteDomain",
   bundleId: .appBundleID(name: ".VoteDomain"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [
     .serviceAssembly,

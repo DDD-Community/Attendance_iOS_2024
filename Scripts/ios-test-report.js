@@ -8,6 +8,7 @@
  */
 
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const { execFileSync } = require("child_process");
 
@@ -110,9 +111,103 @@ function readCoverage(bundle) {
   }
 }
 
+function findFilesByExtension(root, extension) {
+  if (!fs.existsSync(root)) return [];
+  const xcodeCoverageSuffix = {
+    ".xccovarchive": "_CoverageArchive",
+    ".xccovreport": "_CoverageReport",
+  }[extension];
+  const matches = (candidate) =>
+    candidate.endsWith(extension) || (xcodeCoverageSuffix && candidate.endsWith(xcodeCoverageSuffix));
+
+  if (matches(root)) return [root];
+  if (!fs.statSync(root).isDirectory()) return [];
+
+  return fs.readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
+    const child = path.join(root, entry.name);
+    return entry.isDirectory() ? findFilesByExtension(child, extension) : matches(child) ? [child] : [];
+  });
+}
+
+function readMergedCoverage(bundles) {
+  if (bundles.length < 2) return bundles.flatMap(readCoverage);
+
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "pr-shard-coverage-"));
+  try {
+    const coveragePairs = [];
+    for (const [index, bundle] of bundles.entries()) {
+      try {
+        const output = path.join(directory, `shard-${index}`);
+        execFileSync("xcrun", [
+          "xcresulttool",
+          "export",
+          "coverage",
+          "--path",
+          bundle,
+          "--output-path",
+          output,
+        ]);
+        const report = findFilesByExtension(output, ".xccovreport")[0];
+        const archive = findFilesByExtension(output, ".xccovarchive")[0];
+        if (report && archive) coveragePairs.push({ report, archive });
+      } catch {
+        // build-only xcresult처럼 coverage가 없는 결과 번들은 병합 대상에서 제외한다.
+      }
+    }
+
+    if (coveragePairs.length === 0) return [];
+    if (coveragePairs.length === 1) {
+      return JSON.parse(
+        xcrun(["xccov", "view", "--json", "--only-targets", coveragePairs[0].report]),
+      );
+    }
+
+    const mergedReport = path.join(directory, "merged.xccovreport");
+    const mergedArchive = path.join(directory, "merged.xccovarchive");
+    execFileSync("xcrun", [
+      "xccov",
+      "merge",
+      "--outReport",
+      mergedReport,
+      "--outArchive",
+      mergedArchive,
+      ...coveragePairs.flatMap(({ report, archive }) => [report, archive]),
+    ]);
+    return JSON.parse(
+      xcrun(["xccov", "view", "--json", "--only-targets", mergedReport]),
+    );
+  } catch (error) {
+    console.warn(`shard coverage를 병합하지 못했습니다: ${error.message}`);
+    return [];
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+}
+
 function readDashboardURL(reportPath, pathSegment) {
   if (!reportPath || !fs.existsSync(reportPath)) return null;
 
+  const reportPaths = [];
+  const collectReports = (candidate) => {
+    if (!fs.statSync(candidate).isDirectory()) {
+      if (candidate.endsWith(".json")) reportPaths.push(candidate);
+      return;
+    }
+    for (const entry of fs.readdirSync(candidate, { withFileTypes: true })) {
+      collectReports(path.join(candidate, entry.name));
+    }
+  };
+  collectReports(reportPath);
+  reportPaths.sort();
+
+  for (const candidate of reportPaths) {
+    const dashboardURL = readDashboardURLFromFile(candidate, pathSegment);
+    if (dashboardURL) return dashboardURL;
+  }
+  return null;
+}
+
+function readDashboardURLFromFile(reportPath, pathSegment) {
   try {
     const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
     const urls = [];
@@ -456,7 +551,7 @@ function renderReport({ summary, coverage, buildErrors, bundleInsights, outcome,
 module.exports = async ({ github, context, core }) => {
   const bundles = findResultBundles(process.env.RESULT_BUNDLE_DIR);
   const summaries = bundles.map(readSummary).filter(Boolean);
-  const coverage = mergeCoverage(bundles.map(readCoverage));
+  const coverage = mergeCoverage([readMergedCoverage(bundles)]);
   const buildErrors = bundles.flatMap(readBuildErrors);
   const testRunUrl = readDashboardURL(process.env.TEST_RUN_REPORT_PATH, "/tests/test-runs/");
   const buildRunUrl = readDashboardURL(process.env.BUILD_RUN_REPORT_PATH, "/builds/build-runs/");
@@ -493,8 +588,10 @@ module.exports = async ({ github, context, core }) => {
 };
 
 module.exports.__test__ = {
+  findFilesByExtension,
   internalCoverageTargetNames,
   mergeCoverage,
+  readMergedCoverage,
   readBundleInsights,
   readDashboardURL,
   renderBundleInsights,

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import DDDAccessibility
 import DDDSharedUI
 import ScheduleDomainInterface
 
@@ -27,6 +28,7 @@ public struct ScheduleModalView: View {
         switch store.viewState {
         case .loading:
           ScheduleModalSkeletonView()
+            .dddAccessibilityID(ManagementAccessibilityID.ScheduleModal.skeleton)
 
         case .loaded:
           VStack(spacing: 0) {
@@ -53,6 +55,7 @@ public struct ScheduleModalView: View {
       .onAppear {
         store.send(.async(.fetchSchedule))
       }
+      .dddAccessibilityID(ManagementAccessibilityID.ScheduleModal.root)
     }
   }
 }
@@ -73,7 +76,7 @@ extension ScheduleModalView {
 
   @ViewBuilder
   private func scheduleList() -> some View {
-    let schedules = store.scheduleModel
+    let schedules = store.schedules
 
     LazyVStack(spacing: 8) {
       ForEach(schedules, id: \.id) { item in
@@ -83,6 +86,7 @@ extension ScheduleModalView {
     }
     .padding(.top, 8)
     .padding(.bottom, 8)
+    .dddAccessibilityID(ManagementAccessibilityID.ScheduleModal.list)
   }
 
   @ViewBuilder
@@ -95,6 +99,7 @@ extension ScheduleModalView {
       .onTapGesture {
         send(.selectSchedule(item: item))
       }
+      .dddAccessibilityID(ManagementAccessibilityID.ScheduleModal.item(item.id))
   }
 
   @ViewBuilder
@@ -151,6 +156,7 @@ extension ScheduleModalView {
       title: "확인",
       config: CustomButtonConfig.create()
     )
-    .isEnable(store.enableButton)
+    .isEnable(store.isConfirmEnabled)
+    .dddAccessibilityID(ManagementAccessibilityID.ScheduleModal.confirmButton)
   }
 }

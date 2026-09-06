@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import DDDAccessibility
 import DDDDesignKit
 
 import ComposableArchitecture
@@ -27,6 +28,8 @@ public struct MemberQRCodeView: View {
       Spacer()
     }
     .background(.backGroundPrimary)
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(MemberAccessibilityID.QRCode.root)
     .onAppear {
       store.send(.view(.onAppear))
     }
@@ -43,6 +46,7 @@ public struct MemberQRCodeView: View {
           .frame(width: 12, height: 20)
       }
       .frame(width: 28, height: 28)
+      .dddAccessibilityID(MemberAccessibilityID.QRCode.backButton)
 
       Spacer()
     }
@@ -64,6 +68,7 @@ public struct MemberQRCodeView: View {
 
       if store.viewState == .loading {
         MemberQRCodeSkeletonView()
+          .dddAccessibilityID(MemberAccessibilityID.QRCode.skeleton)
       } else if let image = store.qrCodeImage {
         image
           .interpolation(.none)
@@ -73,6 +78,7 @@ public struct MemberQRCodeView: View {
           .padding(10)
           .background(.white)
           .cornerRadius(24)
+          .dddAccessibilityID(MemberAccessibilityID.QRCode.image)
       } else {
         Text("QR 코드를 불러오지 못했어요.")
           .dddFont(.body2NormalMedium)

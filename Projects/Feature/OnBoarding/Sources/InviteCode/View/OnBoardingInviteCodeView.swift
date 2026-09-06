@@ -5,13 +5,13 @@
 //  Created by DDD on 11/2/24.
 //
 
+import DDDAccessibility
 import DDDSharedUI
 import SwiftUI
 
 import DDDDesignKit
 
 import ComposableArchitecture
-import SwiftUIX
 
 @ViewAction(for: InviteCodeFeature.self)
 public struct InviteCodeView : View {
@@ -23,7 +23,7 @@ public struct InviteCodeView : View {
   }
   
   public var body: some View {
-    LazyView {
+    DDDLazyView {
       ZStack {
         Color.backGroundPrimary
           .edgesIgnoringSafeArea(.all)
@@ -36,6 +36,7 @@ public struct InviteCodeView : View {
           NavigationBackButton {
             store.send(.delegate(.presentBack))
           }
+          .dddAccessibilityID(OnBoardingAccessibilityID.InviteCode.backButton)
           
           ScrollView{
             inviteCodeInPutTextView()
@@ -55,7 +56,7 @@ public struct InviteCodeView : View {
           
         }
         .onTapGesture {
-          UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+          dismissKeyboard()
           focusedField = nil
         }
         .onAppear {
@@ -73,6 +74,8 @@ public struct InviteCodeView : View {
       }
       
     }
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(OnBoardingAccessibilityID.InviteCode.root)
   }
 }
 
@@ -102,6 +105,7 @@ extension InviteCodeView {
         config: CustomButtonConfig.create()
       )
       .isEnable(store.enableButton)
+      .dddAccessibilityID(OnBoardingAccessibilityID.InviteCode.confirmButton)
     }
     .padding(.horizontal, 24)
     .fixedSize(horizontal: false, vertical: true)
@@ -189,6 +193,7 @@ extension InviteCodeView {
       .frame(width: 64, height: 64)
       .overlay {
         TextField("", text: text)
+          .dddAccessibilityID(OnBoardingAccessibilityID.InviteCode.textField(String(describing: field)))
           .dddFont(.headline7Semibold)
           .foregroundStyle(.gray90)
           .multilineTextAlignment(.center)

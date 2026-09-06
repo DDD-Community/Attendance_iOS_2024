@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import DDDAccessibility
 import DDDDesignKit
 
 import ComposableArchitecture
@@ -41,6 +42,8 @@ public struct VoteView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     .padding(.top, 20)
     .padding(.horizontal, 24)
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(ManagementAccessibilityID.Vote.root)
     .onAppear {
       send(.onAppear)
     }
@@ -82,9 +85,7 @@ extension VoteView {
       }
       .padding(.vertical, 14)
 
-      Rectangle()
-        .fill(.gray80)
-        .frame(height: 1)
+      DDDDivider(color: .gray80)
 
       HStack(spacing: 0) {
         Text("참여 현황")
@@ -120,6 +121,7 @@ extension VoteView {
         RoundedRectangle(cornerRadius: 6)
           .fill(statusChipBackground)
       }
+      .dddAccessibilityID(ManagementAccessibilityID.Vote.statusChip)
   }
 
   var statusChipTitle: String {
@@ -168,6 +170,7 @@ extension VoteView {
       config: CustomButtonConfig.createVoteButton()
     )
     .isEnable(true)
+    .dddAccessibilityID(ManagementAccessibilityID.Vote.startButton)
   }
 
   @ViewBuilder
@@ -192,6 +195,7 @@ extension VoteView {
       }
     }
     .buttonStyle(.plain)
+    .dddAccessibilityID(ManagementAccessibilityID.Vote.nonParticipantsButton)
   }
 
   @ViewBuilder
@@ -204,6 +208,7 @@ extension VoteView {
       config: CustomButtonConfig.createEndVoteButton()
     )
     .isEnable(true)
+    .dddAccessibilityID(ManagementAccessibilityID.Vote.endButton)
   }
 
   @ViewBuilder

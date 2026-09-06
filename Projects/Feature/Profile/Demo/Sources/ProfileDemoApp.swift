@@ -24,8 +24,8 @@ struct ProfileDemoApp: App {
   var body: some Scene {
     WindowGroup {
       ProfileView(
-        store: Store(initialState: ProfileReducer.State()) {
-          ProfileReducer()
+        store: Store(initialState: ProfileFeature.State()) {
+          ProfileFeature()
         }
       )
     }

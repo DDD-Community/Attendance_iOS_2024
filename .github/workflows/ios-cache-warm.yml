@@ -23,7 +23,7 @@ concurrency:
 jobs:
   warm:
     runs-on: self-hosted
-    timeout-minutes: 120
+    timeout-minutes: 20
 
     permissions:
       contents: read
@@ -36,28 +36,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # launchd 서비스는 PATH 가 최소라 툴체인 경로를 직접 얹어준다.
-      - name: Setup PATH
-        run: |
-          echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
-
-      # Config/*.xcconfig 와 GoogleService-Info.plist 는 gitignore 대상이라
-      # 체크아웃에 없다. 시크릿에서 복원해야 generate 가 된다.
-      - name: Restore gitignored build config
+      - name: Setup iOS runner
+        uses: ./.github/actions/setup-ios-runner
         env:
           CONFIG_TAR: ${{ secrets.CONFIG_DIR_TAR_BASE64 }}
           GOOGLE_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
-        run: |
-          printf '%s' "$CONFIG_TAR" | base64 --decode | tar xzf -
-          mkdir -p Projects/App/Resources
-          printf '%s' "$GOOGLE_PLIST" | base64 --decode > Projects/App/Resources/GoogleService-Info.plist
-          git check-ignore -q Config/base.xcconfig
-          git check-ignore -q Projects/App/Resources/GoogleService-Info.plist
-
-      - name: Install toolchain
-        run: mise install tuist
 
       - name: Setup Tuist cache
         continue-on-error: true

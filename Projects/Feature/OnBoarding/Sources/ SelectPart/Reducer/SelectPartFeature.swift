@@ -22,10 +22,9 @@ public struct SelectPartFeature {
   public struct State: Equatable {
     public init() {}
 
-    var activeSelectPart: Bool = false
+    var activeSelectPart = false
     var selectPart: SelectParts? = .all
-    var selectJobs: IdentifiedArrayOf<SelectJob> = .init(uniqueElements: [])
-    var errorMessage: String?
+    var selectJobs: IdentifiedArrayOf<SelectJob> = []
     /// 이 화면이 지금 무엇을 그려야 하는지.
     public enum ViewState: Equatable {
       case loading
@@ -34,7 +33,7 @@ public struct SelectPartFeature {
 
     /// 첫 진입은 항상 fetch 로 시작한다. 빈 화면이 한 프레임 스쳐 지나가지 않도록 스켈레톤부터 그린다.
 
-    var viewState: ViewState = .loading
+    var viewState = ViewState.loading
     @Shared(.userSession) var userSession
 
   }
@@ -186,7 +185,6 @@ extension SelectPartFeature {
 
           case .failure(let error):
             state.viewState = .loaded
-            state.errorMessage = error.errorDescription
             DDDLogger.error("네트워크 통신 실패: \(error.errorDescription)", category: .auth)
         }
         return .none

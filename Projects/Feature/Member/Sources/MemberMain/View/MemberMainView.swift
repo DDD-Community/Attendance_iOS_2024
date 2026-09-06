@@ -5,6 +5,7 @@
 //  Created by DDD on 1/2/25.
 //
 
+import DDDAccessibility
 import DDDSharedUI
 import SwiftUI
 
@@ -12,12 +13,12 @@ import DDDDesignKit
 
 import ComposableArchitecture
 
-@ViewAction(for: MemberMain.self)
+@ViewAction(for: MemberMainFeature.self)
 public struct MemberMainView: View {
-  @Bindable public var store: StoreOf<MemberMain>
+  @Bindable public var store: StoreOf<MemberMainFeature>
   @State private var isDropDownClosing = false
 
-  public init(store: StoreOf<MemberMain>) {
+  public init(store: StoreOf<MemberMainFeature>) {
     self.store = store
   }
 
@@ -43,6 +44,7 @@ public struct MemberMainView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     .background(.backGroundPrimary)
+    .dddAccessibilityID(MemberAccessibilityID.root)
     .overlay {
       dropDownOverlay()
     }
@@ -53,12 +55,13 @@ public struct MemberMainView: View {
       if store.viewState == .loading {
         MemberMainSkeletonView()
           .transition(.opacity)
+          .dddAccessibilityID(MemberAccessibilityID.skeleton)
       }
     }
     .animation(.easeInOut(duration: 0.2), value: store.viewState)
     .allowsHitTesting(store.viewState == .loaded)
     .dddAlert(
-      isPresented: store.isPresentAttendanceWarningAlert,
+      isPresented: store.isAttendanceWarningAlertPresented,
       title: "주의해주세요!",
       message: "2번 지각 시 노쇼비를 돌려받을 수 없습니다.",
       onConfirm: {
@@ -103,41 +106,31 @@ public struct MemberMainView: View {
         }
       }
       .buttonStyle(.plain)
+      .dddAccessibilityID(MemberAccessibilityID.sectionButton)
 
       Spacer()
 
       HStack(spacing: 12) {
-        Button(action: {
-          store.send(.delegate(.routeToQRCode))
-        }) {
-          Image(asset: ImageAsset.qrCode)
-            .renderingMode(.template)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 20, height: 20)
-            .foregroundStyle(.staticWhite)
-        }
-        .frame(width: 36, height: 36)
-        .background(.blue70)
-        .clipShape(.rect(cornerRadius: 99))
-        .overlay(
-          RoundedRectangle(cornerRadius: 99)
-            .stroke(Color.blue30, lineWidth: 1)
+        DDDHomeIconButton(
+          image: .qrCode,
+          foregroundColor: .staticWhite,
+          backgroundColor: .blue70,
+          borderColor: .blue30,
+          action: {
+            store.send(.delegate(.routeToQRCode))
+          }
         )
+        .dddAccessibilityID(MemberAccessibilityID.qrButton)
 
-        Button(action: {
-          store.send(.delegate(.routeToProfile))
-        }) {
-          Image(asset: ImageAsset.managementProfile)
-            .renderingMode(.template)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 20, height: 20)
-            .foregroundStyle(.staticWhite)
-        }
-        .frame(width: 36, height: 36)
-        .background(.gray80)
-        .clipShape(RoundedRectangle(cornerRadius: 99))
+        DDDHomeIconButton(
+          image: .managementProfile,
+          foregroundColor: .staticWhite,
+          backgroundColor: .gray80,
+          action: {
+            store.send(.delegate(.routeToProfile))
+          }
+        )
+        .dddAccessibilityID(MemberAccessibilityID.profileButton)
       }
     }
     .frame(height: 52)
@@ -176,7 +169,7 @@ public struct MemberMainView: View {
           }
 
         HomeDropdownMenu(
-          entries: MemberMain.HomeTab.allCases
+          entries: MemberMainFeature.HomeTab.allCases
             .filter { tab in
               tab != .vote || store.isVoteMenuAvailable
             }
@@ -189,13 +182,18 @@ public struct MemberMainView: View {
               )
             },
           onSelect: { entry in
-            if let tab = MemberMain.HomeTab(rawValue: entry.id) {
+            if let tab = MemberMainFeature.HomeTab(rawValue: entry.id) {
               closeDropDown(.selectHomeTab(tab))
             }
           }
         )
+        .accessibilityIdentifier { entry in
+          MemberAccessibilityID.dropdownItem(entry.id)
+        }
         .padding(.leading, 24)
         .padding(.top, 52)
+        .accessibilityElement(children: .contain)
+        .dddAccessibilityID(MemberAccessibilityID.dropdown)
       }
       .transition(.opacity)
       .zIndex(1)
@@ -227,18 +225,20 @@ public struct MemberMainView: View {
         case .loading:
           MemberAttendanceCardSkeletonView()
             .transition(.opacity)
+            .dddAccessibilityID(MemberAccessibilityID.attendanceSummarySkeleton)
 
         case .loaded:
           AttendanceCard(
             attendanceCount: store.presentCount,
             lateCount: store.lateCount,
             absentCount: store.absentCount,
-            showWarning: store.showAttendanceWarningIcon,
+            showWarning: store.showsAttendanceWarningIcon,
             onTapAbsentButton: {
               send(.didTapAbesentButton)
             }
           )
           .transition(.opacity)
+          .dddAccessibilityID(MemberAccessibilityID.attendanceSummary)
         }
       }
     }
@@ -286,8 +286,10 @@ public struct MemberMainView: View {
           style: schedule.status.toScheduleCellStyle
         )
         .id(schedule.id) // SwiftUI 뷰 재사용 최적화
+        .dddAccessibilityID(MemberAccessibilityID.schedule(schedule.id))
       }
     }
+    .dddAccessibilityID(MemberAccessibilityID.scheduleList)
   }
 }
 
@@ -299,7 +301,7 @@ private extension MemberMainView {
     }
   }
 
-  func closeDropDown(_ action: MemberMain.View = .closeDropDown) {
+  func closeDropDown(_ action: MemberMainFeature.View = .closeDropDown) {
     guard store.isExpandedDropDown, !isDropDownClosing else { return }
     isDropDownClosing = true
 

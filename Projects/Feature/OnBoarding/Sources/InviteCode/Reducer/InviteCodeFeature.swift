@@ -28,11 +28,10 @@ public struct InviteCodeFeature {
   @ObservableState
   public struct State: Equatable {
     
-    var firstInviteCode: String = ""
-    var secondInviteCode: String = ""
-    var thirdInviteCode: String = ""
-    var lastInviteCode: String = ""
-    var verifyInviteCodeModel: VerifyCodeEntity?
+    var firstInviteCode = ""
+    var secondInviteCode = ""
+    var thirdInviteCode = ""
+    var lastInviteCode = ""
     var focusedField: FocusField? = .first
 
     @Shared(.userSession) var userSession
@@ -48,7 +47,7 @@ public struct InviteCodeFeature {
       !thirdInviteCode.isEmpty &&
       !lastInviteCode.isEmpty
     }
-    var isNotAvailableCode: Bool = false
+    var isNotAvailableCode = false
     
 
     
@@ -195,7 +194,6 @@ extension InviteCodeFeature {
     case .verifyInviteCodeResponse(let result):
       switch result {
       case .success(let data):
-        state.verifyInviteCodeModel = data
         state.isNotAvailableCode = false
         let inviteCode = state.totalInviteCode
         state.$userSession.withLock {

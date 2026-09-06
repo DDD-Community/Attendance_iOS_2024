@@ -1,0 +1,30 @@
+# 운영진 홈에서 QR 스캐너를 열고 닫는다. 시뮬레이터에는 카메라가 없어 화면 진입/이탈만 검증한다.
+appId: io.DDD.Attendance
+name: 운영진 QR 스캐너 진입
+tags:
+  - e2e
+  - management
+  - qr
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "management.staff.root"
+    timeout: 30000
+
+- tapOn:
+    id: "management.staff.qrbutton"
+
+- extendedWaitUntil:
+    visible:
+      id: "management.qrscanner.root"
+    timeout: 30000
+
+- takeScreenshot: .maestro/artifacts/management/qr-scanner
+
+- tapOn:
+    id: "management.qrscanner.closebutton"
+- extendedWaitUntil:
+    visible:
+      id: "management.staff.root"
+    timeout: 30000

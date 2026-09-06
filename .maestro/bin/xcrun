@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Maestro 2.6.1 / Studio 0.9.4 can deadlock while waiting for devicectl
+# because its human-readable stdout is not drained. The JSON response is
+# written to the path supplied by --json-output, so stdout is safe to discard.
+if [ "$1" = "devicectl" ]; then
+  for argument in "$@"; do
+    if [ "$argument" = "--json-output" ]; then
+      exec /usr/bin/xcrun "$@" >/dev/null
+    fi
+  done
+fi
+
+exec /usr/bin/xcrun "$@"

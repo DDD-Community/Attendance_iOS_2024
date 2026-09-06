@@ -6,6 +6,7 @@
 //
 
 import DDDCoreUI
+import DDDAccessibility
 import AuthenticationServices
 import SwiftUI
 
@@ -14,11 +15,11 @@ import DDDDesignKit
 import ComposableArchitecture
 import AuthDomainInterface
 
-@ViewAction(for: Login.self)
+@ViewAction(for: LoginFeature.self)
 public struct LoginView: View {
-  @Bindable public var store: StoreOf<Login>
+  @Bindable public var store: StoreOf<LoginFeature>
   
-  public init(store: StoreOf<Login>) {
+  public init(store: StoreOf<LoginFeature>) {
     self.store = store
   }
   
@@ -37,7 +38,7 @@ public struct LoginView: View {
       }
     }
     .accessibilityElement(children: .contain)
-    .accessibilityIdentifier("login_root")
+    .dddAccessibilityID(AuthAccessibilityID.Login.root)
     .dddToast()
     .dddAlert($store.scope(state: \.customAlert, action: \.scope.customAlert))
   }
@@ -51,7 +52,7 @@ extension LoginView {
         .resizable()
         .scaledToFit()
         .frame(width: 65, height: 72)
-        .accessibilityIdentifier("login_logo")
+        .dddAccessibilityID(AuthAccessibilityID.Login.logo)
       
       Spacer()
     }
@@ -83,9 +84,9 @@ extension LoginView {
 #Preview {
   LoginView(
     store: .init(
-      initialState: Login.State(),
+      initialState: LoginFeature.State(),
       reducer: {
-        Login()
+        LoginFeature()
       })
   )
 }

@@ -6,6 +6,7 @@
 //
 
 import AttendanceDomainInterface
+import DDDAccessibility
 import DDDCoreUI
 import SwiftUI
 
@@ -16,10 +17,9 @@ import OnBoardingDomainInterface
 
 import ComposableArchitecture
 
-@ViewAction(for: AttendanceCheck.self)
+@ViewAction(for: AttendanceCheckFeature.self)
 struct AttendanceCheckView: View {
-  @Bindable var store: StoreOf<AttendanceCheck>
-  @Namespace private var teamTabNamespace
+  @Bindable var store: StoreOf<AttendanceCheckFeature>
 
   var body: some View {
     VStack {
@@ -30,7 +30,10 @@ struct AttendanceCheckView: View {
       selectPartType()
 
       selectPartAttendanceStatus()
+        .padding(.bottom, 20)
     }
+    .accessibilityElement(children: .contain)
+    .dddAccessibilityID(ManagementAccessibilityID.Attendance.root)
     .onAppear {
       send(.onAppear)
     }
@@ -62,7 +65,7 @@ private extension AttendanceCheckView {
 
         Spacer().frame(width: 4)
 
-        Text(store.selectAttendanceDate.formatted(.yearMonthDayDotted))
+        Text(store.selectedAttendanceDate.formatted(.yearMonthDayDotted))
           .dddFont(.body1NormalMedium)
           .foregroundStyle(.staticWhite)
 
@@ -72,6 +75,7 @@ private extension AttendanceCheckView {
       .onTapGesture {
         send(.tapSelectDate)
       }
+      .dddAccessibilityID(ManagementAccessibilityID.Attendance.dateButton)
     }
     .padding(.horizontal, 24)
   }
@@ -88,6 +92,7 @@ private extension AttendanceCheckView {
         absentCount: store.absentCount,
         showWarning: false
       )
+      .dddAccessibilityID(ManagementAccessibilityID.Attendance.summary)
     }
     .padding(.horizontal, 24)
   }
@@ -98,94 +103,16 @@ private extension AttendanceCheckView {
       Spacer()
         .frame(height: 28)
 
-      ScrollViewReader { proxy in
-        teamTabScroller(proxy: proxy)
-      }
-    }
-  }
-
-  @ViewBuilder
-  func teamTabScroller(proxy: ScrollViewProxy) -> some View {
-    VStack {
-      ScrollView(.horizontal, showsIndicators: false) {
-        HStack {
-          ForEach(store.attendanceTeam) { item in
-            teamTabItem(item: item)
-          }
+      DDDTabs(
+        items: Array(store.teams),
+        selectedID: store.selectedTeamID,
+        title: { $0.teams.attendanceListDescription },
+        onSelect: { item in
+          send(.selectPartButton(selectPart: item))
         }
-        .padding(.horizontal, 24)
-      }
-      .scrollDisabled(true)
-
-      Spacer()
-        .frame(height: 12)
-
-      Divider()
-        .frame(height: 1)
-        .background(.borderInactive.opacity(0.12))
-        .offset(y: -12)
-    }
-    .onChange(of: store.selectPart) { _, newValue in
-      guard let newValue,
-            let target = store.attendanceTeam.first(where: { $0.teams == newValue })
-      else { return }
-      withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-        proxy.scrollTo(target.id, anchor: .center)
-      }
-    }
-  }
-
-  @ViewBuilder
-  func teamTabItem(item: SelectTeamEntity) -> some View {
-    let mappedTeam = item.teams
-    let isSelected = store.selectPart == mappedTeam
-
-    VStack(spacing: .zero) {
-      HStack {
-        Spacer().frame(width: 16)
-
-        Text(item.teams.attendanceListDescription)
-          .pretendardFont(family: .Bold, size: 16)
-          .foregroundColor(isSelected ? .staticWhite : .gray600)
-          .animation(.easeInOut(duration: 0.25), value: store.selectPart)
-          .background(teamTabWidthProbe(itemID: item.id))
-
-        Spacer().frame(width: 16)
-      }
-
-      Spacer().frame(height: 12)
-
-      teamTabUnderline(itemID: item.id, isSelected: isSelected)
-    }
-    .onPreferenceChange(TeamTextWidthPreferenceKey.self) { newWidths in
-      send(.updateDividerWidths(newWidths))
-    }
-    .onTapGesture {
-      withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-        _ = send(.selectPartButton(selectPart: item))
-      }
-    }
-    .id(item.id)
-  }
-
-  @ViewBuilder
-  func teamTabWidthProbe(itemID: Int) -> some View {
-    GeometryReader { geometry in
-      Color.clear
-        .preference(key: TeamTextWidthPreferenceKey.self, value: [itemID: geometry.size.width])
-    }
-  }
-
-  @ViewBuilder
-  func teamTabUnderline(itemID: Int, isSelected: Bool) -> some View {
-    ZStack {
-      if isSelected {
-        Rectangle()
-          .fill(Color.blue40)
-          .frame(width: store.dividerWidths[itemID] ?? 0, height: 2)
-          .matchedGeometryEffect(id: "teamTabUnderline", in: teamTabNamespace)
-      } else {
-        Color.clear.frame(height: 2)
+      )
+      .accessibilityIdentifier {
+        ManagementAccessibilityID.Attendance.team($0.teamId)
       }
     }
   }
@@ -193,20 +120,13 @@ private extension AttendanceCheckView {
   @ViewBuilder
   func selectPartAttendanceStatus() -> some View {
     switch store.viewState {
-    case .refreshingAttendanceList:
+    case .idle, .loading, .refreshingAttendanceList:
       attendanceStatusCardSkeletonList()
         .transition(.opacity)
 
-    case .loading, .loaded:
+    case .loaded:
       attendanceTabView()
         .transition(.opacity)
-    }
-
-    if let selectPart = store.selectPart,
-       [.web1, .web2, .and1, .and2, .ios1, .ios2].contains(selectPart)
-    {
-      Spacer()
-        .frame(height: 20)
     }
   }
 
@@ -223,6 +143,7 @@ private extension AttendanceCheckView {
     }
     .scrollIndicators(.hidden)
     .animation(.easeInOut(duration: 0.2), value: store.viewState)
+    .dddAccessibilityID(ManagementAccessibilityID.Attendance.listSkeleton)
   }
 
   @ViewBuilder
@@ -248,34 +169,21 @@ private extension AttendanceCheckView {
         .frame(width: 15, height: 15)
     }
     .padding(.horizontal, 20)
-    .frame(height: 84)
+    .frame(height: 80)
     .background(.borderInverse)
     .clipShape(.rect(cornerRadius: 15))
+    .padding(.vertical, 2)
   }
 
   @ViewBuilder
   func attendanceTabView() -> some View {
-    TabView(selection: pageSelection) {
-      ForEach(Array(pagedTeams.enumerated()), id: \.offset) { index, team in
+    TabView(selection: $store.pageSelection.sending(\.view.pageChanged)) {
+      ForEach(store.pageTeams) { team in
         selectPartAttendanceStatusCard(team: team)
-          .tag(index)
+          .tag(team.teamId)
       }
     }
     .tabViewStyle(.page(indexDisplayMode: .never))
-  }
-
-  /// 스와이프는 TabView 가 이미 움직인 뒤라, 복제 페이지 보정은 애니메이션 없이 반영한다.
-  var pageSelection: Binding<Int> {
-    Binding(
-      get: { store.pageIndex },
-      set: { newValue in
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
-        withTransaction(transaction) {
-          send(.pageChanged(newValue))
-        }
-      }
-    )
   }
 
   @ViewBuilder
@@ -289,29 +197,8 @@ private extension AttendanceCheckView {
     }
   }
 
-  /// 리듀서의 순환 계산과 같은 순서를 써야 스와이프와 탭 선택이 어긋나지 않는다.
-  var orderedTeams: [SelectTeamEntity] {
-    return store.attendanceTeam.sorted { $0.teamId < $1.teamId }
-  }
-
-  /// 양 끝에 반대편 팀을 한 장씩 덧대면 TabView 로도 마지막 → 첫 팀 순환이 유지된다.
-  var pagedTeams: [SelectTeamEntity] {
-    guard orderedTeams.count > 1,
-          let first = orderedTeams.first,
-          let last = orderedTeams.last
-    else {
-      return orderedTeams
-    }
-
-    return [last] + orderedTeams + [first]
-  }
-
   private func attendanceModels(for team: SelectTeamEntity) -> [Attendance] {
-    if let cached = store.attendanceByTeam[team.teamId] {
-      return cached
-    }
-
-    return team.teamId == store.selectTeamID ? store.attendanceModel : []
+    store.attendanceByTeam[team.teamId] ?? []
   }
 
   @ViewBuilder
@@ -329,6 +216,7 @@ private extension AttendanceCheckView {
     .onAppear {
       UIScrollView.appearance().bounces = false
     }
+    .dddAccessibilityID(ManagementAccessibilityID.Attendance.list)
   }
 
   @ViewBuilder
@@ -348,6 +236,12 @@ private extension AttendanceCheckView {
           )
         )
       }
+    )
+    .accessibilityIdentifier(
+      ManagementAccessibilityID.Attendance.card(userID: item.userID)
+    )
+    .editAccessibilityIdentifier(
+      ManagementAccessibilityID.Attendance.cardEditButton(userID: item.userID)
     )
   }
 
@@ -375,13 +269,5 @@ private extension AttendanceCheckView {
         Spacer()
       }
     }
-  }
-}
-
-private struct TeamTextWidthPreferenceKey: PreferenceKey {
-  static var defaultValue: [Int: CGFloat] = [:]
-
-  static func reduce(value: inout [Int: CGFloat], nextValue: () -> [Int: CGFloat]) {
-    value.merge(nextValue(), uniquingKeysWith: { $1 })
   }
 }

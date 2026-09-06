@@ -19,16 +19,7 @@ struct SplashFeatureTests {
   func upToDateMemberNavigatesToMemberAfterProfileFetch() async {
     var state = SplashFeature.State()
     state.staffRole = .member
-    state.profileModel = .init(
-      userID: 1,
-      name: "김철수",
-      generation: "2기",
-      team: .ios1,
-      jobRole: .ios,
-      role: .member,
-      manger: nil
-    )
-    state.profileFetchCompleted = true
+    state.isProfileFetchCompleted = true
 
     let store = TestStore(initialState: state) {
       SplashFeature()
@@ -54,7 +45,7 @@ struct SplashFeatureTests {
       isUpdateAvailable: true
     ))))) {
       $0.isUpdateCheckCompleted = true
-      $0.appStoreUrl = "https://apps.apple.com/app/id123"
+      $0.appStoreURL = "https://apps.apple.com/app/id123"
       $0.customAlert = .alert(
         title: "새로운 버전이 출시되었어요!",
         message: "새로운 버전 1.2.3이 출시되었습니다!\n\n더 나은 경험을 위해 지금 업데이트하세요!",
@@ -90,7 +81,7 @@ struct SplashFeatureTests {
       cancelTitle: "나중에 할게요",
       isDestructive: false
     )
-    state.profileFetchCompleted = true
+    state.isProfileFetchCompleted = true
 
     let store = TestStore(initialState: state) {
       SplashFeature()

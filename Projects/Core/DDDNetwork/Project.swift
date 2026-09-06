@@ -14,7 +14,7 @@ import ProjectTemplatePlugin
 let project = Project.makeModule(
   name: "DDDNetwork",
   bundleId: .appBundleID(name: ".DDDNetwork"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [
     .core(.logger),

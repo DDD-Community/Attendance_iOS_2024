@@ -16,7 +16,6 @@
 @_exported import QRCodeDomain
 @_exported import ScheduleDomain
 @_exported import VoteDomain
-@_exported import SwiftUIX
 @_exported import Auth
 @_exported import Member
 @_exported import Management

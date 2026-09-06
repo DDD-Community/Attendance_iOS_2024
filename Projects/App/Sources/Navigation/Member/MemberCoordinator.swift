@@ -96,9 +96,9 @@ extension MemberCoordinator {
       state.routes.push(.profile(.init()))
       return .concatenate(
         .cancel(id: CancelID.profileEffects),
-        .cancel(id: ProfileReducer.CancelID.fetchProfile),
-        .cancel(id: ProfileReducer.CancelID.deleteUser),
-        .cancel(id: ProfileReducer.CancelID.logoutUser)
+        .cancel(id: ProfileFeature.CancelID.fetchProfile),
+        .cancel(id: ProfileFeature.CancelID.deleteUser),
+        .cancel(id: ProfileFeature.CancelID.logoutUser)
       )
 
     case .routeAction(id: _, action: .qrCode(.delegate(.presentBack))):
@@ -109,9 +109,9 @@ extension MemberCoordinator {
       return .concatenate(
         .cancel(id: CancelID.allEffects),
         .cancel(id: CancelID.profileEffects),
-        .cancel(id: ProfileReducer.CancelID.fetchProfile),
-        .cancel(id: ProfileReducer.CancelID.deleteUser),
-        .cancel(id: ProfileReducer.CancelID.logoutUser),
+        .cancel(id: ProfileFeature.CancelID.fetchProfile),
+        .cancel(id: ProfileFeature.CancelID.deleteUser),
+        .cancel(id: ProfileFeature.CancelID.logoutUser),
         .send(.navigation(.presentLogin))
       )
 
@@ -122,9 +122,9 @@ extension MemberCoordinator {
       case .routeAction(id: _, action: .profile(.navigation(.presentRoot))):
         return .concatenate(
           .cancel(id: CancelID.profileEffects),
-          .cancel(id: ProfileReducer.CancelID.fetchProfile),
-          .cancel(id: ProfileReducer.CancelID.deleteUser),
-          .cancel(id: ProfileReducer.CancelID.logoutUser),
+          .cancel(id: ProfileFeature.CancelID.fetchProfile),
+          .cancel(id: ProfileFeature.CancelID.deleteUser),
+          .cancel(id: ProfileFeature.CancelID.logoutUser),
           .send(.view(.backAction))
         )
 
@@ -187,7 +187,7 @@ extension MemberCoordinator {
 extension MemberCoordinator {
   @Reducer
   public enum MemberScreen {
-    case member(MemberMain)
+    case member(MemberMainFeature)
     case profile(ProfileCoordinator)
     case qrCode(MemberQRCodeFeature)
   }

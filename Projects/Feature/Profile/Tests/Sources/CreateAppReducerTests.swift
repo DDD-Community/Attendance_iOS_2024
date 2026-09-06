@@ -16,12 +16,12 @@ import Testing
 @testable import Profile
 
 @MainActor
-@Suite("CreateApp 리듀서")
+@Suite("CreateAppFeature 리듀서")
 struct CreateAppReducerTests {
   @Test("presentWeb 위임 액션은 상태를 바꾸지 않고 상위로 전달된다")
   func presentWebDelegateKeepsStateUnchanged() async {
-    let store = TestStore(initialState: CreateApp.State()) {
-      CreateApp()
+    let store = TestStore(initialState: CreateAppFeature.State()) {
+      CreateAppFeature()
     }
 
     await store.send(.delegate(.presentWeb))
@@ -29,13 +29,13 @@ struct CreateAppReducerTests {
 
   @Test("State 는 저장 값이 없으므로 항상 동등하다")
   func stateIsAlwaysEqual() {
-    #expect(CreateApp.State() == CreateApp.State())
+    #expect(CreateAppFeature.State() == CreateAppFeature.State())
   }
 
-  @Test("ProfileReducer.Destination 은 createApp 상태를 감싼다")
+  @Test("ProfileFeature.Destination 은 createApp 상태를 감싼다")
   func destinationWrapsCreateAppState() {
-    let destination = ProfileReducer.Destination.State.createApp(CreateApp.State())
+    let destination = ProfileFeature.Destination.State.createApp(CreateAppFeature.State())
 
-    #expect(destination == .createApp(CreateApp.State()))
+    #expect(destination == .createApp(CreateAppFeature.State()))
   }
 }

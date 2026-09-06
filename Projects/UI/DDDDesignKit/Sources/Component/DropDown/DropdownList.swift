@@ -47,8 +47,7 @@ public struct DropdownList: View {
           
           // Divider 추가 (마지막 항목 제외)
           if item != items.last {
-            Divider()
-              .background(.borderInverse) // Divider 색상
+            DDDDivider(color: .borderInverse)
           }
         }
       }

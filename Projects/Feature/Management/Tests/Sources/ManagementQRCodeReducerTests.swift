@@ -4,7 +4,7 @@
 //
 //  Created by DDD on 2026-09-03.
 //
-//  QRCode 의 view / binding / async / inner / scope 분기를 TestStore 로 훑는다.
+//  QRCodeFeature 의 view / binding / async / inner / scope 분기를 TestStore 로 훑는다.
 //
 
 import ComposableArchitecture
@@ -17,20 +17,18 @@ import Testing
 struct ManagementQRCodeReducerTests {
   @Test("초기 상태는 스캔 중이고 검증 결과가 비어 있다")
   func initialStateIsScanning() {
-    let state = QRCode.State()
+    let state = QRCodeFeature.State()
 
     #expect(state.isScanning)
     #expect(state.scannedText.isEmpty)
-    #expect(state.qrCheckModel == nil)
+    #expect(state.validation == nil)
     #expect(state.isUseQRCode == false)
-    #expect(state.isPresent == false)
-    #expect(state.scannerSize == 240)
   }
 
   @Test("stopScanning 은 스캔 상태를 끈다")
   func stopScanningTurnsOffScanning() async {
-    let store = TestStore(initialState: QRCode.State()) {
-      QRCode()
+    let store = TestStore(initialState: QRCodeFeature.State()) {
+      QRCodeFeature()
     }
 
     await store.send(.view(.stopScanning)) {
@@ -40,8 +38,8 @@ struct ManagementQRCodeReducerTests {
 
   @Test("scannedText 바인딩은 스캔한 문자열을 보관한다")
   func bindingStoresScannedText() async {
-    let store = TestStore(initialState: QRCode.State()) {
-      QRCode()
+    let store = TestStore(initialState: QRCodeFeature.State()) {
+      QRCodeFeature()
     }
 
     await store.send(.binding(.set(\.scannedText, "qr-payload"))) {
@@ -54,8 +52,8 @@ struct ManagementQRCodeReducerTests {
     var stub = ManagementSupportQRCodeUseCase()
     stub.validateResult = .success(ManagementSupportFixture.qrValidateSuccess)
 
-    let store = TestStore(initialState: QRCode.State()) {
-      QRCode()
+    let store = TestStore(initialState: QRCodeFeature.State()) {
+      QRCodeFeature()
     } withDependencies: {
       $0.qrCodeUseCase = stub
       $0.mainQueue = .immediate
@@ -68,11 +66,8 @@ struct ManagementQRCodeReducerTests {
     await store.send(.async(.qrCodeValidate))
 
     await store.receive(\.inner) {
-      $0.qrCheckModel = ManagementSupportFixture.qrValidateSuccess
+      $0.validation = ManagementSupportFixture.qrValidateSuccess
       $0.isUseQRCode = false
-    }
-
-    await store.receive(\.view) {
       $0.isScanning = false
     }
   }
@@ -82,8 +77,8 @@ struct ManagementQRCodeReducerTests {
     var stub = ManagementSupportQRCodeUseCase()
     stub.validateResult = .success(ManagementSupportFixture.qrValidateFailure)
 
-    let store = TestStore(initialState: QRCode.State()) {
-      QRCode()
+    let store = TestStore(initialState: QRCodeFeature.State()) {
+      QRCodeFeature()
     } withDependencies: {
       $0.qrCodeUseCase = stub
       $0.mainQueue = .immediate
@@ -92,7 +87,7 @@ struct ManagementQRCodeReducerTests {
     await store.send(.async(.qrCodeValidate))
 
     await store.receive(\.inner) {
-      $0.qrCheckModel = ManagementSupportFixture.qrValidateFailure
+      $0.validation = ManagementSupportFixture.qrValidateFailure
       $0.isUseQRCode = false
     }
   }
@@ -102,8 +97,8 @@ struct ManagementQRCodeReducerTests {
     var stub = ManagementSupportQRCodeUseCase()
     stub.validateResult = .failure(.validationFailed("검증 실패"))
 
-    let store = TestStore(initialState: QRCode.State()) {
-      QRCode()
+    let store = TestStore(initialState: QRCodeFeature.State()) {
+      QRCodeFeature()
     } withDependencies: {
       $0.qrCodeUseCase = stub
       $0.mainQueue = .immediate
@@ -127,8 +122,8 @@ struct ManagementQRCodeReducerTests {
 
   @Test("validationFailed 에러는 서버 메시지를 그대로 알럿에 싣는다")
   func validationFailedErrorShowsServerMessage() async {
-    let store = TestStore(initialState: QRCode.State()) {
-      QRCode()
+    let store = TestStore(initialState: QRCodeFeature.State()) {
+      QRCodeFeature()
     }
 
     await store.send(.inner(.qrCodeValidateResponse(.failure(.validationFailed("이미 출석했습니다"))))) {
@@ -147,7 +142,7 @@ struct ManagementQRCodeReducerTests {
 
   @Test("알럿 확인을 누르면 알럿이 닫힌다")
   func alertConfirmDismissesAlert() async {
-    var state = QRCode.State()
+    var state = QRCodeFeature.State()
     state.alert = AlertState {
       TextState("QR 인식 실패")
     } actions: {
@@ -157,7 +152,7 @@ struct ManagementQRCodeReducerTests {
     }
 
     let store = TestStore(initialState: state) {
-      QRCode()
+      QRCodeFeature()
     }
 
     await store.send(.scope(.alert(.presented(.confirmTapped)))) {
@@ -167,7 +162,7 @@ struct ManagementQRCodeReducerTests {
 
   @Test("알럿 dismiss 는 알럿 상태만 비운다")
   func alertDismissClearsState() async {
-    var state = QRCode.State()
+    var state = QRCodeFeature.State()
     state.alert = AlertState {
       TextState("QR 인식 실패")
     } actions: {
@@ -177,7 +172,7 @@ struct ManagementQRCodeReducerTests {
     }
 
     let store = TestStore(initialState: state) {
-      QRCode()
+      QRCodeFeature()
     }
 
     await store.send(.scope(.alert(.dismiss))) {

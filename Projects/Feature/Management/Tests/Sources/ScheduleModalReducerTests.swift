@@ -23,23 +23,22 @@ struct ScheduleModalReducerTests {
 
     await store.send(.view(.selectSchedule(item: schedule))) {
       $0.selectedSchedule = schedule
-      $0.enableButton = true
     }
+    #expect(store.state.isConfirmEnabled)
   }
 
   @Test("같은 스케줄을 다시 선택하면 선택을 해제한다")
   func selectingSameScheduleClearsSelection() async {
     var state = ScheduleModalFeature.State()
     state.selectedSchedule = Self.schedule
-    state.enableButton = true
     let store = TestStore(initialState: state) {
       ScheduleModalFeature()
     }
 
     await store.send(.view(.selectSchedule(item: Self.schedule))) {
       $0.selectedSchedule = nil
-      $0.enableButton = false
     }
+    #expect(store.state.isConfirmEnabled == false)
   }
 }
 

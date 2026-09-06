@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DDDAccessibility
 import DDDDesignKit
 import AttendanceDomainInterface
 
@@ -69,6 +70,7 @@ public struct AttendanceStatusModal: View {
         .background(.blue40)
         .clipShape(.rect(cornerRadius: 20))
         .contentShape(.rect(cornerRadius: 20))
+        .dddAccessibilityID(ManagementAccessibilityID.Attendance.modalConfirmButton)
       }
       .padding(.vertical, 32)
       .padding(.horizontal, 24)
@@ -78,6 +80,8 @@ public struct AttendanceStatusModal: View {
           .fill(.gray90)
       )
       .onTapGesture {}
+      .accessibilityElement(children: .contain)
+      .dddAccessibilityID(ManagementAccessibilityID.Attendance.modal)
     }
   }
 }
