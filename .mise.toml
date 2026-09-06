@@ -1,2 +1,6 @@
 [tools]
 tuist = "4.206.0"
+# fastlane gym 이 xcodebuild 출력을 xcbeautify 로 파이프한다.
+# 버전이 활성화돼 있지 않으면 shim 이 exit 1 로 죽고, pipefail 때문에
+# 빌드가 성공해도 archive 전체가 실패로 잡힌다.
+xcbeautify = "3.2.1"
