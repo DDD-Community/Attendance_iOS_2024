@@ -27,11 +27,11 @@ public struct MemberCoordinatorView: View {
       switch screens.case {
       case .member(let store):
         MemberMainView(store: store)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
       case .profile(let profileStore):
        ProfileCoordinatorView(store: profileStore)
-        .dddNavigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
 
       case .qrCode(let qrCodeStore):
         MemberQRCodeView(store: qrCodeStore)

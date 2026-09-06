@@ -30,16 +30,16 @@ public struct AuthCoordinatorView: View {
       switch screen.case {
       case .login(let loginStore):
         LoginView(store: loginStore)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
         case .onboarding(let onBoardingStore):
           OnBoardingCoordinatorView(store: onBoardingStore)
-            .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
 
         case .web(let webStore):
           WebView(store: webStore)
-            .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
       }
     }
   }

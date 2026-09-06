@@ -1,0 +1,30 @@
+# 프로필 화면의 시스템 interactive pop 제스처가 운영진 홈으로 복귀하는지 검증한다.
+appId: io.DDD.Attendance
+name: 프로필 스와이프 뒤로가기
+tags:
+  - e2e
+  - profile
+  - navigation
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "profile.main.root"
+    timeout: 30000
+
+- swipe:
+    start: "2%, 50%"
+    end: "80%, 50%"
+
+- extendedWaitUntil:
+    visible:
+      id: "management.staff.root"
+    timeout: 30000
+
+# 뒤 흐름이 프로필 화면에서 계속 실행되도록 원래 상태로 복귀한다.
+- tapOn:
+    id: "management.staff.profilebutton"
+- extendedWaitUntil:
+    visible:
+      id: "profile.main.root"
+    timeout: 30000

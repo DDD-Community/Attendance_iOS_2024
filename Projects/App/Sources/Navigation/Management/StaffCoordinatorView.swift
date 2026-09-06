@@ -27,11 +27,11 @@ public struct StaffCoordinatorView: View {
       switch screens.case {
       case .coreMember(let coreMember):
         StaffView(store: coreMember)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
       case .profile(let profileStore):
        ProfileCoordinatorView(store: profileStore)
-        .dddNavigationBarBackButtonHidden()
+          .dddNavigationBarBackButtonHidden()
       }
     }
   }

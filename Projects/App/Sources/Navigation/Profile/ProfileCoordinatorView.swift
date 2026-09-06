@@ -28,15 +28,15 @@ public struct ProfileCoordinatorView: View {
       switch screens.case {
         case .profile(let profileStore):
           ProfileView(store: profileStore)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
         case .web(let webStore):
           WebView(store: webStore)
-            .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
         case .onBoarding(let onBoardingStore):
           OnBoardingCoordinatorView(store: onBoardingStore)
-            .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
       }
     }
   }

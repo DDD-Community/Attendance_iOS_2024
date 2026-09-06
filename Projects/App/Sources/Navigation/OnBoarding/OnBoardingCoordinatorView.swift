@@ -30,19 +30,19 @@ public struct OnBoardingCoordinatorView: View {
 
         case .onBoardingName(let onBoardingNameStore):
            OnBoardingNameView(store: onBoardingNameStore)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
         case .selectPart(let selectPartStore):
           SelectPartView(store: selectPartStore)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
         case .selectManaging(let selectManagingStore):
           SelectManagingView(store: selectManagingStore)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
         case .selectTeam(let signUpSelectTeamStore):
           SelectTeamView(store: signUpSelectTeamStore)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
       }
     }
   }
