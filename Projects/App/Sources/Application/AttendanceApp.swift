@@ -14,6 +14,12 @@ import FeatureAssembly
 struct AttendanceApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
+  init() {
+    #if DEBUG
+    IssueReportingConfiguration.configure()
+    #endif
+  }
+
   var body: some Scene {
     WindowGroup {
       let store = Store(initialState: AppReducer.State()) {
