@@ -5,9 +5,11 @@
 //  Created by DDD on 6/7/24.
 //
 
-import ProjectDescription
+import DependencyPackagePlugin
 import DependencyPlugin
 import ProjectTemplatePlugin
+
+import ProjectDescription
 
 let project = Project.makeAppModule(
   name: Project.Environment.appName,
@@ -18,6 +20,10 @@ let project = Project.makeAppModule(
   // App은 FeatureAssembly의 composition root 하나만 호출한다.
   dependencies: [
     .featureAssembly,
+    .service(.config),
+    .SPM.composableArchitecture,
+    .SPM.issueReporting,
+    .SPM.tcaFlow,
   ],
   sources: ["Sources/**"],
   resources: ["Resources/**"],

@@ -5,11 +5,13 @@
 //  Created by DDD on 9/4/26.
 //
 
+import Foundation
+
 import DependencyPackagePlugin
 import DependencyPlugin
-import Foundation
-import ProjectDescription
 import ProjectTemplatePlugin
+
+import ProjectDescription
 
 let project = Project.makeModule(
   name: "DDDDesignKit",
@@ -20,7 +22,6 @@ let project = Project.makeModule(
   dependencies: [
     .ui(.animation),
     .core(.coreUI),
-    .core(.thirdParty),
   ],
   sources: ["Sources/**"],
   resources: ["Resources/**"],

@@ -5,11 +5,13 @@
 //  Created by DDD on 9/4/26.
 //
 
-import DependencyPlugin
-import DependencyPackagePlugin
 import Foundation
-import ProjectDescription
+
+import DependencyPackagePlugin
+import DependencyPlugin
 import ProjectTemplatePlugin
+
+import ProjectDescription
 
 let project = Project.makeModule(
   name: "FeatureAssembly",
@@ -29,7 +31,7 @@ let project = Project.makeModule(
     .service(.auth, .interface),
     .core(.logger),
     .ui(.animation),
-    .SPM.dependencies
+    .core(.thirdParty)
   ],
   sources: ["Sources/**"]
 )

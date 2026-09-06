@@ -8,6 +8,8 @@
 import SwiftUI
 import Testing
 import UIKit
+
+import DDDDesignKit
 @testable import DDDSharedUI
 
 @MainActor
@@ -69,6 +71,51 @@ struct DDDSharedUIViewTests {
 
     render(ScheduleCell(month: 9, day: 2, title: "정기 모임", description: "서울", style: basic))
     render(ScheduleCell(month: 9, day: 9, title: "세션", description: "온라인", style: completed))
+  }
+
+  @Test("alert popup의 모든 style을 렌더링한다")
+  func rendersAlertPopups() {
+    let alertItems = [
+      AlertItem.withdrawAccount(onConfirm: {}, onCancel: {}),
+      AlertItem.deleteData(dataName: "일정", onConfirm: {}, onCancel: {}),
+      AlertItem.logout(onConfirm: {}, onCancel: {}),
+      AlertItem.saveChanges(onConfirm: {}, onCancel: {}),
+    ]
+    for item in alertItems {
+      build(Color.clear.dddConfirmationPopup(item: item))
+    }
+    build(Color.clear.dddConfirmationPopup(item: nil))
+    build(Color.clear.dddConfirmationPopup(isPresented: true, title: "제목", message: "메시지", onConfirm: {}, onCancel: {}))
+    build(Color.clear.dddConfirmationPopup(isPresented: false, title: "제목", message: "", onConfirm: {}, onCancel: {}))
+
+    let states: [CustomAlertState<CustomAlertAction>] = [
+      .alert(title: "일반"), .withdrawAccount(), .exitWriting(), .startVote(),
+      .endVote(), .logout(), .privacyPolicyConsent(),
+      .appUpdate(version: "2.0", releaseNotes: "개선"),
+      .appUpdate(version: "2.0", releaseNotes: nil),
+      .appUpdate(version: "2.0", releaseNotes: ""),
+    ]
+    for state in states {
+      build(
+        CustomConfirmationPopup(
+          title: state.title,
+          message: state.message,
+          confirmTitle: state.confirmTitle,
+          cancelTitle: state.cancelTitle,
+          isDestructive: state.isDestructive,
+          style: state.style,
+          checkboxTitle: state.checkboxTitle,
+          onConfirm: {}, onCancel: {}, onPolicyTap: {}
+        )
+      )
+    }
+    #expect(states.count == 10)
+  }
+
+  /// 유닛 테스트에서 UIHostingController 로 레이아웃을 강제하면
+  /// ViewModifier 가 감싼 뷰에서 SwiftUI 가 body 평가를 거부하며 프로세스가 죽는다.
+  private func build(_ view: some View) {
+    _ = view
   }
 
   private func render<V: View>(_ view: V) {

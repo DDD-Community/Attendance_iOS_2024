@@ -1,11 +1,14 @@
 //
 //  CustomAlertModifiers.swift
-//  DDDDesignKit
+//  DDDSharedUI
 //
 //  Created by DDD on 1/4/26.
 //
 
 import SwiftUI
+
+import DDDDesignKit
+
 import ComposableArchitecture
 
 public extension View {

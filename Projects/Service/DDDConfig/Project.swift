@@ -1,8 +1,6 @@
 //
 //  Project.swift
-//  DDDThirdParty
-//
-//  Created by DDD on 9/4/26.
+//  DDDConfig
 //
 
 import Foundation
@@ -14,16 +12,13 @@ import ProjectTemplatePlugin
 import ProjectDescription
 
 let project = Project.makeModule(
-  name: "DDDThirdParty",
-  bundleId: .appBundleID(name: ".DDDThirdParty"),
+  name: "DDDConfig",
+  bundleId: .appBundleID(name: ".DDDConfig"),
   product: .framework,
   settings: .moduleSettings,
+  // 외부 SDK 부팅은 이 모듈만 안다. App 외의 모듈은 여기에 의존하지 않는다.
   dependencies: [
-    .SPM.composableArchitecture,
-    .SPM.concurrencyExtras,
-    .SPM.tcaFlow,
-    .SPM.sdwebImage,
-    .SPM.googleSignIn,
+    .SPM.firebaseCore,
     .SPM.firebaseCrashlytics,
   ],
   sources: ["Sources/**"]

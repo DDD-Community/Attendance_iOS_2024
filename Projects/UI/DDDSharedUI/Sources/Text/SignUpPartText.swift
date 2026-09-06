@@ -5,8 +5,9 @@
 //  Created by DDD on 11/3/24.
 //
 
-import DDDDesignKit
 import SwiftUI
+
+import DDDDesignKit
 
 public struct SignUpPartText: View {
   private let content: String

@@ -5,10 +5,12 @@
 //  Created by DDD on 9/1/26.
 //
 
-import DependencyPlugin
 import Foundation
-import ProjectDescription
+
+import DependencyPlugin
 import ProjectTemplatePlugin
+
+import ProjectDescription
 
 let project = Project.makeModule(
   name: "FeatureSharedUI",

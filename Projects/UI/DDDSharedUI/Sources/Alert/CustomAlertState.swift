@@ -1,12 +1,15 @@
 //
 //  CustomAlertState.swift
-//  DDDDesignKit
+//  DDDSharedUI
 //
 //  Created by DDD on 1/4/26.
 //
 
-import ComposableArchitecture
 import SwiftUI
+
+import DDDDesignKit
+
+import ComposableArchitecture
 
 @ObservableState
 public struct CustomAlertState<Action>: Equatable {

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Testing
+
 @testable import DDDDesignKit
 
 private struct ModalItem: Identifiable, Equatable {
@@ -106,7 +107,7 @@ struct DDDDesignKitTests {
     #expect(solution([], _outlay: [], cash: 0) == 0)
   }
 
-  @Test("alert factory와 모든 popup style을 렌더링한다")
+  @Test("alert factory와 기본 alert modifier를 렌더링한다")
   func rendersAlerts() {
     let alertItems = [
       AlertItem.withdrawAccount(onConfirm: {}, onCancel: {}),
@@ -115,35 +116,9 @@ struct DDDDesignKitTests {
       AlertItem.saveChanges(onConfirm: {}, onCancel: {}),
     ]
     for item in alertItems {
-      build(Color.clear.dddConfirmationPopup(item: item))
+      #expect(!item.title.isEmpty)
     }
-    build(Color.clear.dddConfirmationPopup(item: nil))
-    build(Color.clear.dddConfirmationPopup(isPresented: true, title: "제목", message: "메시지", onConfirm: {}, onCancel: {}))
-    build(Color.clear.dddConfirmationPopup(isPresented: false, title: "제목", message: "", onConfirm: {}, onCancel: {}))
     build(Color.clear.dddAlert(isPresented: true, title: "제목", message: "메시지", onConfirm: {}))
-
-    let states: [CustomAlertState<CustomAlertAction>] = [
-      .alert(title: "일반"), .withdrawAccount(), .exitWriting(), .startVote(),
-      .endVote(), .logout(), .privacyPolicyConsent(),
-      .appUpdate(version: "2.0", releaseNotes: "개선"),
-      .appUpdate(version: "2.0", releaseNotes: nil),
-      .appUpdate(version: "2.0", releaseNotes: ""),
-    ]
-    for state in states {
-      build(
-        CustomConfirmationPopup(
-          title: state.title,
-          message: state.message,
-          confirmTitle: state.confirmTitle,
-          cancelTitle: state.cancelTitle,
-          isDestructive: state.isDestructive,
-          style: state.style,
-          checkboxTitle: state.checkboxTitle,
-          onConfirm: {}, onCancel: {}, onPolicyTap: {}
-        )
-      )
-    }
-    #expect(states.count == 10)
   }
 
   @Test("modal 높이와 표시 상태를 렌더링한다")
