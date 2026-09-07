@@ -152,6 +152,7 @@ def build_ipa(scheme)
         disable_package_automatic_updates: true,
         skip_package_dependencies_resolution: true,
         use_system_scm: true,
+        xcodebuild_formatter: "",
         xcargs: "CODE_SIGN_IDENTITY='Apple Distribution' CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=#{TEAM_ID} " +
                 "COMPILER_INDEX_STORE_ENABLE=NO ENABLE_BITCODE=NO " +
                 "SWIFT_COMPILATION_MODE=incremental " +
