@@ -91,7 +91,8 @@ def apply_build_number(new_build_number)
   # 갱신된 빌드 번호 반영을 위해 Tuist 강제 재생성
   Dir.chdir("..") do
     puts "🔧 Tuist workspace 재생성 중..."
-    sh("tuist generate --no-open")
+    # 배포 archive는 공급자 서명이 없는 Tuist 바이너리 캐시를 사용하지 않는다.
+    sh("tuist generate --no-open --cache-profile none")
     puts "✅ Tuist workspace 재생성 완료"
   end
 end

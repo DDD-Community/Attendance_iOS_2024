@@ -28,11 +28,8 @@ private extension Settings {
 
 let packageSettings = PackageSettings(
   productTypes: [
-    // Firebase 체인은 통째로 동적 프레임워크로 올린다.
-    // 앱에 .framework 모듈(DDDDesignKit)이 있으면 정적 산출물이 그 경계에서 흡수돼
-    // 앱 링크 라인까지 전파되지 않는다. 일부만 올리면 nanopb/FirebaseSessions 심볼이 풀리지 않아
-    // 체인 전체를 함께 올려야 한다.
-    // 키는 패키지 이름이 아니라 SPM 타깃 이름이다 ("GoogleUtilities" 같은 패키지 이름은 매칭되지 않는다).
+    // Release/TestFlight는 cache-profile none으로 생성해 SPM 소스를 직접 빌드한다.
+    // 일반 framework product type은 유지하되, Tuist 바이너리 캐시를 archive에 포함하지 않는다.
     "Firebase": .framework,
     "FirebaseCore": .framework,
     "FirebaseCoreExtension": .framework,
@@ -59,9 +56,7 @@ let packageSettings = PackageSettings(
     "GoogleUtilities-Reachability": .framework,
     "GoogleUtilities-UserDefaults": .framework,
 
-    // GoogleSignIn 전이 의존성은 하나의 동적 링크 경계로 맞춘다.
-    // 정적 프레임워크로 생성하면 GoogleSignIn 코드만 앱에 흡수되고
-    // AppAuth·GTMAppAuth·GTMSessionFetcher 심볼이 앱 링크 라인에 전파되지 않는다.
+    // GoogleSignIn 전이 의존성은 framework product type을 유지한다.
     "AppAuth": .framework,
     "AppAuthCore": .framework,
     "GTMAppAuth": .framework,
