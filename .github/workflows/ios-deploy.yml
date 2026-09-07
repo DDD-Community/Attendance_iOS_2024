@@ -72,7 +72,12 @@ jobs:
       - name: Deploy to TestFlight
         if: github.ref_name == 'develop'
         run: |
-          RELEASE_NOTES="$(git log -1 --pretty=%s)" bundle exec fastlane ios QA
+          set +e
+          RELEASE_NOTES="$(git log -1 --pretty=%s)" bundle exec fastlane ios QA > fastlane-qa.log 2>&1
+          DEPLOY_EXIT_CODE=$?
+          echo "Fastlane QA exit code: $DEPLOY_EXIT_CODE"
+          tail -n 200 fastlane-qa.log
+          exit "$DEPLOY_EXIT_CODE"
 
       # main 머지 → 태그 갱신
       # GITHUB_TOKEN 으로 푸시하면 워크플로우가 재트리거되지 않아 중복 배포가 없다.
@@ -93,8 +98,20 @@ jobs:
         env:
           VERSION: ${{ steps.ver.outputs.version }}
         run: |
-          bundle exec fastlane ios release
-          bundle exec fastlane ios submit_for_review version:"$VERSION"
+          set +e
+          bundle exec fastlane ios release > fastlane-release.log 2>&1
+          RELEASE_EXIT_CODE=$?
+          tail -n 200 fastlane-release.log
+          if [[ "$RELEASE_EXIT_CODE" -ne 0 ]]; then
+            echo "Fastlane release exit code: $RELEASE_EXIT_CODE"
+            exit "$RELEASE_EXIT_CODE"
+          fi
+
+          bundle exec fastlane ios submit_for_review version:"$VERSION" > fastlane-submit.log 2>&1
+          SUBMIT_EXIT_CODE=$?
+          echo "Fastlane submit exit code: $SUBMIT_EXIT_CODE"
+          tail -n 200 fastlane-submit.log
+          exit "$SUBMIT_EXIT_CODE"
 
       - name: Upload build artifacts
         id: upload-build-artifacts
@@ -107,6 +124,7 @@ jobs:
           path: |
             fastlane/output/*.ipa
             fastlane/output/*.dSYM.zip
+            fastlane-*.log
             ~/Library/Logs/gym/*.log
           if-no-files-found: ignore
           retention-days: 7
@@ -122,6 +140,7 @@ jobs:
           path: |
             fastlane/output/*.ipa
             fastlane/output/*.dSYM.zip
+            fastlane-*.log
             ~/Library/Logs/gym/*.log
           if-no-files-found: ignore
           retention-days: 7
