@@ -5,9 +5,11 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
-import DDDNetworkInterface
 import Foundation
+
+import DDDNetworkInterface
+
+import Alamofire
 
 /// 429(Too Many Requests)까지 포함한 재시도 대상 status 집합.
 private let retryableStatusCodes = RetryPolicy.defaultRetryableHTTPStatusCodes.union([429])

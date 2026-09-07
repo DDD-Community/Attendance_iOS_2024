@@ -5,18 +5,18 @@
 //  Created by DDD on 1/2/25.
 //
 
-import DDDCoreLogger
 import Foundation
 
 import AttendanceDomainInterface
+import DDDCoreLogger
 import DDDSharedUI
+import MemberInterface
 import MyPageDomainInterface
 import ProfileDomainInterface
+import ScheduleDomainInterface
 import VoteDomainInterface
 
 import ComposableArchitecture
-import MemberInterface
-import ScheduleDomainInterface
 
 @Reducer
 public struct MemberMainFeature {
@@ -128,7 +128,7 @@ public struct MemberMainFeature {
   public var body: some Reducer<State, Action> {
     BindingReducer()
 
-    Scope(state: \.vote, action: \.vote) {
+    Scope(\.vote, action: \.vote) {
       MemberVoteFeature()
     }
 

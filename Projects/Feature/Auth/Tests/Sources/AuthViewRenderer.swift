@@ -5,12 +5,13 @@
 //  Created by DDD on 2026-09-03
 //
 
-import ComposableArchitecture
 import Foundation
 import SwiftUI
 import UIKit
 
 @testable import Auth
+
+import ComposableArchitecture
 
 /// SwiftUI 뷰의 body 를 실제로 평가해 렌더링 경로를 커버리지에 태우는 헬퍼.
 @MainActor

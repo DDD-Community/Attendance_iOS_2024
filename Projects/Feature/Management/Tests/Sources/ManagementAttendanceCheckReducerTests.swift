@@ -7,12 +7,13 @@
 //  AttendanceCheckFeature 의 view / async / inner / destination / modal 분기를 TestStore 로 훑는다.
 //
 
-import AttendanceDomainInterface
-import ComposableArchitecture
-import OnBoardingDomainInterface
 import Testing
 
+import AttendanceDomainInterface
 @testable import Management
+import OnBoardingDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("ManagementAttendanceCheck")

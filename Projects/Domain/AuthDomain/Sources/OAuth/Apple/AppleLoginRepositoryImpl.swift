@@ -5,12 +5,11 @@
 //  Created by DDD on 12/26/25.
 //
 
+import AuthenticationServices
+import CryptoKit
 import Foundation
 
-import AuthenticationServices
-
 import AuthDomainInterface
-import CryptoKit
 
 public struct AppleLoginRepositoryImpl: AppleAuthRequestInterface {
 

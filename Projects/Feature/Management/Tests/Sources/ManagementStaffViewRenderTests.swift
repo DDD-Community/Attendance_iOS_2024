@@ -8,12 +8,13 @@
 //  QRScannerView 는 카메라(DataScanner)를 붙잡아야 해서 렌더 대상에서 뺀다.
 //
 
-import ComposableArchitecture
-import DDDDesignKit
 import SwiftUI
 import Testing
 
+import DDDDesignKit
 @testable import Management
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("ManagementStaffViewRender")

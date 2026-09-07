@@ -45,6 +45,7 @@ public enum ServiceModule: String, CaseIterable {
   case api = "API"
   case apiEndpoint = "APIEndpoint"
   case auth = "DDDAuth"
+  case config = "DDDConfig"
 
   /// Projects/Service/<name>
   var path: Path {

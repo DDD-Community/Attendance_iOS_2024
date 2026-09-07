@@ -5,12 +5,14 @@
 //  Created by DDD on 2026-04-16
 //
 
-import ComposableArchitecture
-import AuthDomainInterface
-@testable import ProfileDomainInterface
 import Foundation
 import Testing
+
+import AuthDomainInterface
 @testable import ProfileDomain
+@testable import ProfileDomainInterface
+
+import ComposableArchitecture
 
 @Suite("Profile UseCase Tests - Complete TDD Implementation")
 @MainActor

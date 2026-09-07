@@ -1,5 +1,14 @@
 # DDDAttendance iOS Architecture Guide
 
+## 로컬 OMX 및 공유 iOS 스킬
+
+- iOS 작업에 관련된 스킬은 `~/.agents/skills/`의 공유 `SKILL.md`를 먼저 읽고 적용한다. 이 경로는 Claude의 로컬 원본과 연결되어 있다. 같은 이름의 복사본을 중복 적용하지 않는다.
+- Swift 동시성은 `swift-concurrency`, TCA는 `pfw-composable-architecture`, SwiftUI는 `swiftui-pro`, 테스트는 `swift-testing-pro`, 성능 진단은 `ios-performance-optimizer`를 작업 범위에 맞게 선택한다. 스킬 내부의 Claude 전용 도구와 병렬 수 지시는 현재 도구 및 세션 제약에 맞춰 적용한다.
+- OMX 0.21.3부터 `omx explore` 명령은 폐기되었다. 읽기 전용 코드 탐색에는 `rg` 및 native explore subagent를 사용하고, 명시적인 셸 탐색에는 `omx sparkshell`을 사용한다.
+- Codex App에서는 독립적인 병렬 작업에 native subagent를 사용한다. `omx team`과 실시간 tmux HUD는 tmux OMX CLI 세션에서 사용한다. 터미널의 `omx` 기본 실행 정책은 tmux 자동 연결이며, App 세션에 tmux가 있다고 가정하지 않는다.
+- 프로젝트 지침 조회 시 `omx wiki wiki_query --input '{"query":"관련 키워드"}' --json`으로 문서를 찾는다. 위키는 `docs/agent/`의 검색용 사본이므로 구현 전 원문과 현재 코드를 확인한다. 원문을 변경한 작업에서는 해당 위키 페이지도 `wiki_ingest`로 갱신한다.
+- OMX 업데이트에는 `omx update`를 사용한다. 설정 갱신 후 `omx doctor`와 `omx doctor --team`으로 확인하고, 기존 사용자 설정과 다른 앱의 훅을 보존한다.
+
 ## 📱 프로젝트 개요
 
 - **프로젝트명**: DDDAttendance (출석 관리 시스템)
@@ -50,8 +59,8 @@ Projects/
 
 ```swift
 // Core Architecture
-ComposableArchitecture: 1.25.5+   // TCA (자동 최신 버전)
-TCAFlow: 1.1.1+                    // 네비게이션 관리 (자동 최신 버전)
+ComposableArchitecture: 1.26.2    // TCA
+TCAFlow: main                      // 네비게이션 관리
 WeaveDI: 3.4.1                     // 의존성 주입
 
 // Networking  

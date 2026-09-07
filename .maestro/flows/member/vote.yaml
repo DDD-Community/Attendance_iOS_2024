@@ -1,5 +1,7 @@
 # 멤버 홈에서 투표 탭으로 전환해 투표 화면 진입까지만 확인한다.
 # 투표 제출은 서버 상태를 바꾸므로 하지 않는다.
+# 진행 중인 투표가 없으면 백엔드가 noActiveVote 를 주고 드롭다운에 투표 항목이 생기지 않는다.
+# 그 경우 화면 검증을 건너뛰고 출석 탭 상태만 확인한다.
 appId: io.DDD.Attendance
 name: 멤버 투표 화면 진입
 tags:
@@ -13,29 +15,49 @@ tags:
       id: "member.home.root"
     timeout: 30000
 
-- runFlow:
-    file: ../_shared/switch_section.yaml
-    env:
-      SECTION_BUTTON_ID: "member.home.sectionbutton"
-      SECTION_ITEM_ID: "member.home.dropdown.item.vote"
-
+- tapOn:
+    id: "member.home.sectionbutton"
 - extendedWaitUntil:
     visible:
-      id: "member.vote.root"
-    timeout: 30000
-- extendedWaitUntil:
-    notVisible:
-      id: "member.vote.skeleton"
-    timeout: 30000
+      id: "member.home.dropdown"
+    timeout: 15000
 
-- takeScreenshot: .maestro/artifacts/member/vote
-
-# 홈 계약: 출석 탭으로 복귀한다.
 - runFlow:
-    file: ../_shared/switch_section.yaml
-    env:
-      SECTION_BUTTON_ID: "member.home.sectionbutton"
-      SECTION_ITEM_ID: "member.home.dropdown.item.attendance"
+    when:
+      visible:
+        id: "member.home.dropdown.item.vote"
+    commands:
+      - tapOn:
+          id: "member.home.dropdown.item.vote"
+      - waitForAnimationToEnd
+
+      - extendedWaitUntil:
+          visible:
+            id: "member.vote.root"
+          timeout: 30000
+      - extendedWaitUntil:
+          notVisible:
+            id: "member.vote.skeleton"
+          timeout: 30000
+
+      - takeScreenshot: .maestro/artifacts/member/vote
+
+      # 홈 계약: 출석 탭으로 복귀한다.
+      - runFlow:
+          file: ../_shared/switch_section.yaml
+          env:
+            SECTION_BUTTON_ID: "member.home.sectionbutton"
+            SECTION_ITEM_ID: "member.home.dropdown.item.attendance"
+
+- runFlow:
+    when:
+      notVisible:
+        id: "member.home.dropdown.item.vote"
+    commands:
+      - tapOn:
+          id: "member.home.dropdown.item.attendance"
+      - waitForAnimationToEnd
+
 - extendedWaitUntil:
     visible:
       id: "member.attendance.summary"

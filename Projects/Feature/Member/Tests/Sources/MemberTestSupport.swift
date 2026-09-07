@@ -6,16 +6,17 @@
 //  네트워크를 타는 live 유스케이스 대신 이 스텁을 주입해 async 분기를 결정적으로 검증한다.
 //
 
-import ComposableArchitecture
+import Foundation
+import SwiftUI
+
 import AttendanceDomainInterface
+@testable import Member
 import MyPageDomainInterface
 import ProfileDomainInterface
 import QRCodeDomainInterface
 import VoteDomainInterface
-import Foundation
-import SwiftUI
 
-@testable import Member
+import ComposableArchitecture
 
 // MARK: - Fixtures
 

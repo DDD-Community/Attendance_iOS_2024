@@ -7,12 +7,19 @@
 
 import SwiftUI
 
-import ComposableArchitecture
 import FeatureAssembly
+
+import ComposableArchitecture
 
 @main
 struct AttendanceApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+  init() {
+    #if DEBUG
+    IssueReportingConfiguration.configure()
+    #endif
+  }
 
   var body: some Scene {
     WindowGroup {

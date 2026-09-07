@@ -6,10 +6,11 @@
 //  기존 WebReducerTests / WebTests 와 겹치지 않는 경계값·반복 시나리오만 다룬다.
 //
 
-import ComposableArchitecture
 import Testing
 
 @testable import Web
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("WebFeature 상태와 액션")

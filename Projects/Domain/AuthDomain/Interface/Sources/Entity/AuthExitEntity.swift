@@ -5,8 +5,9 @@
 //  Created by DDD on 1/4/26.
 //
 
-import ProfileDomainInterface
 import  Foundation
+
+import ProfileDomainInterface
 
 public struct AuthExitEntity: Equatable {
   public let code: String?

@@ -5,8 +5,9 @@
 //  Created by DDD on 1/5/26.
 //
 
-import DDDCoreUI
 import SwiftUI
+
+import DDDCoreUI
 import DDDDesignKit
 
 public struct ProfileSkeletonView: View {

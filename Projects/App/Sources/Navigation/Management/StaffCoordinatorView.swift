@@ -5,13 +5,14 @@
 //  Created by DDD on 11/4/24.
 //
 
-import Management
-import DDDCoreUI
 import SwiftUI
+
+import DDDCoreUI
+import Management
+import Profile
 
 import ComposableArchitecture
 import TCAFlow
-import Profile
 
 public struct StaffCoordinatorView: View {
   @Bindable private var store: StoreOf<StaffCoordinator>
@@ -23,15 +24,15 @@ public struct StaffCoordinatorView: View {
   }
   
   public var body: some View {
-    TCAFlowRouter(store.scope(state: \.routes, action: \.router)) { screens in
+    TCAFlowRouter(store.scope(\.routes, action: \.router)) { screens in
       switch screens.case {
       case .coreMember(let coreMember):
         StaffView(store: coreMember)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
       case .profile(let profileStore):
        ProfileCoordinatorView(store: profileStore)
-        .dddNavigationBarBackButtonHidden()
+          .swipeBackButtonHidden()
       }
     }
   }

@@ -3,15 +3,17 @@
 //  DDDAccessibility
 //
 
-import DependencyPlugin
 import Foundation
-import ProjectDescription
+
+import DependencyPlugin
 import ProjectTemplatePlugin
+
+import ProjectDescription
 
 let project = Project.makeModule(
   name: "DDDAccessibility",
   bundleId: .appBundleID(name: ".DDDAccessibility"),
-  product: .staticFramework,
+  product: .framework,
   settings: .moduleSettings,
   dependencies: [],
   sources: ["Sources/**"],

@@ -5,8 +5,9 @@
 //  Created by DDD on 12/31/25.
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 public struct UserSession: Equatable, Sendable {
   public var userID: Int

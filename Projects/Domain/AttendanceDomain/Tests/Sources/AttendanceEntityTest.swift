@@ -6,6 +6,7 @@
 //
 
 import Testing
+
 import AttendanceDomainInterface
 
 @Suite("Attendance Entity Tests")

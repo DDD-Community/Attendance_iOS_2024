@@ -5,11 +5,12 @@
 //  Created by DDD on 12/29/25.
 //
 
-import ProfileDomainInterface
+import AuthenticationServices
 import Foundation
 
+import ProfileDomainInterface
+
 import Dependencies
-import AuthenticationServices
 
 /// Apple OAuth Provider Interface 프로토콜
 public protocol AppleOAuthProviderInterface: Sendable {

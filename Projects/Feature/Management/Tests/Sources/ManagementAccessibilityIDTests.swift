@@ -3,10 +3,10 @@
 //  ManagementTests
 //
 
-import AttendanceDomainInterface
-import DDDDesignKit
 import Testing
 
+import AttendanceDomainInterface
+import DDDDesignKit
 @testable import Management
 
 @Suite("Management accessibility ID")

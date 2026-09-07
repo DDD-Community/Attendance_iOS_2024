@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 import OnBoardingDomainInterface
 
 public struct UserDTOMember: Codable, Sendable, Equatable, Hashable {

@@ -5,10 +5,11 @@
 //  Created by DDD on 9/1/26.
 //
 
-import Alamofire
 import Foundation
 
 @testable import DDDNetwork
+
+import Alamofire
 
 /// 실제 통신 없이 `NetworkClient`의 요청과 응답을 검증하는 URLProtocol 스텁.
 /// 정적 상태를 사용하므로 이 스텁을 사용하는 테스트 스위트는 직렬로 실행해야 한다.

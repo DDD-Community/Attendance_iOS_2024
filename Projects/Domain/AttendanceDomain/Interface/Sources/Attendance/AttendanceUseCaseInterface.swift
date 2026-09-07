@@ -5,8 +5,9 @@
 //  Created by DDD on 9/3/26.
 //
 
-import Dependencies
 import OnBoardingDomainInterface
+
+import Dependencies
 
 public protocol AttendanceUseCaseInterface: Sendable {
   func adminAttendanceCount(scheduleId: Int) async throws(AttendanceError) -> AttendanceCount

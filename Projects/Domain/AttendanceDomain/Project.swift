@@ -7,8 +7,9 @@
 
 import DependencyPackagePlugin
 import DependencyPlugin
-import ProjectDescription
 import ProjectTemplatePlugin
+
+import ProjectDescription
 
 let project = Project.makeModule(
   name: "AttendanceDomain",

@@ -5,9 +5,10 @@
 //  SwiftUI 뷰의 body 를 실제로 평가시키기 위한 테스트 전용 헬퍼.
 //
 
-import ComposableArchitecture
 import SwiftUI
 import UIKit
+
+import ComposableArchitecture
 
 @MainActor
 enum MemberViewRenderer {

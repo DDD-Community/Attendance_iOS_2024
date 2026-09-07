@@ -7,9 +7,10 @@
 
 import SwiftUI
 
-import ComposableArchitecture
 import DDDAccessibility
 import DDDDesignKit
+
+import ComposableArchitecture
 
 @ViewAction(for: ScheduleFeature.self)
 struct ScheduleView: View {

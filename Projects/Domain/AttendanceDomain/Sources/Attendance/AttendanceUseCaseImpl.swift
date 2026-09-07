@@ -5,9 +5,10 @@
 //  Created by DDD on 7/23/25.
 //
 
-import Dependencies
 import AttendanceDomainInterface
 import OnBoardingDomainInterface
+
+import Dependencies
 
 
 public struct AttendanceUseCaseImpl: AttendanceUseCaseInterface {

@@ -6,7 +6,9 @@
 //
 
 import Foundation
+
 import ProfileDomainInterface
+
 import SQLiteData
 
 @Table("profileCache")

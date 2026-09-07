@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 import AuthDomainInterface
 
 // MARK: - Auth Test Fixtures

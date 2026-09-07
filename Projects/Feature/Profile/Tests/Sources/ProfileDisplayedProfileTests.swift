@@ -9,12 +9,13 @@
 //  UserSession 은 전역 공유 상태라 테스트끼리 간섭하지 않도록 직렬 실행하고 원복한다.
 //
 
-import ComposableArchitecture
 import Testing
+
 import AuthDomainInterface
+@testable import Profile
 import ProfileDomainInterface
 
-@testable import Profile
+import ComposableArchitecture
 
 @MainActor
 @Suite("ProfileFeature.State.displayedProfile", .serialized)

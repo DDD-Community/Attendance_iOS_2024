@@ -3,11 +3,12 @@
 //  ServiceAssembly
 //
 
+import CoreAssembly
 import DDDAuthInterface
 import DDDNetworkInterface
 import DDDStorageInterface
+
 import Dependencies
-import CoreAssembly
 
 public enum ServiceDependencyAssembly {
   public static func register(into values: inout DependencyValues) {

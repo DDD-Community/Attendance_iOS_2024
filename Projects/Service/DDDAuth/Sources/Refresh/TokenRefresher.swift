@@ -5,9 +5,10 @@
 //  Created by DDD on 9/1/26.
 //
 
+import Foundation
+
 import APIEndpoint
 import DDDNetworkInterface
-import Foundation
 
 /// 인증 인터셉터가 401 또는 만료 임박 시 호출하는 토큰 갱신기.
 struct TokenRefresher: TokenRefreshing {

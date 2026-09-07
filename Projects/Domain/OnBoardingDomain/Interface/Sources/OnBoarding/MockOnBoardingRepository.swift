@@ -5,9 +5,10 @@
 //  Created by DDD on 12/30/25.
 //
 
+import Foundation
+
 import AuthDomainInterface
 import ProfileDomainInterface
-import Foundation
 
 // MARK: - OnBoarding Errors
 

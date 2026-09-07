@@ -12,6 +12,7 @@
 
 import DDDAuthInterface
 import DDDNetworkInterface
+
 import Dependencies
 
 extension NetworkClientDependency: DependencyKey {

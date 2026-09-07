@@ -5,8 +5,9 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
 import Foundation
+
+import Alamofire
 
 /// 모든 요청에 공통으로 박히는 정적 헤더.
 /// 요청별 헤더는 `DDDEndpoint.headers`, 토큰은 `DDDAuthenticator` 가 붙인다.

@@ -9,10 +9,11 @@
 //  최상위 케이스 키패스(\.async, \.inner)로만 receive 한다.
 //
 
-import ComposableArchitecture
 import Testing
 
 @testable import Management
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("ManagementScheduleReducer")

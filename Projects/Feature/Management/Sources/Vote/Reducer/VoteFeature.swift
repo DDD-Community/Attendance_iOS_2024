@@ -4,12 +4,13 @@
 //
 //  Created by DDD on 6/11/26.
 //
+import Foundation
 
 import DDDCoreLogger
-import ComposableArchitecture
-import DDDDesignKit
-import Foundation
+import DDDSharedUI
 import VoteDomainInterface
+
+import ComposableArchitecture
 
 @Reducer
 public struct VoteFeature {

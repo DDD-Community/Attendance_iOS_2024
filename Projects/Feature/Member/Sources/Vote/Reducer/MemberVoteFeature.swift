@@ -5,12 +5,14 @@
 //  Created by DDD on 6/11/26.
 //
 
-import DDDCoreLogger
-import ComposableArchitecture
-import DDDDesignKit
 import Foundation
+
+import DDDCoreLogger
+import DDDSharedUI
 import MemberInterface
 import VoteDomainInterface
+
+import ComposableArchitecture
 
 /// [멤버] 투표 참여 플로우 리듀서.
 /// 진행 중 투표 조회 → 템플릿 로드 → 1단계(팀 선택) → 2단계(피드백) → 제출.

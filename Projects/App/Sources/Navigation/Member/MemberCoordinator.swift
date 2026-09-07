@@ -5,14 +5,14 @@
 //  Created by DDD on 1/2/25.
 //
 
-import Member
 import Foundation
 
 import DDDSharedUI
+import Member
+import Profile
 
 import ComposableArchitecture
 import TCAFlow
-import Profile
 
 @FlowCoordinator(screen: "MemberScreen", navigation: true)
 public struct MemberCoordinator {

@@ -148,18 +148,8 @@ extension InfoPlistDictionary {
     return self.merging(["NSCameraUsageDescription": .string(value)]) { (_, new) in new }
   }
   
-  func setUILaunchScreens() -> InfoPlistDictionary {
-    let dict: [String: Plist.Value] = [
-      "UILaunchScreens": .dictionary([
-        "UILaunchScreen": .dictionary([
-          "New item": .dictionary([
-            "UIImageName": .string(""),
-            "UILaunchScreenIdentifier": .string("")
-          ])
-        ])
-      ])
-    ]
-    return self.merging(dict) { (_, new) in new }
+  func setUILaunchScreen() -> InfoPlistDictionary {
+    return self.merging(["UILaunchScreen": .dictionary([:])]) { (_, new) in new }
   }
   
   func setAppUseExemptEncryption(value: Bool) -> InfoPlistDictionary {

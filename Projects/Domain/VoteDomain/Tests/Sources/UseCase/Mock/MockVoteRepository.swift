@@ -5,8 +5,9 @@
 //  Created by DDD on 6/11/26.
 //
 
-@testable import VoteDomainInterface
 import Foundation
+
+@testable import VoteDomainInterface
 
 @MainActor
 final class MockVoteRepository: VoteRepositoryInterface {

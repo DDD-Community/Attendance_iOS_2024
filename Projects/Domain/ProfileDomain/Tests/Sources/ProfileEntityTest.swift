@@ -5,8 +5,9 @@
 //  Created by DDD on 2026-01-30
 //
 
-import ProfileDomainInterface
 import Testing
+
+import ProfileDomainInterface
 
 @Suite("Profile Entity Tests")
 struct ProfileEntityTest {

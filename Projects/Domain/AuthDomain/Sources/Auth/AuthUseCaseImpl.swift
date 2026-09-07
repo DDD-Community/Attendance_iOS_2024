@@ -5,10 +5,11 @@
 //  Created by DDD on 7/23/25.
 //
 
+import Foundation
+
 import AuthDomainInterface
 
 import ComposableArchitecture
-import Foundation
 
 public struct AuthUseCaseImpl: AuthUseCaseInterface {
   @Dependency(\.authRepository) var authRepository

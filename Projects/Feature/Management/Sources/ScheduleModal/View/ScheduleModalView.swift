@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+
 import DDDAccessibility
 import DDDSharedUI
 import ScheduleDomainInterface
+
+import ComposableArchitecture
 
 @ViewAction(for: ScheduleModalFeature.self)
 public struct ScheduleModalView: View {
@@ -55,13 +57,14 @@ public struct ScheduleModalView: View {
       .onAppear {
         store.send(.async(.fetchSchedule))
       }
+      // 컨테이너로 표시하지 않으면 root ID 가 하위 Button 들의 ID 를 덮어쓴다.
+      .accessibilityElement(children: .contain)
       .dddAccessibilityID(ManagementAccessibilityID.ScheduleModal.root)
     }
   }
 }
 
 extension ScheduleModalView {
-
   @ViewBuilder
   private func scheduleHeader() -> some View {
     VStack(alignment: .center) {
@@ -103,51 +106,48 @@ extension ScheduleModalView {
   }
 
   @ViewBuilder
-   private func scheduleCard(
-     item: Schedule,
-     isSelected: Bool
-   ) -> some View {
-     HStack(spacing: 12) {
-       VStack(spacing: 2) {
-         Text("\(item.month)월")
-           .dddFont(.body2NormalMedium)
-           .foregroundColor(.staticBlack)
+  private func scheduleCard(
+    item: Schedule,
+    isSelected: Bool
+  ) -> some View {
+    HStack(spacing: 12) {
+      VStack(spacing: 2) {
+        Text("\(item.month)월")
+          .dddFont(.body2NormalMedium)
+          .foregroundColor(.staticBlack)
 
-         Text("\(item.day)")
-           .dddFont(.title3NormalMedium)
-           .foregroundColor(.staticBlack)
-       }
-       .frame(width: 54, height: 54)
-       .background(.blue20)
-       .cornerRadius(10)
+        Text("\(item.day)")
+          .dddFont(.title3NormalMedium)
+          .foregroundColor(.staticBlack)
+      }
+      .frame(width: 54, height: 54)
+      .background(.blue20)
+      .cornerRadius(10)
 
-       VStack(alignment: .leading, spacing: 4) {
-         Text(item.name)
-           .dddFont(.body1NormalBold)
-           .foregroundStyle(.borderInverse)
+      VStack(alignment: .leading, spacing: 4) {
+        Text(item.name)
+          .dddFont(.body1NormalBold)
+          .foregroundStyle(.borderInverse)
 
-         Text(item.description)
-           .dddFont(.body3NormalRegular)
-           .foregroundStyle(.textSecondary100)
-       }
+        Text(item.description)
+          .dddFont(.body3NormalRegular)
+          .foregroundStyle(.textSecondary100)
+      }
 
-       Spacer()
+      Spacer()
+    }
+    .padding()
+    .background(.backGroundSecondary)
+    .cornerRadius(12)
+    .background(
+      RoundedRectangle(cornerRadius: 12)
+        .stroke(isSelected ? .statusFocus : Color.clear, lineWidth: 3)
+    )
+    .padding(.horizontal, 24)
+    .padding(.vertical, 2)
+  }
 
-     }
-     .padding()
-     .background(.backGroundSecondary)
-     .cornerRadius(12)
-     .background(
-       RoundedRectangle(cornerRadius: 12)
-         .stroke(isSelected ? .statusFocus : Color.clear, lineWidth: 3)
-     )
-     .padding(.horizontal, 24)
-     .padding(.vertical, 2)
-   }
-
-
-
-@ViewBuilder
+  @ViewBuilder
   private func confirmButton() -> some View {
     CustomButton(
       action: {

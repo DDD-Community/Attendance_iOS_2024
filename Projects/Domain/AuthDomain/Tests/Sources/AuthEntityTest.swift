@@ -6,6 +6,7 @@
 //
 
 import Testing
+
 import AuthDomainInterface
 
 @Suite("Auth Entity Tests")

@@ -9,9 +9,9 @@ import Foundation
 import UIKit
 
 import AuthDomainInterface
+import DDDCoreLogger
 
 import GoogleSignIn
-import DDDCoreLogger
 
 public final class GoogleOAuthRepositoryImpl: GoogleOAuthInterface, @unchecked Sendable {
     private let configuration: GoogleOAuthConfiguration

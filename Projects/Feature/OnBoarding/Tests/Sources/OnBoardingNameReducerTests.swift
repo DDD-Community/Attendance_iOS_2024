@@ -5,10 +5,11 @@
 //  Created by DDD on 2026-09-02
 //
 
-import ComposableArchitecture
 import Testing
 
 @testable import OnBoarding
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("OnBoardingNameFeature")

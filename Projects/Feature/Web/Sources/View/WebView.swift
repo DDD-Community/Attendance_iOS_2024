@@ -5,11 +5,13 @@
 //  Created by DDD on 1/4/26.
 //
 
-import ComposableArchitecture
+import SwiftUI
+
 import DDDAccessibility
 import DDDCoreUI
 import DDDDesignKit
-import SwiftUI
+
+import ComposableArchitecture
 
 public struct WebView: View {
   @Bindable var store: StoreOf<WebFeature>
@@ -40,7 +42,6 @@ public struct WebView: View {
         WebRepresentableView(urlToLoad: store.url)
           .edgesIgnoringSafeArea(.bottom)
       }
-      .dddNavigationBarBackButtonHidden()
     }
     .accessibilityElement(children: .contain)
     .dddAccessibilityID(WebAccessibilityID.root)

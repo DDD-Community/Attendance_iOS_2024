@@ -5,8 +5,9 @@
 //  Created by DDD on 1/5/25.
 //
 
-import DDDDesignKit
 import SwiftUI
+
+import DDDDesignKit
 
 public struct AttendanceCard: View {
   private let attendanceCount: Int

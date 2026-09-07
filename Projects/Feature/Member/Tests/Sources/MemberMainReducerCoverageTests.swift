@@ -5,11 +5,12 @@
 //  MemberMainFeature 리듀서의 view / inner / async / delegate / vote 스코프 분기를 모두 태운다.
 //
 
-import ComposableArchitecture
-import DDDDesignKit
 import Testing
 
+import DDDDesignKit
 @testable import Member
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("MemberMainFeature 커버리지")

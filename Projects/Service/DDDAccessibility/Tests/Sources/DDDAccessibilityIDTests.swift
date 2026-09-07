@@ -3,9 +3,10 @@
 //  DDDAccessibilityTests
 //
 
-import DDDAccessibility
 import SwiftUI
 import Testing
+
+import DDDAccessibility
 
 @Suite("DDDAccessibility ID")
 struct DDDAccessibilityIDTests {

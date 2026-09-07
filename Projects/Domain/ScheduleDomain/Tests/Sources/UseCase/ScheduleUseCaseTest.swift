@@ -5,11 +5,13 @@
 //  Created by DDD on 2026-04-16
 //
 
-import ComposableArchitecture
-@testable import ScheduleDomainInterface
 import Foundation
 import Testing
+
 @testable import ScheduleDomain
+@testable import ScheduleDomainInterface
+
+import ComposableArchitecture
 
 @Suite("Schedule UseCase Tests - Complete TDD Implementation")
 @MainActor

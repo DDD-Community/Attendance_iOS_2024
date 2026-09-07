@@ -5,9 +5,10 @@
 //  Created by DDD on 9/1/26.
 //
 
+import Foundation
+
 import DDDNetworkInterface
 import DDDStorageInterface
-import Foundation
 
 final class InMemoryCredentialStore: CredentialStore, @unchecked Sendable {
   private(set) var credential: DDDCredential?

@@ -5,14 +5,14 @@
 //  Created by DDD on 12/27/25.
 //
 
-import DDDCoreLogger
 import Foundation
 
+import DDDCoreLogger
 import DDDSharedUI
+import ManagementInterface
 import ScheduleDomainInterface
 
 import ComposableArchitecture
-import ManagementInterface
 
 @Reducer
 public struct ScheduleModalFeature {

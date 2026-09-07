@@ -5,9 +5,11 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
-import DDDNetworkInterface
 import Foundation
+
+import DDDNetworkInterface
+
+import Alamofire
 
 /// `AuthenticationInterceptor` 의 credential 을 교체하는 `CredentialUpdating` 구현.
 /// 인터셉터 내부가 스레드 안전(@Protected)하므로 그대로 위임한다.

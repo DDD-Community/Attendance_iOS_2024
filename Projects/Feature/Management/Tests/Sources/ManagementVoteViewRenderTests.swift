@@ -8,13 +8,14 @@
 //  상태별로 다른 @ViewBuilder 분기가 열리므로 State 변형마다 한 번씩 렌더링한다.
 //
 
-import ComposableArchitecture
-import DDDDesignKit
 import SwiftUI
 import Testing
+
+import DDDDesignKit
+@testable import Management
 import VoteDomainInterface
 
-@testable import Management
+import ComposableArchitecture
 
 @MainActor
 @Suite("ManagementVoteViewRender")

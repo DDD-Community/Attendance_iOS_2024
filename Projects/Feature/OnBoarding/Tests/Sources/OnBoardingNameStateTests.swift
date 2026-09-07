@@ -6,10 +6,11 @@
 //  (5자 이하/6자 이상 이동 시나리오는 OnBoardingNameReducerTests 가 담당한다)
 //
 
-import ComposableArchitecture
 import Testing
 
 @testable import OnBoarding
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("OnBoardingNameState")

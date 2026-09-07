@@ -5,8 +5,9 @@
 //  Created by DDD on 9/3/26.
 //
 
-import Dependencies
 import SwiftUI
+
+import Dependencies
 
 public protocol QRCodeUseCaseInterface: Sendable {
   func createQRCode(userID: Int) async throws(QRCodeError) -> String

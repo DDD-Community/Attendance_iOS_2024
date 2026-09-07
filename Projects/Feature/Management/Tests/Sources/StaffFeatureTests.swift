@@ -5,11 +5,12 @@
 //  Created by DDD on 2026-09-02.
 //
 
-import ComposableArchitecture
-import DDDDesignKit
 import Testing
 
+import DDDDesignKit
 @testable import Management
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("StaffFeature")

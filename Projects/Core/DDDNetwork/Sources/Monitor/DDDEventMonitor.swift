@@ -5,9 +5,11 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
-import DDDCoreLogger
 import Foundation
+
+import DDDCoreLogger
+
+import Alamofire
 
 /// 요청 / 응답 / 에러를 한 덩어리로 묶어 로깅하는 `EventMonitor`.
 /// 로깅은 `DDDLogger(.network)` 에 위임 — 정상은 debug, 에러는 error 레벨.

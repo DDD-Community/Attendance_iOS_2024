@@ -5,12 +5,13 @@
 //  Created by DDD on 9/1/26.
 //
 
-import Alamofire
 import Foundation
 import Testing
 
 @testable import DDDNetwork
 import DDDNetworkInterface
+
+import Alamofire
 
 @Suite("NetworkClient — 요청·응답 통합", .serialized)
 struct NetworkClientTests {

@@ -10,10 +10,12 @@
 //  Feature 테스트는 DomainInterface 계약만 스텁으로 교체한다.
 //
 
-import ComposableArchitecture
+import Foundation
+
 import AuthDomainInterface
 import ProfileDomainInterface
-import Foundation
+
+import ComposableArchitecture
 
 // MARK: - 공유 픽스처
 

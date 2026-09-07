@@ -5,10 +5,12 @@
 //  Created by DDD on 9/1/26.
 //
 
-import Dependencies
+import Testing
+
 import DDDAuthInterface
 @testable import ServiceAssembly
-import Testing
+
+import Dependencies
 
 struct NetworkContainerTests {
   @Test

@@ -5,11 +5,13 @@
 //  Created by DDD on 9/1/26.
 //
 
-import DependencyPlugin
-import DependencyPackagePlugin
 import Foundation
-import ProjectDescription
+
+import DependencyPackagePlugin
+import DependencyPlugin
 import ProjectTemplatePlugin
+
+import ProjectDescription
 
 let project = Project.makeModule(
   name: "DomainAssembly",

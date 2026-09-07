@@ -5,10 +5,11 @@
 //  Created by DDD on 9/1/26.
 //
 
-import DDDNetworkInterface
 import Foundation
 import Testing
+
 @testable import DDDAuth
+import DDDNetworkInterface
 
 struct TokenRefresherTests {
   @Test

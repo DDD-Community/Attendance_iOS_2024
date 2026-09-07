@@ -5,8 +5,9 @@
 //  Created by DDD on 12/29/25.
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 public struct AppleOAuthPayload {
   public let idToken: String

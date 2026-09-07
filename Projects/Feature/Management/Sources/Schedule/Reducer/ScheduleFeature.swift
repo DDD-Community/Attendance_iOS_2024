@@ -5,14 +5,14 @@
 //  Created by DDD on 5/9/25.
 //
 
-import DDDCoreLogger
 import Foundation
 
+import AuthDomainInterface
+import DDDCoreLogger
 import DDDSharedUI
+import ScheduleDomainInterface
 
 import ComposableArchitecture
-import ScheduleDomainInterface
-import AuthDomainInterface
 
 @Reducer
 public struct ScheduleFeature {

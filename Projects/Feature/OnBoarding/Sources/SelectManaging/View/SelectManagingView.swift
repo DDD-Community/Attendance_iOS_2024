@@ -5,12 +5,14 @@
 //  Created by DDD on 11/3/24.
 //
 
-import ComposableArchitecture
+import SwiftUI
+
 import DDDAccessibility
 import DDDCoreUI
 import DDDDesignKit
 import DDDSharedUI
-import SwiftUI
+
+import ComposableArchitecture
 
 @ViewAction(for: SelectManagingFeature.self)
 public struct SelectManagingView: View {
@@ -50,7 +52,7 @@ public struct SelectManagingView: View {
           signUpSelectManageButton()
         }
       }
-      .alert($store.scope(state: \.alert, action: \.scope.alert))
+      .alert($store.scope(\.alert, action: \.scope.alert))
       .onAppear {
         store.userSession.managing = []
         send(.onAppear)

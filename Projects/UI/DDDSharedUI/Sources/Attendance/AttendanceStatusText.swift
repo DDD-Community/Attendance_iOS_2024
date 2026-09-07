@@ -5,8 +5,9 @@
 //  Created by DDD on 7/13/24.
 //
 
-import DDDDesignKit
 import SwiftUI
+
+import DDDDesignKit
 
 public struct AttendanceStatusText: View {
   private let name: String

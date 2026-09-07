@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
-import DDDDesignKit
-import ComposableArchitecture
+
 import AttendanceDomainInterface
+import DDDDesignKit
+
+import ComposableArchitecture
 
 public extension View {
-  /// TCA Store scope 기반 모달 (권장) - 예: .attendanceModal($store.scope(state: \.attendanceModal, action: \.scope.attendanceModal))
+  /// TCA Store scope 기반 모달 (권장) - 예: .attendanceModal($store.scope(\.attendanceModal, action: \.scope.attendanceModal))
   func attendanceModal(
     _ store: Binding<Store<AttendanceModalState<AttendanceModalAction>, AttendanceModalAction>?>
   ) -> some View {

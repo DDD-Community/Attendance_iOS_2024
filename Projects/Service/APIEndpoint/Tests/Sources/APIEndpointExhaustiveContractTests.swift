@@ -7,9 +7,9 @@
 
 import Foundation
 import Testing
-import VoteDomainInterface
 
 @testable import APIEndpoint
+import VoteDomainInterface
 
 @Suite("APIEndpoint exhaustive contracts")
 struct APIEndpointExhaustiveContractTests {

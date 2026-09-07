@@ -5,27 +5,28 @@
 //  Created by DDD on 9/4/26.
 //
 
-import DDDNetworkInterface
-import AppUpdateDomainInterface
-import AttendanceDomainInterface
-import AuthDomainInterface
-import MyPageDomainInterface
-import OnBoardingDomainInterface
-import ProfileDomainInterface
-import QRCodeDomainInterface
-import ScheduleDomainInterface
-import VoteDomainInterface
 import Foundation
 import Testing
+
 @testable import AppUpdateDomain
+import AppUpdateDomainInterface
 @testable import AttendanceDomain
+import AttendanceDomainInterface
 @testable import AuthDomain
+import AuthDomainInterface
+import DDDNetworkInterface
 @testable import MyPageDomain
+import MyPageDomainInterface
 @testable import OnBoardingDomain
+import OnBoardingDomainInterface
 @testable import ProfileDomain
+import ProfileDomainInterface
 @testable import QRCodeDomain
+import QRCodeDomainInterface
 @testable import ScheduleDomain
+import ScheduleDomainInterface
 @testable import VoteDomain
+import VoteDomainInterface
 
 struct RepositoryNetworkImplementationsTests {
   @Test("온보딩 API 성공 응답 전체 경로")

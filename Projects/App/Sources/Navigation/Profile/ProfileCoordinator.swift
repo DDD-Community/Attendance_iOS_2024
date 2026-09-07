@@ -5,15 +5,15 @@
 //  Created by DDD on 1/4/26.
 //
 
-import Profile
 import Foundation
 
 import DDDSharedUI
+import OnBoarding
+import Profile
+import Web
 
 import ComposableArchitecture
 import TCAFlow
-import OnBoarding
-import Web
 
 @FlowCoordinator(screen: "ProfileScreen", navigation: true)
 public struct ProfileCoordinator: Sendable {

@@ -5,11 +5,13 @@
 //  Created by DDD on 9/1/26.
 //
 
-import API
-import Alamofire
-import DDDNetworkInterface
 import Foundation
+
+import API
+import DDDNetworkInterface
 import VoteDomainInterface
+
+import Alamofire
 
 public enum VoteRequest: DDDDataRequest, Sendable {
   case list

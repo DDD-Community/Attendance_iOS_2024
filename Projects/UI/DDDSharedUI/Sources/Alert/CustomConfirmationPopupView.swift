@@ -1,11 +1,13 @@
 //
 //  CustomConfirmationPopupView.swift
-//  DDDDesignKit
+//  DDDSharedUI
 //
 //  Created by DDD on 1/4/26.
 //
 
 import SwiftUI
+
+import DDDDesignKit
 
 struct CustomConfirmationPopup: View {
   private let title: String

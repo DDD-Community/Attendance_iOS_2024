@@ -6,12 +6,13 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
 import Foundation
 import Testing
 
 @testable import DDDNetwork
 import DDDNetworkInterface
+
+import Alamofire
 
 /// Moya 처럼 한 enum 에 여러 케이스를 두는 선언 방식. A 방식이 성립하는지 확인하는 대상이기도 하다.
 private enum SampleService: DDDDataRequest {

@@ -6,12 +6,13 @@
 //  실제로 평가시켜 화면 구성 경로를 커버한다.
 //
 
-import ComposableArchitecture
 import SwiftUI
 import Testing
 import UIKit
 
 @testable import Web
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("WebView body 렌더링")

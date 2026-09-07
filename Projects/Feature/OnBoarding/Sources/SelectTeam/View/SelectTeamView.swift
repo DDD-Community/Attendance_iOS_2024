@@ -5,12 +5,12 @@
 //  Created by DDD on 11/4/24.
 //
 
-import DDDAccessibility
-import DDDCoreUI
-import DDDSharedUI
 import SwiftUI
 
+import DDDAccessibility
+import DDDCoreUI
 import DDDDesignKit
+import DDDSharedUI
 
 import ComposableArchitecture
 
@@ -56,7 +56,7 @@ public struct SelectTeamView: View {
         store.userSession.selectTeam = .unknown
         send(.onAppear)
       }
-      .alert($store.scope(state: \.alert, action: \.scope.alert))
+      .alert($store.scope(\.alert, action: \.scope.alert))
     }
     .accessibilityElement(children: .contain)
     .dddAccessibilityID(OnBoardingAccessibilityID.SelectTeam.root)

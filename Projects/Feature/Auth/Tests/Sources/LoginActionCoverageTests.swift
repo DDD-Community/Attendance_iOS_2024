@@ -9,12 +9,13 @@
 //
 
 import AuthenticationServices
-import ComposableArchitecture
-import AuthDomainInterface
 import Foundation
 import Testing
 
 @testable import Auth
+import AuthDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("LoginFeature 액션 커버리지", .serialized)

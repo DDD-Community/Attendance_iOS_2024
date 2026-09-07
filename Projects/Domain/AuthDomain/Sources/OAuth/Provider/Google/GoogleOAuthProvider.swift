@@ -6,9 +6,11 @@
 //
 
 import Foundation
-import Dependencies
-import DDDCoreLogger
+
 import AuthDomainInterface
+import DDDCoreLogger
+
+import Dependencies
 import Sharing
 
 public final class GoogleOAuthProvider: GoogleOAuthProviderInterface, @unchecked Sendable {

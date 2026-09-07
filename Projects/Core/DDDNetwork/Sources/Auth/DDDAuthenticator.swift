@@ -5,9 +5,11 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
-import DDDNetworkInterface
 import Foundation
+
+import DDDNetworkInterface
+
+import Alamofire
 
 /// Alamofire `Authenticator` 구현. 토큰 주입 / refresh / 401 판정을 담당한다.
 /// refresh 동시요청 중복 방지(single-flight)는 `AuthenticationInterceptor` 가 처리한다.

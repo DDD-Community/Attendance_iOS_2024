@@ -5,11 +5,13 @@
 //  Created by DDD on 9/4/26.
 //
 
+import Foundation
+
 import DependencyPackagePlugin
 import DependencyPlugin
-import Foundation
-import ProjectDescription
 import ProjectTemplatePlugin
+
+import ProjectDescription
 
 let project = Project.makeModule(
   name: "Auth",
@@ -20,7 +22,7 @@ let project = Project.makeModule(
     .service(.accessibility),
     .ui(.sharedUI),
     .core(.logger),
-    .domain(.auth, .interface)
+    .domain(.auth, .interface),
   ],
   sources: ["Sources/**"],
   hasTests: true,

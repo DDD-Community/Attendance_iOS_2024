@@ -6,12 +6,13 @@
 //  상태 조합별로 렌더링한다. 크래시 없이 레이아웃이 끝나는 것이 통과 조건이다.
 //
 
-import ComposableArchitecture
-import OnBoardingDomainInterface
-import ProfileDomainInterface
 import Testing
 
 @testable import OnBoarding
+import OnBoardingDomainInterface
+import ProfileDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("OnBoardingViewRendering")

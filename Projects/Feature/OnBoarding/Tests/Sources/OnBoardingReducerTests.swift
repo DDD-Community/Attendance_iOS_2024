@@ -6,11 +6,12 @@
 //  Copyright © 2026 DDD , Ltd. All rights reserved.
 //
 
-import ComposableArchitecture
 import Testing
-import OnBoardingDomainInterface
 
 @testable import OnBoarding
+import OnBoardingDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("OnBoarding")

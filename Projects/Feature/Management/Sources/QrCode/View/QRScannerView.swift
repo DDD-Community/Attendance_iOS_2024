@@ -7,10 +7,10 @@
 
 import SwiftUI
 
+import AttendanceDomainInterface
 import DDDAccessibility
 import DDDDesignKit
 
-import AttendanceDomainInterface
 import ComposableArchitecture
 
 struct QRScannerView: View {
@@ -45,7 +45,7 @@ struct QRScannerView: View {
         }
       }
     }
-    .alert($store.scope(state: \.alert, action: \.scope.alert))
+    .alert($store.scope(\.alert, action: \.scope.alert))
     .onChange(of: store.validation?.isSuccess) { _, newValue in
       switch newValue {
       case true:

@@ -8,11 +8,12 @@
 //  네트워크 경로에는 0.6초 지연이 있어 TestClock 으로 시간을 직접 민다.
 //
 
-import ComposableArchitecture
-import ManagementInterface
 import Testing
 
 @testable import Management
+import ManagementInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("ManagementScheduleModal")

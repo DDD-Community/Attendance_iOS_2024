@@ -10,8 +10,9 @@
 //  Interface 모듈에는 계약과 테스트 기본값만 둔다.
 //
 
-import Dependencies
 import Foundation
+
+import Dependencies
 
 public enum NetworkClientDependency: TestDependencyKey {
   public static var testValue: any DDDNetworkClient {

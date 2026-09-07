@@ -5,9 +5,10 @@
 //  Created by DDD on 9/1/26.
 //
 
-import DDDNetworkInterface
 import Testing
+
 @testable import DDDAuth
+import DDDNetworkInterface
 
 struct DDDAuthTests {
   @Test

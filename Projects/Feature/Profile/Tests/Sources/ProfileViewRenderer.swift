@@ -9,12 +9,13 @@
 //  UIWindow 에 붙여 레이아웃까지 강제해 실제 렌더링 경로를 태운다.
 //
 
-import ComposableArchitecture
-import ProfileDomainInterface
 import SwiftUI
 import UIKit
 
 @testable import Profile
+import ProfileDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 enum ProfileViewRenderer {

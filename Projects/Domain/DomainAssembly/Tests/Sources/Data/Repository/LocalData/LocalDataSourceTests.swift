@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SQLiteData
 import Testing
 
 @testable import AppUpdateDomain
@@ -19,6 +18,8 @@ import Testing
 @testable import QRCodeDomain
 @testable import ScheduleDomain
 @testable import VoteDomain
+
+import SQLiteData
 
 @Suite("Repository local cache", .serialized)
 struct LocalDataSourceTests {

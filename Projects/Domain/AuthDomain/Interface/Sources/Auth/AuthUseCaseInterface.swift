@@ -6,6 +6,7 @@
 //
 
 import AuthenticationServices
+
 import Dependencies
 
 public protocol AuthUseCaseInterface: Sendable {

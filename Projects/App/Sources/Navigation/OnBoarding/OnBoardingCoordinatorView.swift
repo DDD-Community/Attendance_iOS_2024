@@ -5,9 +5,10 @@
 //  Created by DDD on 1/6/26.
 //
 
-import OnBoarding
-import DDDCoreUI
 import SwiftUI
+
+import DDDCoreUI
+import OnBoarding
 
 import ComposableArchitecture
 import TCAFlow
@@ -22,27 +23,27 @@ public struct OnBoardingCoordinatorView: View {
   }
 
   public var body: some View {
-    TCAFlowRouter(store.scope(state: \.routes, action: \.router)) { screen in
+    TCAFlowRouter(store.scope(\.routes, action: \.router)) { screen in
       switch screen.case {
         case .InviteCode(let InviteCodeStore):
           InviteCodeView(store: InviteCodeStore)
-          .dddNavigationBarBackButtonHidden()
+            .navigationBarBackButtonHidden()
 
         case .onBoardingName(let onBoardingNameStore):
            OnBoardingNameView(store: onBoardingNameStore)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
         case .selectPart(let selectPartStore):
           SelectPartView(store: selectPartStore)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
         case .selectManaging(let selectManagingStore):
           SelectManagingView(store: selectManagingStore)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
 
         case .selectTeam(let signUpSelectTeamStore):
           SelectTeamView(store: signUpSelectTeamStore)
-          .dddNavigationBarBackButtonHidden()
+          .navigationBarBackButtonHidden()
       }
     }
   }

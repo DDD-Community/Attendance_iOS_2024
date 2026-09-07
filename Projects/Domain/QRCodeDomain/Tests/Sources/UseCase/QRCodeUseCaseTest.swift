@@ -5,12 +5,14 @@
 //  Created by DDD on 9/4/26.
 //
 
-import Testing
 import SwiftUI
+import Testing
+
 import AttendanceDomainInterface
-import QRCodeDomainInterface
-import Dependencies
 @testable import QRCodeDomain
+import QRCodeDomainInterface
+
+import Dependencies
 
 @MainActor
 @Suite("QRCode UseCase Tests - Complete TDD Implementation")

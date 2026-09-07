@@ -5,13 +5,13 @@
 //  Created by DDD on 12/19/25.
 //
 
-import SwiftUI
 import AuthenticationServices
+import SwiftUI
+
+import AuthDomainInterface
 import DDDAccessibility
 
-
 import ComposableArchitecture
-import AuthDomainInterface
 
 struct SocialCircleButtonView: View {
   @State var store: StoreOf<LoginFeature>

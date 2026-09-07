@@ -6,11 +6,12 @@
 //
 
 import Foundation
-// 프로젝트 모듈
-import DDDNetworkInterface
-import Dependencies
-import MyPageDomainInterface
+
 import APIEndpoint
+import DDDNetworkInterface
+import MyPageDomainInterface
+
+import Dependencies
 
 final public class MyPageRepositoryImpl: MyPageInterface {
   @Dependency(\.networkClient) private var client

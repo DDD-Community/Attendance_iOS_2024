@@ -5,14 +5,15 @@
 //  SelectTeamFeature 리듀서의 view / async / inner / delegate / scope / binding 분기를 모두 태운다.
 //
 
-import ComposableArchitecture
 import Foundation
-import AuthDomainInterface
-import OnBoardingDomainInterface
-import ProfileDomainInterface
 import Testing
 
+import AuthDomainInterface
 @testable import OnBoarding
+import OnBoardingDomainInterface
+import ProfileDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("SelectTeamReducer")

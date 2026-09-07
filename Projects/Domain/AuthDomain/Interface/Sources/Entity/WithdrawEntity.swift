@@ -5,8 +5,9 @@
 //  Created by DDD on 1/2/26.
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 public struct WithdrawEntity: Equatable {
   public let isSuccess: Bool

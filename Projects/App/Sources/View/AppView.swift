@@ -7,10 +7,10 @@
 
 import SwiftUI
 
+import DDDDesignKit
 import FeatureAssembly
 
 import ComposableArchitecture
-import DDDDesignKit
 
 struct AppView: View {
   @Bindable var store: StoreOf<AppReducer>
@@ -23,13 +23,13 @@ struct AppView: View {
       SwitchStore(store) { state in
         switch state {
         case .splash:
-          if let store = store.scope(state: \.splash, action: \.scope.splash) {
+          if let store = store.scope(\.splash, action: \.scope.splash) {
             SplashView(store: store)
               .transition(.opacity.combined(with: .scale(scale: 0.98)))
           }
 
         case .auth:
-          if let store = store.scope(state: \.auth, action: \.scope.auth) {
+          if let store = store.scope(\.auth, action: \.scope.auth) {
             AuthCoordinatorView(store: store)
               .transition(.asymmetric(
                 insertion: .move(edge: .trailing),
@@ -38,7 +38,7 @@ struct AppView: View {
           }
 
         case .staff:
-          if let store = store.scope(state: \.staff, action: \.scope.staff) {
+          if let store = store.scope(\.staff, action: \.scope.staff) {
             StaffCoordinatorView(store: store)
               .transition(.asymmetric(
                 insertion: .move(edge: .trailing),
@@ -47,7 +47,7 @@ struct AppView: View {
           }
 
         case .member:
-          if let store = store.scope(state: \.member, action: \.scope.member) {
+          if let store = store.scope(\.member, action: \.scope.member) {
             MemberCoordinatorView(store: store)
               .transition(.asymmetric(
                 insertion: .move(edge: .trailing),

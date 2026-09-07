@@ -5,21 +5,23 @@
 //  Created by DDD on 9/4/26.
 //
 
-import DDDAuthInterface
-import DDDNetworkInterface
-import Dependencies
-import AuthDomainInterface
 import Foundation
 import Testing
+
 @testable import AppUpdateDomain
 @testable import AttendanceDomain
 @testable import AuthDomain
+import AuthDomainInterface
+import DDDAuthInterface
+import DDDNetworkInterface
 @testable import MyPageDomain
 @testable import OnBoardingDomain
 @testable import ProfileDomain
 @testable import QRCodeDomain
 @testable import ScheduleDomain
 @testable import VoteDomain
+
+import Dependencies
 
 struct AuthRepositoryImplTests {
   @Test("로그인 성공은 토큰을 AuthService에 반영")

@@ -5,8 +5,9 @@
 //  Created by DDD on 1/13/26.
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 public struct EditAttendanceInput {
   public let attendanceId: Int?

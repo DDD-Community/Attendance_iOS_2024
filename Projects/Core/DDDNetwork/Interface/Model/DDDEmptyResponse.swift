@@ -5,8 +5,9 @@
 //  Copyright © 2026 DDD. All rights reserved.
 //
 
-import Alamofire
 import Foundation
+
+import Alamofire
 
 /// 본문(payload)이 없는 응답. 성공만 받으면 되는 요청(POST/DELETE 등)의
 /// `Response` 로 쓰면, 서버가 바디를 안 내려도 에러 없이 성공 처리된다.

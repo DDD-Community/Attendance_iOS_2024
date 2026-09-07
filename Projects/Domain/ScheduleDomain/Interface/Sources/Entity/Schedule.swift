@@ -5,8 +5,9 @@
 //  Created by DDD on 1/10/26.
 //
 
-import DDDCoreUtility
 import Foundation
+
+import DDDCoreUtility
 
 public struct Schedule: Equatable, Identifiable {
   public let id: Int

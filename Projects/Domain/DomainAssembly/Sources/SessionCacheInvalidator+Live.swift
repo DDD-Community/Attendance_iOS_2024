@@ -1,7 +1,8 @@
 import DDDStorageInterface
-import Dependencies
 import ProfileDomain
 import ScheduleDomain
+
+import Dependencies
 
 extension SessionCacheInvalidatorDependency: DependencyKey {
   public static var liveValue: any SessionCacheInvalidating {

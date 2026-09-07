@@ -7,8 +7,9 @@
 //  Member 가 바깥에 알리는 위임 계약.
 //
 
-import ComposableArchitecture
 import Foundation
+
+import ComposableArchitecture
 
 @CasePathable
 public enum MemberMainDelegate: Equatable, Sendable {

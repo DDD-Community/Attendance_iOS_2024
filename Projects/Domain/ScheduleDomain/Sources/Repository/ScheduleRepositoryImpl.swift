@@ -7,9 +7,9 @@
 
 import Foundation
 
+import APIEndpoint
 import DDDNetworkInterface
 import ScheduleDomainInterface
-import APIEndpoint
 
 import Dependencies
 

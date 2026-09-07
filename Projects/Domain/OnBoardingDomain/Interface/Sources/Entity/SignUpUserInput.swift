@@ -5,9 +5,10 @@
 //  Created by DDD on 1/1/26.
 //
 
+import Foundation
+
 import AuthDomainInterface
 import ProfileDomainInterface
-import Foundation
 
 public struct SignUpUserInput  {
   public let name: String

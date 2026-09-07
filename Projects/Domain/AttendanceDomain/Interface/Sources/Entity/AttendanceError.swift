@@ -5,8 +5,9 @@
 //  Created by DDD on 1/11/26.
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 /// 출석 도메인의 실패만 담는다.
 /// 네트워크·디코딩·HTTP 상태 같은 전송 관심사는 DDDNetwork 의 `DDDNetworkError` 가 소유하고,

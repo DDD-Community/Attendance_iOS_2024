@@ -5,16 +5,16 @@
 //  Created by DDD on 11/2/24.
 //
 
-import Auth
-import AuthDomainInterface
 import Foundation
 
+import Auth
+import AuthDomainInterface
 import DDDCoreUtility
+import OnBoarding
+import Web
 
 import ComposableArchitecture
 import TCAFlow
-import OnBoarding
-import Web
 
 @FlowCoordinator(screen: "AuthScreen", navigation: true)
 public struct AuthCoordinator {

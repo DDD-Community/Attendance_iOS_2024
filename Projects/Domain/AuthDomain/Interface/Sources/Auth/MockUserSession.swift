@@ -5,8 +5,9 @@
 //  Created by DDD on 2026-04-16
 //
 
-import ProfileDomainInterface
 import Foundation
+
+import ProfileDomainInterface
 
 public final class MockUserSession: @unchecked Sendable {
   // MARK: - Configuration

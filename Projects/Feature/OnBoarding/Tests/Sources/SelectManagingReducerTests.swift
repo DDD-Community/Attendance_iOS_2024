@@ -5,14 +5,15 @@
 //  SelectManagingFeature 의 담당 업무 토글, 목록 조회, 가입/기수변경 분기를 검증한다.
 //
 
-import ComposableArchitecture
 import Foundation
-import AuthDomainInterface
-import OnBoardingDomainInterface
-import ProfileDomainInterface
 import Testing
 
+import AuthDomainInterface
 @testable import OnBoarding
+import OnBoardingDomainInterface
+import ProfileDomainInterface
+
+import ComposableArchitecture
 
 @MainActor
 @Suite("SelectManagingFeature")

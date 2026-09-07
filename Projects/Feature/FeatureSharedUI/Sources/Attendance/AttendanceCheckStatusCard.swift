@@ -5,10 +5,11 @@
 //  Created by DDD on 1/27/25.
 //
 
-import DDDDesignKit
-import DDDAccessibility
 import SwiftUI
+
 import AttendanceDomainInterface
+import DDDAccessibility
+import DDDDesignKit
 import ProfileDomainInterface
 
 public struct AttendanceCheckStatusCard: View {
@@ -39,7 +40,7 @@ public struct AttendanceCheckStatusCard: View {
       VStack(spacing: .zero) {
         Spacer()
           .frame(height: 16)
-        
+
         HStack {
           VStack(alignment: .leading, spacing: .zero) {
             HStack {
@@ -48,23 +49,23 @@ public struct AttendanceCheckStatusCard: View {
                 .foregroundStyle(isDisabled ? .borderDisabled : .staticWhite)
               Spacer()
             }
-            
+
             Text("\(selectTeam.attandanceCardDescription) / \(selectPart.desc) ")
               .dddFont(.body2NormalBold)
               .foregroundStyle(isDisabled ? .borderDisabled : .staticWhite)
               .minimumScaleFactor(0.7)
           }
-          
+
           Spacer()
-          
+
           HStack(spacing: .zero) {
             Text(attendanceStatus.desc)
               .dddFont(.body2NormalMedium)
               .foregroundStyle(isDisabled ? .borderDisabled : .staticWhite)
-            
+
             Spacer()
               .frame(width: 12)
-            
+
             Image(assetName: imageName)
               .resizable()
               .scaledToFit()
@@ -80,12 +81,15 @@ public struct AttendanceCheckStatusCard: View {
               .onTapGesture {
                 editAction()
               }
+              // 라벨 없는 Image 는 장식으로 취급돼 접근성 트리에서 빠진다.
+              // 요소로 승격시켜야 Maestro 가 id 로 찾을 수 있다.
+              .accessibilityElement()
+              .accessibilityAddTraits(.isButton)
+              .accessibilityLabel("출석 상태 수정")
               .applyAccessibilityIdentifier(editAccessibilityID)
-
           }
-          
         }
-        
+
         Spacer()
           .frame(height: 16)
       }
@@ -97,12 +101,12 @@ public struct AttendanceCheckStatusCard: View {
     .overlay(
       // ABSENT일 때 점선 테두리 적용
       isDisabled ?
-      RoundedRectangle(cornerRadius: 15)
+        RoundedRectangle(cornerRadius: 15)
         .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [5]))
         .foregroundColor(.borderDisabled) // 점선 색상 설정
-      : nil
+        : nil
     )
-    .padding(.vertical, isDisabled ? 2: 0)
+    .padding(.vertical, isDisabled ? 2 : 0)
     .accessibilityElement(children: .contain)
     .applyAccessibilityIdentifier(accessibilityID)
   }
@@ -119,9 +123,8 @@ public struct AttendanceCheckStatusCard: View {
       return "Late_icons"
     case .absent:
       return "Abesent_icons"
-      case .defaults:
-        return "Default_icons"
-
+    case .defaults:
+      return "Default_icons"
     }
   }
 }
