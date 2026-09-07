@@ -80,9 +80,9 @@ let packageSettings = PackageSettings(
     "DependenciesMacros": .staticFramework,
     "PerceptionCore": .staticFramework,
     "Perception": .staticFramework,
-    // Sharing과 SQLiteData는 여러 동적 DDD 모듈에서 사용하므로 단일 런타임으로 공유한다.
-    // 버전 마커는 정적으로 링크해 앱이 Sharing1/2.framework를 찾지 않게 한다.
-    "Sharing": .staticFramework,
+    // Sharing은 리소스 번들을 포함하므로 동적 framework로 유지한다.
+    // 버전 마커만 정적으로 링크해 앱이 Sharing1/2.framework를 찾지 않게 한다.
+    "Sharing": .framework,
     "Sharing1": .staticFramework,
     "Sharing2": .staticFramework,
     "SQLiteData": .staticFramework,
