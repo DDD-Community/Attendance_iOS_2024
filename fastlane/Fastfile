@@ -167,11 +167,13 @@ def build_ipa(scheme)
                 "COMPILER_INDEX_STORE_ENABLE=NO ENABLE_BITCODE=NO " +
                 "SWIFT_COMPILATION_MODE=incremental " +
                 "ENABLE_PARALLEL_SIGNING=YES DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING=YES " +
+                "STRIP_SWIFT_SYMBOLS=NO EMBEDDED_CONTENT_CONTAINS_SWIFT=YES " +
                 "-allowProvisioningUpdates",
         export_options: {
           signingStyle: "manual",
           uploadBitcode: false,
           teamID: TEAM_ID,
+          stripSymbols: false,
           provisioningProfiles: {
             "#{BUNDLE_ID}" => "match AppStore #{BUNDLE_ID}"
           }
