@@ -10,7 +10,6 @@
 
 import Testing
 
-import DDDDesignKit
 @testable import Management
 import VoteDomainInterface
 
