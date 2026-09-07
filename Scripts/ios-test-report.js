@@ -129,8 +129,14 @@ function findFilesByExtension(root, extension) {
   });
 }
 
-function readMergedCoverage(bundles) {
-  if (bundles.length < 2) return bundles.flatMap(readCoverage);
+// 샤드마다 xcresult 가 따로 나오고, 각 번들에는 그 샤드에서 실행된 타깃의 커버리지만 담긴다.
+// 샤드 하나가 실패해 아티팩트를 못 올리면 모듈 목록이 조용히 일부만 나오므로
+// 몇 개가 실제로 병합에 기여했는지 stats 로 돌려준다.
+function readMergedCoverage(bundles, stats = {}) {
+  if (bundles.length < 2) {
+    stats.contributed = bundles.length;
+    return bundles.flatMap(readCoverage);
+  }
 
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "pr-shard-coverage-"));
   try {
@@ -154,6 +160,8 @@ function readMergedCoverage(bundles) {
         // build-only xcresult처럼 coverage가 없는 결과 번들은 병합 대상에서 제외한다.
       }
     }
+
+    stats.contributed = coveragePairs.length;
 
     if (coveragePairs.length === 0) return [];
     if (coveragePairs.length === 1) {
@@ -428,10 +436,15 @@ function bar(covered, total) {
   return `\`${"█".repeat(filled)}${"░".repeat(BAR_WIDTH - filled)}\``;
 }
 
-function renderCoverage(coverage) {
+function renderCoverage(coverage, stats = {}) {
   if (coverage.targets.length === 0) {
     return ["### 📊 커버리지", "", "> 커버리지 데이터가 없습니다.", ""];
   }
+
+  // 기여한 샤드가 기대치보다 적으면 모듈 목록이 통째로 빠진다.
+  // 완전한 리포트와 겉모습이 같아서 구분이 안 되므로 명시한다.
+  const partial =
+    stats.expected > 0 && stats.contributed > 0 && stats.contributed < stats.expected;
 
   const lines = [
     `### 📊 커버리지 ${percent(coverage.coveredLines, coverage.executableLines)} ` +
@@ -439,6 +452,13 @@ function renderCoverage(coverage) {
     "",
     `${grade(coverage.coveredLines, coverage.executableLines)} ${bar(coverage.coveredLines, coverage.executableLines)}`,
     "",
+    ...(partial
+      ? [
+          `> ⚠️ 샤드 ${stats.expected}개 중 ${stats.contributed}개의 결과만 반영됐습니다. ` +
+            "실행되지 않은 샤드의 모듈은 아래 목록에서 빠져 있어 전체 수치가 아닙니다.",
+          "",
+        ]
+      : []),
     "<details><summary>모듈별 커버리지</summary>",
     "",
     "| 모듈 | 커버리지 | | 라인 |",
@@ -543,7 +563,7 @@ function renderReport({ summary, coverage, buildErrors, bundleInsights, outcome,
 
   if (summary.failures.length > 0) lines.push(...renderFailures(summary.failures));
   lines.push(...renderBundleInsights(bundleInsights));
-  lines.push(...renderCoverage(coverage));
+  lines.push(...renderCoverage(coverage, coverageStats));
 
   return lines.join("\n");
 }
@@ -551,7 +571,11 @@ function renderReport({ summary, coverage, buildErrors, bundleInsights, outcome,
 module.exports = async ({ github, context, core }) => {
   const bundles = findResultBundles(process.env.RESULT_BUNDLE_DIR);
   const summaries = bundles.map(readSummary).filter(Boolean);
-  const coverage = mergeCoverage([readMergedCoverage(bundles)]);
+  // 매트릭스가 만든 샤드 수. 여기에 못 미치면 모듈 목록이 일부만 나온 것이다.
+  const coverageStats = {
+    expected: (process.env.COVERAGE_SHARD_IDS || "").split(",").filter(Boolean).length,
+  };
+  const coverage = mergeCoverage([readMergedCoverage(bundles, coverageStats)]);
   const buildErrors = bundles.flatMap(readBuildErrors);
   const testRunUrl = readDashboardURL(process.env.TEST_RUN_REPORT_PATH, "/tests/test-runs/");
   const buildRunUrl = readDashboardURL(process.env.BUILD_RUN_REPORT_PATH, "/builds/build-runs/");

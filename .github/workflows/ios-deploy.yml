@@ -28,6 +28,10 @@ jobs:
       APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
       APP_STORE_CONNECT_API_KEY_IS_KEY_CONTENT_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_IS_KEY_CONTENT_BASE64 }}
       TUIST_CONFIG_TOKEN: ${{ secrets.TUIST_TOKEN }}
+      # 배포 아카이브만 외부 의존성을 정적으로 링크한다.
+      # 중첩 Frameworks/libswift_*.dylib 로 인한 업로드 거부를 막기 위한 것이고,
+      # 이 플래그가 없는 빌드는 동적으로 링크돼 커버리지 계측이 붙는다.
+      TUIST_RELEASE_BUILD: '1'
       LANG: en_US.UTF-8
       LC_ALL: en_US.UTF-8
       FASTLANE_SKIP_UPDATE_CHECK: '1'
