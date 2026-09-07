@@ -207,7 +207,7 @@ platform :ios do
       keychain_password: ENV["MATCH_KEYCHAIN_PASSWORD"]
     )
 
-    ipa_path = build_ipa(SCHEME)
+    ipa_path = build_ipa(STAGE_SCHEME)
 
     begin
       upload_to_testflight(
