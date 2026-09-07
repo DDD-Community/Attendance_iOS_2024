@@ -16,7 +16,10 @@ private extension Settings {
   static var baseSettings: Settings {
     return .settings(
       base: [
-        "OTHER_SWIFT_FLAGS": "$(inherited) -module-alias Sharing=DDDPointFreeSharing"
+        "OTHER_SWIFT_FLAGS": "$(inherited) -module-alias Sharing=DDDPointFreeSharing",
+        // Swift 표준 라이브러리는 최종 앱에만 임베드한다. 프레임워크 안에
+        // Frameworks/libswift_*.dylib가 생기면 App Store 업로드가 거부된다.
+        "ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES": "NO"
       ],
       configurations: [
         .debug(name: "Stage", settings: ["ONLY_ACTIVE_ARCH": "YES"]),
@@ -29,41 +32,42 @@ private extension Settings {
 let packageSettings = PackageSettings(
   productTypes: [
     // Release/TestFlight는 cache-profile none으로 생성해 SPM 소스를 직접 빌드한다.
-    // SPM 의존성은 정적으로 링크해 framework 내부에 중첩 Frameworks 폴더가
-    // 생성되지 않도록 한다(App Store Connect 90206 방지).
-    "Firebase": .staticFramework,
-    "FirebaseCore": .staticFramework,
-    "FirebaseCoreExtension": .staticFramework,
-    "FirebaseCoreInternal": .staticFramework,
-    "FirebaseInstallations": .staticFramework,
-    "FirebaseSessions": .staticFramework,
-    "FirebaseSessionsObjC": .staticFramework,
-    "FirebaseCrashlytics": .staticFramework,
-    "FirebaseCrashlyticsSwift": .staticFramework,
-    "FirebaseRemoteConfigInterop": .staticFramework,
-    "FirebaseAppCheck": .staticFramework,
-    "FirebaseAppCheckInterop": .staticFramework,
-    "GoogleDataTransport": .staticFramework,
-    "nanopb": .staticFramework,
+    // 리소스(PrivacyInfo.xcprivacy 등)를 포함한 제품은 동적으로 유지하고,
+    // 나머지는 정적으로 링크해 framework 내부 중첩 Frameworks를 최소화한다.
+    // (App Store Connect 90206 방지)
+    "Firebase": .framework,
+    "FirebaseCore": .framework,
+    "FirebaseCoreExtension": .framework,
+    "FirebaseCoreInternal": .framework,
+    "FirebaseInstallations": .framework,
+    "FirebaseSessions": .framework,
+    "FirebaseSessionsObjC": .framework,
+    "FirebaseCrashlytics": .framework,
+    "FirebaseCrashlyticsSwift": .framework,
+    "FirebaseRemoteConfigInterop": .framework,
+    "FirebaseAppCheck": .framework,
+    "FirebaseAppCheckInterop": .framework,
+    "GoogleDataTransport": .framework,
+    "nanopb": .framework,
     "AppCheckCore": .staticFramework,
-    "FBLPromises": .staticFramework,
-    "Promises": .staticFramework,
-    "GoogleUtilities-AppDelegateSwizzler": .staticFramework,
-    "GoogleUtilities-Environment": .staticFramework,
-    "GoogleUtilities-Logger": .staticFramework,
-    "GoogleUtilities-MethodSwizzler": .staticFramework,
-    "GoogleUtilities-Network": .staticFramework,
-    "GoogleUtilities-NSData": .staticFramework,
-    "GoogleUtilities-Reachability": .staticFramework,
-    "GoogleUtilities-UserDefaults": .staticFramework,
+    "FBLPromises": .framework,
+    "Promises": .framework,
+    "GoogleUtilities-AppDelegateSwizzler": .framework,
+    "GoogleUtilities-Environment": .framework,
+    "GoogleUtilities-Logger": .framework,
+    "GoogleUtilities-MethodSwizzler": .framework,
+    "GoogleUtilities-Network": .framework,
+    "GoogleUtilities-NSData": .framework,
+    "GoogleUtilities-Reachability": .framework,
+    "GoogleUtilities-UserDefaults": .framework,
 
     // GoogleSignIn 전이 의존성도 정적으로 링크한다.
-    "AppAuth": .staticFramework,
-    "AppAuthCore": .staticFramework,
-    "GTMAppAuth": .staticFramework,
-    "GTMSessionFetcherCore": .staticFramework,
+    "AppAuth": .framework,
+    "AppAuthCore": .framework,
+    "GTMAppAuth": .framework,
+    "GTMSessionFetcherCore": .framework,
 
-    "ComposableArchitecture": .staticFramework,
+    "ComposableArchitecture": .framework,
     "IdentifiedCollections": .staticFramework,
     "TCAFlow": .staticFramework,
     "IssueReporting": .staticFramework,
@@ -72,8 +76,8 @@ let packageSettings = PackageSettings(
     "Clocks": .staticFramework,
     "CombineSchedulers": .staticFramework,
     "ConcurrencyExtras": .staticFramework,
-    "SDWebImageSwiftUI": .staticFramework,
-    "SDWebImage": .staticFramework,
+    "SDWebImageSwiftUI": .framework,
+    "SDWebImage": .framework,
 
     // ── 경고에 떴지만 productTypes에 없어서 기본값(static)으로 중복되던 전이 의존성 ──
     "Dependencies": .staticFramework,
@@ -86,9 +90,9 @@ let packageSettings = PackageSettings(
     "Sharing1": .staticFramework,
     "Sharing2": .staticFramework,
     "SQLiteData": .staticFramework,
-    "GRDB": .staticFramework,
-    "GRDBSQLite": .staticFramework,
-    "GRDB_GRDB": .staticFramework,
+    "GRDB": .framework,
+    "GRDBSQLite": .framework,
+    "GRDB_GRDB": .framework,
     "StructuredQueries": .staticFramework,
     "StructuredQueriesCore": .staticFramework,
     "StructuredQueriesSQLite": .staticFramework,
@@ -96,12 +100,12 @@ let packageSettings = PackageSettings(
     "SwiftNavigation": .staticFramework,
     "SwiftUINavigation": .staticFramework,
     "CasePaths": .staticFramework,
-    "Alamofire": .staticFramework,
+    "Alamofire": .framework,
 
     // GoogleSignIn 관련
-    "GoogleSignIn": .staticFramework,
-    "GoogleSignInSwift": .staticFramework,
-    "GTMSessionFetcher": .staticFramework
+    "GoogleSignIn": .framework,
+    "GoogleSignInSwift": .framework,
+    "GTMSessionFetcher": .framework
   ],
   baseSettings: .baseSettings,
   targetSettings: [
