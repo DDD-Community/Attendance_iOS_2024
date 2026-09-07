@@ -5,9 +5,10 @@ name: Google 멤버 계정 로그인
     file: google.yaml
 
 # 멤버 계정은 suhwj81 운영진 계정 바로 아래에 표시된다.
+# 제목 대신 탭 대상인 계정 행이 뜨는 것을 기다린다.
 - extendedWaitUntil:
-    visible: ".*계정(을)? 선택(하세요)?[.]*|.*Choose an account.*"
-    timeout: 30000
+    visible: ".*suhwj81.*"
+    timeout: 60000
 - tapOn:
     text: ".*@.*"
     below:
