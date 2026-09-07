@@ -51,11 +51,21 @@ def unlock_match_keychain
   )
 end
 
-# 빌드 번호 = 날짜형 YYYYMMDDHH (5자리 정수형, 항상 증가, App Store 조회 불필요)
+# 빌드 번호 = 날짜형 YYYYMMDDHH + 시간 내 순차 (항상 증가, App Store에서 조회하여 이전 번호보다 큼 보장)
 def next_build_number
-  new_build_number = Time.now.strftime("%Y%m%d%H").to_i.to_s
-  puts "🔢 새로운 빌드 번호(날짜형): #{new_build_number}"
-  new_build_number
+  # App Store에서 현재 빌드 번호 조회
+  latest_build_number = latest_testflight_build_number(
+    app_identifier: BUNDLE_ID,
+    version: current_app_version
+  ).to_i
+
+  # 날짜 기반 새 빌드 번호
+  date_based_number = Time.now.strftime("%Y%m%d%H").to_i
+
+  # 같은 시간 내에 여러 번 빌드할 경우를 대비해 더 큰 번호 선택
+  new_build_number = [latest_build_number + 1, date_based_number].max
+  puts "🔢 이전 빌드: #{latest_build_number}, 새 빌드 번호: #{new_build_number}"
+  new_build_number.to_s
 end
 
 # 마케팅 버전(version)을 Extension+String.swift 의 appVersion 기본값에서 추출
