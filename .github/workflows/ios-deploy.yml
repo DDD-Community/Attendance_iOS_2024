@@ -79,6 +79,21 @@ jobs:
           tail -n 200 fastlane-qa.log
           exit "$DEPLOY_EXIT_CODE"
 
+      # develop 배포 성공 → Tuist Preview(nightly) 업로드
+      - name: Share Tuist Preview
+        if: github.ref_name == 'develop'
+        run: |
+          set +e
+          tuist share DDDAttendance \
+            --configuration Stage \
+            --platforms ios \
+            --track nightly \
+            --json > tuist-preview.log 2>&1
+          PREVIEW_EXIT_CODE=$?
+          echo "Tuist Preview exit code: $PREVIEW_EXIT_CODE"
+          tail -n 200 tuist-preview.log
+          exit "$PREVIEW_EXIT_CODE"
+
       # main 머지 → 태그 갱신
       # GITHUB_TOKEN 으로 푸시하면 워크플로우가 재트리거되지 않아 중복 배포가 없다.
       - name: Update release tag
@@ -125,6 +140,7 @@ jobs:
             fastlane/output/*.ipa
             fastlane/output/*.dSYM.zip
             fastlane-*.log
+            tuist-preview.log
             ~/Library/Logs/gym/*.log
           if-no-files-found: ignore
           retention-days: 7
