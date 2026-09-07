@@ -51,7 +51,7 @@ def unlock_match_keychain
   )
 end
 
-# 빌드 번호 = 날짜형 YYYYMMDDHH + 시간 내 순차 (항상 증가, App Store에서 조회하여 이전 번호보다 큼 보장)
+# 빌드 번호 = 날짜형 YYMMDDHHMM (항상 증가, App Store에서 조회하여 이전 번호보다 큼 보장)
 def next_build_number
   # App Store에서 현재 빌드 번호 조회
   latest_build_number = latest_testflight_build_number(
@@ -59,8 +59,8 @@ def next_build_number
     version: current_app_version
   ).to_i
 
-  # 날짜 기반 새 빌드 번호
-  date_based_number = Time.now.strftime("%Y%m%d%H").to_i
+  # 날짜 기반 새 빌드 번호 (YYMMDDHHMM)
+  date_based_number = Time.now.strftime("%y%m%d%H%M").to_i
 
   # 같은 시간 내에 여러 번 빌드할 경우를 대비해 더 큰 번호 선택
   new_build_number = [latest_build_number + 1, date_based_number].max
