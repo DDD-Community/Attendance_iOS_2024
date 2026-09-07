@@ -110,6 +110,7 @@ public struct SplashFeature: Sendable {
         
       case .scope(.customAlert(.presented(.confirmTapped))):
         // 앱스토어로 이동
+        state.customAlert = nil
         return .run { [appStoreURL = state.appStoreURL] _ in
           if let url = URL(string: appStoreURL) {
             await openURL(url)

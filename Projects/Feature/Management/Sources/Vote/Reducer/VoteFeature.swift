@@ -121,7 +121,12 @@ public struct VoteFeature {
           return handleCustomAlertAction(state: &state, action: customAlertAction)
 
         case let .alert(alertAction):
-          guard case let .presented(.retry(retryAction)) = alertAction else { return .none }
+          guard case let .presented(alertButtonAction) = alertAction else {
+            state.alert = nil
+            return .none
+          }
+          state.alert = nil
+          guard case let .retry(retryAction) = alertButtonAction else { return .none }
           return .send(.async(retryAction))
         }
       }

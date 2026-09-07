@@ -205,7 +205,15 @@ public struct AttendanceCheckFeature {
 
       case let .scope(scopeAction):
         switch scopeAction {
-        case .alert:
+        case let .alert(alertAction):
+          // AlertState 버튼/닫기 이벤트는 부모 상태도 즉시 정리한다.
+          // PresentationReducer의 자동 정리에 의존하지 않아 TestStore와
+          // 실제 UI에서 동일한 dismiss 계약을 보장한다.
+          if case .presented = alertAction {
+            state.alert = nil
+          } else if case .dismiss = alertAction {
+            state.alert = nil
+          }
           return .none
 
         case let .attendanceModal(action):

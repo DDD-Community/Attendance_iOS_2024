@@ -97,7 +97,12 @@ public struct QRCodeFeature {
 
         case .scope(let scopeAction):
           switch scopeAction {
-          case .alert:
+          case let .alert(alertAction):
+            if case .presented = alertAction {
+              state.alert = nil
+            } else if case .dismiss = alertAction {
+              state.alert = nil
+            }
             return .none
           }
       }
