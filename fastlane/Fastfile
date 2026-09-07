@@ -51,9 +51,9 @@ def unlock_match_keychain
   )
 end
 
-# 빌드 번호 = 날짜형 YYMMDDHHMM (항상 증가, App Store 조회 불필요)
+# 빌드 번호 = 날짜형 YYYYMMDDHH (5자리 정수형, 항상 증가, App Store 조회 불필요)
 def next_build_number
-  new_build_number = Time.now.strftime("%y%m%d%H%M")
+  new_build_number = Time.now.strftime("%Y%m%d%H").to_i.to_s
   puts "🔢 새로운 빌드 번호(날짜형): #{new_build_number}"
   new_build_number
 end
