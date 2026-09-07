@@ -30,7 +30,6 @@ struct AttendanceCheckView: View {
       selectPartType()
 
       selectPartAttendanceStatus()
-        .padding(.bottom, 20)
     }
     .accessibilityElement(children: .contain)
     .dddAccessibilityID(ManagementAccessibilityID.Attendance.root)
