@@ -76,23 +76,13 @@ jobs:
           RELEASE_NOTES="$(git log -1 --pretty=%s)" bundle exec fastlane ios QA > fastlane-qa.log 2>&1
           DEPLOY_EXIT_CODE=$?
           echo "Fastlane QA exit code: $DEPLOY_EXIT_CODE"
-          tail -n 200 fastlane-qa.log
+          Scripts/ci-log-digest.sh fastlane-qa.log "Fastlane QA"
+          # 컴파일 에러는 fastlane 로그가 아니라 gym 의 원본 xcodebuild 로그에 남는다.
+          if [[ "$DEPLOY_EXIT_CODE" -ne 0 ]]; then
+            GYM_LOG=$(ls -t ~/Library/Logs/gym/*.log 2>/dev/null | head -1)
+            [[ -n "$GYM_LOG" ]] && Scripts/ci-log-digest.sh "$GYM_LOG" "gym xcodebuild"
+          fi
           exit "$DEPLOY_EXIT_CODE"
-
-      # develop 배포 성공 → Tuist Preview(nightly) 업로드
-      - name: Share Tuist Preview
-        if: github.ref_name == 'develop'
-        run: |
-          set +e
-          tuist share DDDAttendance \
-            --configuration Stage \
-            --platforms ios \
-            --track nightly \
-            --json > tuist-preview.log 2>&1
-          PREVIEW_EXIT_CODE=$?
-          echo "Tuist Preview exit code: $PREVIEW_EXIT_CODE"
-          tail -n 200 tuist-preview.log
-          exit "$PREVIEW_EXIT_CODE"
 
       # main 머지 → 태그 갱신
       # GITHUB_TOKEN 으로 푸시하면 워크플로우가 재트리거되지 않아 중복 배포가 없다.
@@ -116,16 +106,18 @@ jobs:
           set +e
           bundle exec fastlane ios release > fastlane-release.log 2>&1
           RELEASE_EXIT_CODE=$?
-          tail -n 200 fastlane-release.log
+          Scripts/ci-log-digest.sh fastlane-release.log "Fastlane release"
           if [[ "$RELEASE_EXIT_CODE" -ne 0 ]]; then
             echo "Fastlane release exit code: $RELEASE_EXIT_CODE"
+            GYM_LOG=$(ls -t ~/Library/Logs/gym/*.log 2>/dev/null | head -1)
+            [[ -n "$GYM_LOG" ]] && Scripts/ci-log-digest.sh "$GYM_LOG" "gym xcodebuild"
             exit "$RELEASE_EXIT_CODE"
           fi
 
           bundle exec fastlane ios submit_for_review version:"$VERSION" > fastlane-submit.log 2>&1
           SUBMIT_EXIT_CODE=$?
           echo "Fastlane submit exit code: $SUBMIT_EXIT_CODE"
-          tail -n 200 fastlane-submit.log
+          Scripts/ci-log-digest.sh fastlane-submit.log "Fastlane submit"
           exit "$SUBMIT_EXIT_CODE"
 
       - name: Upload build artifacts
@@ -140,7 +132,6 @@ jobs:
             fastlane/output/*.ipa
             fastlane/output/*.dSYM.zip
             fastlane-*.log
-            tuist-preview.log
             ~/Library/Logs/gym/*.log
           if-no-files-found: ignore
           retention-days: 7

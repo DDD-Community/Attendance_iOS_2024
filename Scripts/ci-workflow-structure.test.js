@@ -99,3 +99,34 @@ test("단일 self-hosted runner에서는 테스트가 bundle 분석보다 먼저
   assert.match(bundleJob, /needs: test-shards/);
   assert.match(bundleJob, /if: always\(\) && needs\.test-shards\.result != 'cancelled'/);
 });
+
+test("배포 로그는 tail 대신 압축 요약 스크립트로 남긴다", () => {
+  const deploy = read(".github/workflows/ios-deploy.yml");
+
+  // tail -n 200 은 실패 원인이 로그 앞쪽에 있으면 그대로 놓친다.
+  assert.equal(occurrences(deploy, "tail -n 200"), 0);
+  assert.equal(occurrences(deploy, "Scripts/ci-log-digest.sh"), 5);
+
+  // 컴파일 에러가 실제로 남는 gym 원본 로그도 실패 시 함께 요약한다.
+  assert.equal(occurrences(deploy, "Library/Logs/gym/*.log"), 4);
+
+  const digest = read("Scripts/ci-log-digest.sh");
+  assert.match(digest, /GITHUB_STEP_SUMMARY/);
+  assert.match(digest, /::group::/);
+});
+
+test("Tuist Preview는 Stage 앱을 실제로 빌드하는 워크플로에서 공유한다", () => {
+  // 배포 잡은 Release 로 아카이브만 해서 Build/Products/Stage-* 가 없다.
+  const deploy = read(".github/workflows/ios-deploy.yml");
+  assert.equal(occurrences(deploy, "tuist share"), 0);
+
+  const develop = read(".github/workflows/ios-develop-sharded-tests.yml");
+  assert.equal(occurrences(develop, "tuist share DDDAttendance"), 1);
+  assert.match(develop, /tuist share DDDAttendance[\s\S]*--derived-data-path "\$CI_DERIVED_DATA"/);
+
+  // --json 은 실패 원인을 통째로 삼켜 0바이트 로그만 남긴다.
+  assert.equal(occurrences(develop, "--json"), 0);
+
+  // DerivedData 를 지우기 전에 공유해야 한다.
+  assert.ok(develop.indexOf("tuist share") < develop.indexOf("Clean build DerivedData"));
+});
