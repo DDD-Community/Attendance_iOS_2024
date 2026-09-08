@@ -115,18 +115,21 @@ test("배포 로그는 tail 대신 압축 요약 스크립트로 남긴다", () 
   assert.match(digest, /::group::/);
 });
 
-test("Tuist Preview는 Stage 앱을 실제로 빌드하는 워크플로에서 공유한다", () => {
-  // 배포 잡은 Release 로 아카이브만 해서 Build/Products/Stage-* 가 없다.
+test("Tuist Preview는 fastlane 이 만든 IPA 를 공유한다", () => {
+  // 테스트 워크플로에서 시뮬레이터 앱을 공유하면 CFBundleVersion 이 매번 같아
+  // Tuist 가 "같은 binary ID 와 build version 이 이미 있다"며 업로드를 거부한다.
+  // 배포 잡의 IPA 는 fastlane 이 빌드번호를 올려주므로 그 문제가 없다.
   const deploy = read(".github/workflows/ios-deploy.yml");
-  assert.equal(occurrences(deploy, "tuist share"), 0);
-
   const develop = read(".github/workflows/ios-develop-sharded-tests.yml");
-  assert.equal(occurrences(develop, "tuist share DDDAttendance"), 1);
-  assert.match(develop, /tuist share DDDAttendance[\s\S]*--derived-data-path "\$CI_DERIVED_DATA"/);
+
+  assert.equal(occurrences(develop, "tuist share"), 0);
+  assert.equal(occurrences(deploy, "tuist share"), 1);
+  assert.match(deploy, /tuist share fastlane\/output\/DDDAttendance\.ipa/);
 
   // --json 은 실패 원인을 통째로 삼켜 0바이트 로그만 남긴다.
-  assert.equal(occurrences(develop, "--json"), 0);
+  assert.equal(occurrences(deploy, "--json"), 0);
 
-  // DerivedData 를 지우기 전에 공유해야 한다.
-  assert.ok(develop.indexOf("tuist share") < develop.indexOf("Clean build DerivedData"));
+  // 업로드 실패가 초록불에 묻히면 배지 없는 빈 프리뷰가 쌓여도 알아채지 못한다.
+  const shareStep = deploy.slice(deploy.indexOf("- name: Share Tuist Preview"));
+  assert.doesNotMatch(shareStep.slice(0, 200), /continue-on-error/);
 });

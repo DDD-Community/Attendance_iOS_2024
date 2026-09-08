@@ -119,18 +119,6 @@ jobs:
             --configuration Stage \
             --derived-data-path "$CI_DERIVED_DATA"
 
-      # 여기 DerivedData 에는 Stage 시뮬레이터 앱이 이미 빌드돼 있다.
-      # 배포 잡은 Release 로 아카이브만 해서 Stage-* 산출물이 없어 share 가 실패했다.
-      # 프리뷰 업로드 실패가 테스트 결과를 실패로 만들지는 않게 한다.
-      - name: Share Tuist Preview
-        continue-on-error: true
-        run: |
-          mise exec -- tuist share DDDAttendance \
-            --platforms ios \
-            --configuration Stage \
-            --derived-data-path "$CI_DERIVED_DATA" \
-            --track nightly
-
       - name: Clean build DerivedData
         if: always()
         run: |
