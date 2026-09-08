@@ -11,6 +11,19 @@
 #if TUIST
 @preconcurrency import ProjectDescription
 
+import Foundation
+
+// TestFlight/App Store 아카이브는 framework 안에 중첩 Frameworks/libswift_*.dylib 가 생기면
+// 업로드가 거부된다. 그래서 배포 빌드에서는 이 의존성들을 정적으로 링크한다.
+//
+// 반대로 정적으로 링크하면 모듈이 소비자 바이너리에 흡수돼 독립 바이너리가 사라지고,
+// xccov 가 개별 타깃으로 잡지 못해 커버리지에서 통째로 빠진다.
+// (이 전환 뒤 PR 리포트의 framework 타깃이 85개에서 3개로 줄었다.)
+// 그래서 배포가 아닌 빌드 - Stage 커버리지 측정 - 에서는 동적으로 둔다.
+// PackageDescription 에도 Product 가 있어 모듈을 명시해야 모호성이 없다.
+private let deploymentLinked: ProjectDescription.Product =
+  ProcessInfo.processInfo.environment["TUIST_RELEASE_BUILD"] == "1" ? .staticFramework : .framework
+
 private extension Settings {
   /// 외부 패키지 타깃이 앱과 동일한 빌드 configuration을 사용하도록 맞춘다.
   static var baseSettings: Settings {
@@ -49,7 +62,7 @@ let packageSettings = PackageSettings(
     "FirebaseAppCheckInterop": .framework,
     "GoogleDataTransport": .framework,
     "nanopb": .framework,
-    "AppCheckCore": .staticFramework,
+    "AppCheckCore": deploymentLinked,
     "FBLPromises": .framework,
     "Promises": .framework,
     "GoogleUtilities-AppDelegateSwizzler": .framework,
@@ -68,14 +81,14 @@ let packageSettings = PackageSettings(
     "GTMSessionFetcherCore": .framework,
 
     "ComposableArchitecture": .framework,
-    "IdentifiedCollections": .staticFramework,
-    "TCAFlow": .staticFramework,
+    "IdentifiedCollections": deploymentLinked,
+    "TCAFlow": deploymentLinked,
     "IssueReporting": .framework,
     "IssueReportingPackageSupport": .framework,
     "XCTestDynamicOverlay": .framework,
-    "Clocks": .staticFramework,
-    "CombineSchedulers": .staticFramework,
-    "ConcurrencyExtras": .staticFramework,
+    "Clocks": deploymentLinked,
+    "CombineSchedulers": deploymentLinked,
+    "ConcurrencyExtras": deploymentLinked,
     "SDWebImageSwiftUI": .framework,
     "SDWebImage": .framework,
 
@@ -98,7 +111,7 @@ let packageSettings = PackageSettings(
     "StructuredQueriesSQLite": .framework,
     "StructuredQueriesSQLiteCore": .framework,
     "SwiftNavigation": .staticFramework,
-    "SwiftUINavigation": .staticFramework,
+    "SwiftUINavigation": deploymentLinked,
     "CasePaths": .staticFramework,
     "Alamofire": .framework,
 

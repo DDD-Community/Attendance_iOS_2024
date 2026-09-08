@@ -1,0 +1,27 @@
+# 프로필 화면 선행조건.
+# profile/* 와 onboarding/invite_code 는 프로필 화면이 열려 있어야 도는데,
+# Maestro Studio 는 모든 플로우 파일을 단독 실행할 수 있게 띄우므로
+# 각 플로우가 스스로 이 상태를 만들 수 있어야 한다.
+#
+# 이미 프로필 화면이면 아무것도 하지 않는다.
+appId: io.DDD.Attendance
+name: 프로필 화면 보장
+tags:
+  - e2e
+  - shared
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "profile.main.root"
+    commands:
+      # 운영진 홈까지 확보한 뒤 우측 상단 프로필 버튼으로 들어간다.
+      - runFlow:
+          file: ensure_management_home.yaml
+      - tapOn:
+          id: "management.staff.profilebutton"
+
+- extendedWaitUntil:
+    visible:
+      id: "profile.main.root"
+    timeout: 30000

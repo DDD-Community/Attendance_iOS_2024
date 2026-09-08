@@ -6,6 +6,9 @@ tags:
   - management
   - attendance
 ---
+# 단독 실행돼도 돌 수 있게 로그인 상태를 먼저 보장한다.
+- runFlow:
+    file: ../_shared/ensure_management_home.yaml
 
 - extendedWaitUntil:
     visible:

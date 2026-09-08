@@ -1,4 +1,6 @@
 # Fastlane 기본 설정
+require "yaml"
+
 default_platform(:ios)
 
 ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "600"
@@ -192,6 +194,69 @@ def build_ipa(scheme)
   ipa_path
 end
 
+# TestFlight "테스트할 사항" 문구.
+# 커밋 제목을 그대로 넘기면 "fix: 배포 오류 수정" 같은 내부 작업 로그가
+# 테스터에게 나가고 같은 문구가 계속 반복된다(9/7 하루에만 8회).
+# 그래서 안내 문구는 풀에서 돌려 쓰고, 커밋 제목은 접두사와 PR 번호를 벗겨 부제로만 붙인다.
+RELEASE_NOTES_FILE = File.expand_path("release_notes.yml", __dir__)
+
+# 커밋 제목에서 작업 성격을 판별한다. 위에서부터 먼저 걸리는 카테고리를 쓰므로
+# release_notes.yml 의 순서가 곧 우선순위다.
+def matching_category(categories, subject)
+  haystack = subject.to_s.downcase
+
+  matched = categories.find do |category|
+    Array(category["keywords"]).any? { |keyword| haystack.include?(keyword.to_s.downcase) }
+  end
+
+  matched || categories.find { |category| category["id"] == "default" } || categories.last
+end
+
+# 빌드번호는 YYMMDDHHMM 이라 항상 증가한다. 개수로 나눈 나머지를 쓰면
+# 별도 상태 없이 배포마다 같은 카테고리 안에서도 다른 문장이 배정된다.
+def rotating_test_note(build_number, subject)
+  categories = YAML.load_file(RELEASE_NOTES_FILE)["categories"]
+  return nil if categories.nil? || categories.empty?
+
+  notes = Array(matching_category(categories, subject)&.fetch("notes", nil))
+  return nil if notes.empty?
+
+  notes[build_number.to_i % notes.size]
+rescue StandardError => e
+  UI.important("release_notes.yml 을 읽지 못해 안내 문구를 생략한다: #{e.message}")
+  nil
+end
+
+# "fix: 배포 오류 수정 (#96)" -> "배포 오류 수정"
+def humanized_commit_subject
+  subject = ENV.fetch("RELEASE_NOTES", "").strip
+  return nil if subject.empty?
+
+  cleaned = subject
+    .sub(/\A(feat|fix|chore|refactor|docs|test|ci|build|perf|style)(\([^)]*\))?!?:\s*/i, "")
+    .sub(/\s*\(#\d+\)\z/, "")
+    .strip
+
+  cleaned.empty? ? nil : cleaned
+end
+
+def testflight_changelog(build_number)
+  lines = []
+  subject = humanized_commit_subject
+
+  # 카테고리 판별은 접두사를 벗기기 전 원문으로 해야 "fix:" 같은 힌트를 살릴 수 있다.
+  note = rotating_test_note(build_number, ENV.fetch("RELEASE_NOTES", ""))
+  lines << note if note
+
+  if subject
+    lines << "" unless lines.empty?
+    lines << "이번 변경: #{subject}"
+  end
+
+  lines << "빌드 #{build_number}"
+  lines.join("\n")
+end
+
 platform :ios do
   before_all do
     unlock_match_keychain
@@ -208,7 +273,8 @@ platform :ios do
       in_house: false
     )
 
-    apply_build_number(next_build_number)
+    build_number = next_build_number
+    apply_build_number(build_number)
 
     match(
       type: "appstore",
@@ -225,7 +291,7 @@ platform :ios do
     begin
       upload_to_testflight(
         ipa: ipa_path,
-        changelog: ENV.fetch("RELEASE_NOTES", "변경사항"),
+        changelog: testflight_changelog(build_number),
         groups: ["DDD", "ddd"],
         beta_app_description: "DDD 출석 앱입니다.",
         notify_external_testers: true,

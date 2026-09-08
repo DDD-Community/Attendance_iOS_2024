@@ -1,0 +1,31 @@
+# 하위 플로우의 로그인 선행조건.
+# Maestro Studio 는 워크스페이스 config 의 flows 패턴과 무관하게 모든 플로우 파일을
+# 목록에 띄우므로, 각 플로우가 단독 실행돼도 스스로 로그인 상태를 만들 수 있어야 한다.
+#
+# 이미 홈이면 로그인을 건너뛰므로 full_test 처럼 앞서 로그인한 경우엔 비용이 거의 없다.
+appId: io.DDD.Attendance
+name: 멤버 홈 보장
+tags:
+  - e2e
+  - shared
+---
+- launchApp:
+    clearState: false
+
+# 스플래시가 끝나 홈이든 로그인 화면이든 확정될 때까지 기다린다.
+# id 는 정규식으로 매칭되므로 둘 중 먼저 뜨는 쪽에서 풀린다.
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root|auth.login.root"
+    timeout: 60000
+
+- runFlow:
+    when:
+      notVisible:
+        id: "member.home.root"
+    file: ../member/login_to_home.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "member.home.root"
+    timeout: 60000

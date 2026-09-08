@@ -58,7 +58,10 @@ public struct StaffView: View {
         closeDropDown()
       }
     }
-    .sheet(item: $store.scope(\.$destination, action: \.destination).qrcode) { qrCodeStore in
+    .sheet(item: $store.scope(
+      state: \.destination?.qrcode,
+      action: \.destination.qrcode
+    )) { qrCodeStore in
       QRScannerView(store: qrCodeStore)
         .presentationDetents([.height(UIScreen.screenHeight * 0.85)])
         .presentationCornerRadius(20)

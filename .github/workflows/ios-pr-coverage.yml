@@ -486,6 +486,7 @@ jobs:
         uses: actions/github-script@v7
         env:
           RESULT_BUNDLE_DIR: Artifacts/tests
+          COVERAGE_SHARD_IDS: ${{ join(fromJSON(needs.build-test-shards.outputs.matrix).shard, ',') }}
           TEST_OUTCOME: ${{ needs.build-test-shards.result == 'success' && needs.test-shards.result == 'success' && 'success' || 'failure' }}
           TEST_RUN_REPORT_PATH: Artifacts/tests
           BUILD_RUN_REPORT_PATH: Artifacts/bundle/BuildRunReport.json

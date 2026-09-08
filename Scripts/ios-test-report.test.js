@@ -11,6 +11,7 @@ const {
   readBundleInsights,
   readDashboardURL,
   renderBundleInsights,
+  renderReport,
 } =
   require("./ios-test-report.js").__test__;
 
@@ -164,4 +165,38 @@ test("기준 bundle JSON이 있으면 install/download delta를 계산해 표시
     "| DDD 출석 | 120.6 MB<br><sub>Δ +16.0 MB (+15.30%)</sub> | 31.0 MB<br><sub>Δ +1.0 MB (+3.33%)</sub> |",
     "",
   ]);
+});
+
+test("리포트 본문을 끝까지 렌더한다", () => {
+  // renderReport 를 호출하지 않아 coverageStats 미전달로 인한 ReferenceError 를
+  // CI 에서야 발견했다. 렌더 경로 전체를 한 번 태워 같은 실수를 막는다.
+  const body = renderReport({
+    summary: {
+      passed: 860,
+      failed: 0,
+      skipped: 0,
+      expectedFailures: 0,
+      failures: [],
+      device: null,
+      startTime: 0,
+      finishTime: 1,
+    },
+    coverage: {
+      targets: [{ name: "Member", coveredLines: 636, executableLines: 3619 }],
+      coveredLines: 636,
+      executableLines: 3619,
+    },
+    coverageStats: { expected: 2, contributed: 1 },
+    buildErrors: [],
+    bundleInsights: null,
+    outcome: "success",
+    runUrl: "https://example.test/run",
+    sha: "0123456",
+    testRunUrl: null,
+    buildRunUrl: null,
+  });
+
+  assert.match(body, /모듈별 커버리지/);
+  // 기여 샤드가 기대치보다 적으면 부분 결과임을 알린다.
+  assert.match(body, /샤드 2개 중 1개/);
 });

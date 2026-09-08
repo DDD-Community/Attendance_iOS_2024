@@ -5,6 +5,9 @@ tags:
   - e2e
   - profile
 ---
+# 단독 실행돼도 돌 수 있게 선행 상태를 먼저 보장한다.
+- runFlow:
+    file: ../_shared/ensure_profile_main.yaml
 
 - extendedWaitUntil:
     visible:

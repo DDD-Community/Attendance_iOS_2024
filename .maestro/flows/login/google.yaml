@@ -10,3 +10,15 @@ name: Google 로그인 시작
 - tapOn:
     text: "Continue|계속"
     optional: true
+
+# 여기부터는 앱이 아니라 SafariViewService 위다.
+# accounts.google.com 콜드 로딩이 30초를 넘기는 일이 있다.
+# (실패 녹화 30.7초 지점에 "잠시만 기다려 주세요..." 스피너가 아직 떠 있었고
+#  32초에 타임아웃으로 웹뷰가 닫혔다.)
+# 그래서 로딩이 끝나는 것을 먼저 기다린 뒤 계정 화면을 확인한다.
+- extendedWaitUntil:
+    notVisible: ".*잠시만 기다려 주세요.*|.*Just a moment.*"
+    timeout: 90000
+# 계정 선택 화면의 제목("계정을 선택하세요.")은 Google 이 여러 요소로 쪼개 렌더할 수 있어
+# 통째로 매칭되지 않는다. 그래서 제목이 아니라 실제로 탭할 계정 행을 호출 측에서 기다린다.
+- takeScreenshot: .maestro/artifacts/login/google-auth-page
