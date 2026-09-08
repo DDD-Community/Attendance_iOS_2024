@@ -516,7 +516,7 @@ function renderBundleInsights(bundle) {
   ];
 }
 
-function renderReport({ summary, coverage, buildErrors, bundleInsights, outcome, runUrl, sha, testRunUrl, buildRunUrl }) {
+function renderReport({ summary, coverage, coverageStats, buildErrors, bundleInsights, outcome, runUrl, sha, testRunUrl, buildRunUrl }) {
   const lines = [MARKER, ""];
   const footer = [`\`${sha.slice(0, 7)}\``, `[워크플로 로그](${runUrl})`].join(" · ");
 
@@ -584,6 +584,7 @@ module.exports = async ({ github, context, core }) => {
   const body = renderReport({
     summary: summaries.length > 0 ? mergeSummaries(summaries) : null,
     coverage,
+    coverageStats,
     buildErrors,
     bundleInsights,
     outcome: process.env.TEST_OUTCOME || "unknown",
@@ -613,6 +614,7 @@ module.exports = async ({ github, context, core }) => {
 
 module.exports.__test__ = {
   findFilesByExtension,
+  renderReport,
   internalCoverageTargetNames,
   mergeCoverage,
   readMergedCoverage,
